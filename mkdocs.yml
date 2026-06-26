@@ -1,0 +1,77 @@
+site_name: Le 115, Maison de Provence
+site_description: Documentation produit, fonctionnelle et technique du projet Le 115
+site_author: Matthieu CORNUT-CHAUVINC
+site_url: https://mcornut.github.io/le115-docs/
+
+repo_name: mcornut/le115-docs
+repo_url: https://github.com/mcornut/le115-docs
+
+theme:
+  name: material
+  language: fr
+  logo: assets/landing-reference.png
+  favicon: assets/landing-reference.png
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - toc.follow
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: brown
+      accent: amber
+      toggle:
+        icon: material/weather-night
+        name: Passer en mode sombre
+    - scheme: slate
+      primary: brown
+      accent: amber
+      toggle:
+        icon: material/weather-sunny
+        name: Passer en mode clair
+
+nav:
+  - Accueil: README.md
+  - Fondation:
+      - Glossaire: 00-Glossary.md
+      - Décisions produit: 00-Product-Decisions.md
+      - Produit: 01-Product.md
+      - UX: 02-UX.md
+      - Règles métier: 03-Business-Rules.md
+  - Conception:
+      - Dashboard: 04-Dashboard.md
+      - Modèle de données: 05-Data-Model.md
+      - API: 06-API.md
+      - Architecture: 07-Architecture.md
+      - Roadmap: 08-Roadmap.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+plugins:
+  - search
+
+extra:
+  generator: false
