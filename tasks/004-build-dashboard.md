@@ -6,4 +6,5 @@
 - [ ] Reservations
 - [ ] Pricing editor
 - [ ] Content editor
+- [ ] External calendar sync import
 - [ ] Activity log

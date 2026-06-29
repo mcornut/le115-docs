@@ -15,7 +15,7 @@ Les noms sont indicatifs, mais doivent rester orientés métier.
 Retourne les informations publiques de la maison.
 
 Query :
-- `locale=fr|en|es`
+- `locale=fr|en`
 
 ### GET /api/public/availability
 
@@ -107,6 +107,30 @@ Bloque une période.
 ### DELETE /api/admin/calendar-blocks/{id}
 
 Supprime un blocage.
+
+### GET /api/admin/sync-sources
+
+Liste les sources de synchronisation externes configurées.
+
+Exemple : Abritel via URL iCal.
+
+### POST /api/admin/sync-sources
+
+Ajoute une source de synchronisation externe.
+
+Body :
+- `provider` : `abritel` ou `ical` ;
+- `name` ;
+- `icalUrl` ;
+- `enabled`.
+
+### POST /api/admin/sync-sources/{id}/run
+
+Déclenche manuellement une synchronisation.
+
+### GET /api/admin/sync-runs
+
+Liste les derniers imports, leur statut et les erreurs éventuelles.
 
 ### GET /api/admin/pricing-periods
 

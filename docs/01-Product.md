@@ -37,7 +37,7 @@ Le produit doit faire trois choses très bien :
 | Domaine | Fonctionnalité | Priorité |
 |---|---|---|
 | Public | Landing page premium | Must |
-| Public | Internationalisation FR / EN / ES | Must |
+| Public | Internationalisation FR / EN | Must |
 | Public | Galerie photos | Must |
 | Public | Disponibilités | Must |
 | Public | Estimation tarifaire détaillée | Must |
@@ -49,6 +49,7 @@ Le produit doit faire trois choses très bien :
 | Admin | Gestion des prix | Must |
 | Admin | Gestion des contenus | Must |
 | Admin | Gestion des photos | Must |
+| Admin | Import calendrier externe Abritel / iCal | Should |
 
 ---
 
@@ -103,3 +104,4 @@ flowchart TD
 | Vidéo hero | V2 / amélioration | À faire si assets disponibles |
 | Promotions ponctuelles | À arbitrer | Peut être utile hors saison |
 | Paiement acompte | Hors V1 | À envisager après validation du concept |
+| Synchronisation Abritel | V1 probable | Prévoir au minimum un import iCal pour bloquer les dates réservées ailleurs |

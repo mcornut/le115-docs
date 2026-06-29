@@ -16,6 +16,7 @@ Calendar view.
 - Pricing
 - Property content
 - Photos
+- External calendar sync
 - Activity
 
 ## Calendar states
@@ -24,6 +25,7 @@ Calendar view.
 - Pending request
 - Reserved
 - Blocked
+- External blocked date
 
 ## Definition of Done
 
@@ -32,3 +34,6 @@ Calendar view.
 - Reservation blocks dates.
 - Owner can block/unblock dates.
 - Owner can edit pricing.
+- Owner can configure an Abritel/iCal import source.
+- Imported external reservations block dates.
+- Dashboard displays last sync status and errors.

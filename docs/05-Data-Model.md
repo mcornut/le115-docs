@@ -18,8 +18,10 @@ erDiagram
     PROPERTY ||--o{ FAQ_ITEM : has
     PROPERTY ||--o{ PRICING_PERIOD : has
     PROPERTY ||--o{ CALENDAR_BLOCK : has
+    PROPERTY ||--o{ EXTERNAL_CALENDAR_SOURCE : imports
     PROPERTY ||--o{ STAY_REQUEST : receives
     PROPERTY ||--o{ RESERVATION : has
+    EXTERNAL_CALENDAR_SOURCE ||--o{ EXTERNAL_CALENDAR_EVENT : contains
 
     STAY_REQUEST ||--|| QUOTE_SNAPSHOT : contains
     RESERVATION ||--|| QUOTE_SNAPSHOT : freezes
@@ -98,7 +100,7 @@ Champs recommandés :
 - `field`
 - `value`
 
-Cette approche évite de créer `title_fr`, `title_en`, `title_es`.
+Cette approche évite de créer des colonnes comme `title_fr` et `title_en` sur chaque table métier.
 
 ### Photo
 
@@ -155,6 +157,33 @@ Ne bloque pas les dates.
 Séjour validé par le propriétaire.
 
 Bloque les dates.
+
+
+### ExternalCalendarSource
+
+Source de calendrier externe importée dans Le 115.
+
+Exemple V1 probable : URL iCal Abritel.
+
+Champs recommandés :
+- `provider` (`abritel`, `ical`) ;
+- `name` ;
+- `ical_url` chiffrée ou stockée de manière sécurisée ;
+- `enabled` ;
+- `last_sync_at` ;
+- `last_sync_status` ;
+- `last_error`.
+
+### ExternalCalendarEvent
+
+Événement importé depuis une source externe.
+
+Responsabilités :
+- bloquer les dates correspondantes ;
+- conserver l'identifiant externe si disponible ;
+- permettre la mise à jour ou la suppression lors des imports suivants.
+
+Un événement externe n'est pas une réservation Le 115 : c'est un blocage de disponibilité issu d'une autre plateforme.
 
 ### QuoteSnapshot
 

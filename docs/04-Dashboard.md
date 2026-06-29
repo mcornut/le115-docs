@@ -10,41 +10,32 @@ Le premier écran est une **vue calendrier**, car c'est l'information la plus ut
 
 ## Navigation admin
 
-```text
-Dashboard
-├── Calendrier
-├── Demandes
-├── Réservations
-├── Tarifs
-├── Maison
-├── Contenus
-├── Photos
-└── Activité
-```
+| Entrée | Rôle |
+|---|---|
+| Calendrier | Vue principale, disponibilités, réservations et blocages |
+| Demandes | Demandes de séjour à traiter |
+| Réservations | Séjours confirmés |
+| Tarifs | Périodes tarifaires et frais |
+| Maison | Informations principales du bien |
+| Contenus | Textes FR / EN |
+| Photos | Galerie et photo principale |
+| Synchronisations | Imports externes, notamment Abritel / iCal |
+| Activité | Journal des actions importantes |
 
 ---
 
-## Wireframe global
+## Écran d'accueil dashboard
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│ Le 115 Admin                              Matthieu ▾        │
-├───────────────┬─────────────────────────────────────────────┤
-│ Calendrier    │  Juin 2025                                  │
-│ Demandes      │                                             │
-│ Réservations  │  ┌────┬────┬────┬────┬────┬────┬────┐       │
-│ Tarifs        │  │ Lu │ Ma │ Me │ Je │ Ve │ Sa │ Di │       │
-│ Maison        │  ├────┼────┼────┼────┼────┼────┼────┤       │
-│ Photos        │  │    │    │    │    │    │ R  │ R  │       │
-│ Activité      │  │    │ B  │ B  │    │    │ R  │ R  │       │
-│               │  └────┴────┴────┴────┴────┴────┴────┘       │
-│               │                                             │
-│               │  Demandes en attente                        │
-│               │  ┌────────────┬────────────┬────────────┐   │
-│               │  │ Nom        │ Dates      │ Montant    │   │
-│               │  └────────────┴────────────┴────────────┘   │
-└───────────────┴─────────────────────────────────────────────┘
-```
+!!! info "Principe"
+    Le dashboard s'ouvre sur le calendrier, avec les demandes en attente visibles sans changer de page.
+
+| Zone | Contenu |
+|---|---|
+| En-tête | Logo admin, accès compte propriétaire |
+| Navigation latérale | Modules du dashboard |
+| Zone principale | Calendrier mensuel ou hebdomadaire |
+| Colonne / bloc secondaire | Demandes en attente, dernières actions, alertes de synchronisation |
+
 
 ---
 
@@ -100,19 +91,14 @@ Champs :
 
 L'admin peut créer des périodes tarifaires.
 
-```text
-┌───────────────────────────────────────────────┐
-│ Nouvelle période tarifaire                    │
-├───────────────────────────────────────────────┤
-│ Nom            [ Haute saison août ]          │
-│ Début          [ 01/08/2025 ]                 │
-│ Fin incluse    [ 14/08/2025 ]                 │
-│ Prix / nuit    [ 600 € ]                      │
-│ Priorité       [ 100 ]                        │
-│                                               │
-│ [ Enregistrer ]                               │
-└───────────────────────────────────────────────┘
-```
+| Champ | Exemple | Règle |
+|---|---|---|
+| Nom | Haute saison août | Libellé interne |
+| Début | 01/08/2025 | Date incluse |
+| Fin | 14/08/2025 | Date incluse |
+| Prix / nuit | 600 € | Montant en euros, stocké en centimes |
+| Priorité | 100 | Optionnel, utile pour les exceptions |
+
 
 Règle V1 :
 - deux périodes ne doivent pas se chevaucher à priorité identique ;
@@ -133,7 +119,36 @@ L'admin peut modifier :
 - note affichée ;
 - nombre d'avis.
 
-Chaque contenu éditorial existe en FR / EN / ES.
+Chaque contenu éditorial existe en FR / EN.
+
+
+---
+
+## Synchronisations externes
+
+Le calendrier devra probablement se synchroniser avec des réservations provenant d'Abritel.
+
+### Décision V1
+
+La V1 doit prévoir une intégration **iCal en import** afin de récupérer les périodes réservées sur Abritel et de les rendre indisponibles sur le site Le 115.
+
+| Source | Sens | Effet sur le calendrier |
+|---|---|---|
+| Abritel / iCal | Import | Crée ou met à jour des blocages externes |
+| Dashboard Le 115 | Local | Gère demandes, réservations et blocages manuels |
+
+### Règles UX admin
+
+| Cas | Comportement |
+|---|---|
+| Synchronisation réussie | Afficher date et heure du dernier import |
+| Nouvelle réservation Abritel détectée | Dates marquées comme indisponibles |
+| Conflit avec une demande en attente | Afficher une alerte admin, sans bloquer l'historique de la demande |
+| Erreur de synchronisation | Alerte visible dans le dashboard |
+
+### Hors V1
+
+L'export iCal depuis Le 115 vers d'autres plateformes est utile, mais peut rester en V1.1 si l'import Abritel est prioritaire.
 
 ---
 

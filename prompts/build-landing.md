@@ -14,7 +14,7 @@ Build the one-page public website for `Le 115, Maison de Provence`.
 Constraints:
 - Stay close to the provided mockup.
 - Main CTA is `Estimer mon séjour`.
-- Support FR/EN/ES.
+- Support FR/EN.
 - Components must be cleanly separated.
 
 Definition of Done:

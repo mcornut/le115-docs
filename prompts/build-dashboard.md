@@ -16,3 +16,5 @@ Definition of Done:
 - Owner can approve/refuse stay requests.
 - Owner can edit pricing.
 - Owner can manage content and photos.
+- Owner can configure and run an Abritel/iCal calendar import.
+- Calendar displays imported external blocks distinctly from local reservations.

@@ -74,3 +74,23 @@ Le dossier `specs/` décrit les comportements attendus de manière plus directe,
 Une vidéo courte en hero est une amélioration souhaitée.
 
 Elle n'est pas bloquante pour la V1 si les assets vidéo ne sont pas disponibles.
+
+
+## DEC-010 — Langues V1 : français et anglais uniquement
+
+La V1 ne propose que deux langues :
+
+- français (`fr`) ;
+- anglais (`en`).
+
+L'espagnol n'est pas prévu en V1 afin de réduire le volume de contenu à produire et à maintenir.
+
+## DEC-011 — Synchronisation Abritel à prévoir
+
+Le calendrier devra probablement se synchroniser avec les réservations effectuées via Abritel.
+
+Conséquence :
+- prévoir une source de disponibilité externe ;
+- privilégier un import iCal en V1 ;
+- distinguer les réservations locales des blocages importés ;
+- afficher dans le dashboard l'état de la dernière synchronisation.

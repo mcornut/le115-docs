@@ -43,7 +43,7 @@ Stay visually close to the provided communication mockup.
 ## Definition of Done
 
 - Responsive desktop/mobile.
-- FR/EN/ES content supported.
+- FR/EN content supported.
 - CTA scrolls correctly.
 - Gallery opens fullscreen.
 - Stay planner section is reachable from header CTA.

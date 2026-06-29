@@ -1,0 +1,684 @@
+diff -ruN '--exclude=.git' '--exclude=.venv' '--exclude=__MACOSX' '--exclude=.DS_Store' orig/le115-docs/docs/00-Product-Decisions.md upd/le115-docs/docs/00-Product-Decisions.md
+--- orig/le115-docs/docs/00-Product-Decisions.md	2026-06-26 11:25:32.000000000 +0000
++++ upd/le115-docs/docs/00-Product-Decisions.md	2026-06-29 14:30:20.000000000 +0000
+@@ -74,3 +74,23 @@
+ Une vidéo courte en hero est une amélioration souhaitée.
+ 
+ Elle n'est pas bloquante pour la V1 si les assets vidéo ne sont pas disponibles.
++
++
++## DEC-010 — Langues V1 : français et anglais uniquement
++
++La V1 ne propose que deux langues :
++
++- français (`fr`) ;
++- anglais (`en`).
++
++L'espagnol n'est pas prévu en V1 afin de réduire le volume de contenu à produire et à maintenir.
++
++## DEC-011 — Synchronisation Abritel à prévoir
++
++Le calendrier devra probablement se synchroniser avec les réservations effectuées via Abritel.
++
++Conséquence :
++- prévoir une source de disponibilité externe ;
++- privilégier un import iCal en V1 ;
++- distinguer les réservations locales des blocages importés ;
++- afficher dans le dashboard l'état de la dernière synchronisation.
+diff -ruN '--exclude=.git' '--exclude=.venv' '--exclude=__MACOSX' '--exclude=.DS_Store' orig/le115-docs/docs/01-Product.md upd/le115-docs/docs/01-Product.md
+--- orig/le115-docs/docs/01-Product.md	2026-06-26 11:25:32.000000000 +0000
++++ upd/le115-docs/docs/01-Product.md	2026-06-29 14:30:20.000000000 +0000
+@@ -37,7 +37,7 @@
+ | Domaine | Fonctionnalité | Priorité |
+ |---|---|---|
+ | Public | Landing page premium | Must |
+-| Public | Internationalisation FR / EN / ES | Must |
++| Public | Internationalisation FR / EN | Must |
+ | Public | Galerie photos | Must |
+ | Public | Disponibilités | Must |
+ | Public | Estimation tarifaire détaillée | Must |
+@@ -49,6 +49,7 @@
+ | Admin | Gestion des prix | Must |
+ | Admin | Gestion des contenus | Must |
+ | Admin | Gestion des photos | Must |
++| Admin | Import calendrier externe Abritel / iCal | Should |
+ 
+ ---
+ 
+@@ -103,3 +104,4 @@
+ | Vidéo hero | V2 / amélioration | À faire si assets disponibles |
+ | Promotions ponctuelles | À arbitrer | Peut être utile hors saison |
+ | Paiement acompte | Hors V1 | À envisager après validation du concept |
++| Synchronisation Abritel | V1 probable | Prévoir au minimum un import iCal pour bloquer les dates réservées ailleurs |
+diff -ruN '--exclude=.git' '--exclude=.venv' '--exclude=__MACOSX' '--exclude=.DS_Store' orig/le115-docs/docs/02-UX.md upd/le115-docs/docs/02-UX.md
+--- orig/le115-docs/docs/02-UX.md	2026-06-26 11:25:32.000000000 +0000
++++ upd/le115-docs/docs/02-UX.md	2026-06-29 14:29:35.000000000 +0000
+@@ -3,7 +3,7 @@
+ ## Principe général
+ 
+ Le site public est une landing page premium structurée en sections.  
+-La navigation doit rester proche de la maquette fournie.
++La navigation doit rester proche de la maquette fournie : sobre, élégante, avec une forte place donnée aux photos.
+ 
+ Le site doit guider naturellement le voyageur :
+ 
+@@ -18,138 +18,160 @@
+ 
+ ---
+ 
++## Langues
++
++La V1 ne propose que deux langues :
++
++| Langue | Code | Statut |
++|---|---|---|
++| Français | `fr` | Langue principale |
++| Anglais | `en` | Langue secondaire |
++
++Conséquences UX :
++
++- le sélecteur de langue affiche uniquement `FR` et `EN` ;
++- aucun contenu espagnol n'est attendu en V1 ;
++- le français reste la langue par défaut ;
++- les contenus administrables doivent exister en français et en anglais.
++
++---
++
+ ## Navigation
+ 
+-Desktop :
+-- Logo : `Le 115, Maison de Provence`
+-- Liens d'ancrage simples
+-- Sélecteur FR / EN / ES
+-- CTA `Estimer mon séjour`
+-
+-Mobile :
+-- Logo
+-- CTA visible
+-- Menu compact si nécessaire
++### Desktop
++
++| Élément | Comportement |
++|---|---|
++| Logo | Retour en haut de page |
++| La maison | Ancre vers la présentation |
++| Équipements | Ancre vers les équipements |
++| Galerie | Ancre vers la galerie |
++| FAQ | Ancre vers la FAQ |
++| Localisation | Ancre vers la localisation |
++| `FR / EN` | Changement de langue |
++| CTA `Estimer mon séjour` | Scroll vers le module d'estimation |
++
++### Mobile
++
++| Élément | Comportement |
++|---|---|
++| Logo | Toujours visible |
++| CTA | Visible sans ouvrir le menu si possible |
++| Menu | Compact, avec les mêmes ancres que desktop |
++| Langues | `FR / EN`, accessibles depuis le menu ou l'en-tête |
+ 
+ > Décision : conserver une navigation compatible avec la maquette existante.
+ 
+ ---
+ 
+-## Sections de la landing
++## Structure de la landing
++
++Au lieu de maintenir des wireframes ASCII peu lisibles dans MkDocs, chaque écran est décrit par ses zones, son objectif et ses règles d'affichage.
+ 
+ ### 1. Hero
+ 
+-Objectif : créer l'émotion.
++!!! info "Objectif"
++    Créer l'émotion immédiatement avec une photo immersive de la maison.
+ 
+-Contenu :
+-- photo principale ou vidéo courte ;
+-- titre ;
+-- sous-titre ;
+-- CTA principal.
+-
+-Wireframe :
+-
+-```text
+-┌──────────────────────────────────────────────────────┐
+-│ Le 115, Maison de Provence       FR EN ES  [CTA]     │
+-├──────────────────────────────────────────────────────┤
+-│                                                      │
+-│              IMAGE / VIDEO IMMERSIVE                 │
+-│                                                      │
+-│          Maison de caractère en Provence             │
+-│                                                      │
+-│              [ Estimer mon séjour ]                  │
+-│                                                      │
+-└──────────────────────────────────────────────────────┘
+-```
++| Zone | Contenu |
++|---|---|
++| En-tête | Logo, navigation, sélecteur `FR / EN` |
++| Visuel | Photo principale ou vidéo courte |
++| Texte | Titre, sous-titre court, promesse |
++| CTA | `Estimer mon séjour` |
++| Infos clés | Résumé en bandeau : chambres, voyageurs, piscine, climatisation, terrain, garage |
+ 
+ ### 2. Infos clés
+ 
+-Objectif : rassurer immédiatement.
++!!! info "Objectif"
++    Rassurer immédiatement avec les caractéristiques essentielles.
+ 
+-Exemples :
+-- Piscine
+-- 6 chambres
+-- 12 voyageurs
+-- Cour intérieure
+-- Wifi
+-- Parking
+-
+-```text
+-┌──────────┬────────────┬────────────┬───────────┐
+-│ Piscine  │ 6 chambres │ 12 pers.   │ Provence  │
+-└──────────┴────────────┴────────────┴───────────┘
+-```
++| Information | Exemple |
++|---|---|
++| Capacité | 6 chambres, 12 personnes |
++| Piscine | Piscine chauffée, 15 × 4 m |
++| Confort | Climatisation dans toute la maison |
++| Extérieur | Terrain arboré, 5 000 m² |
++| Stationnement / vélos | Garage à disposition |
+ 
+ ### 3. Présentation
+ 
+-Objectif : expliquer l'esprit de la maison sans surcharger.
++!!! info "Objectif"
++    Expliquer l'esprit de la maison sans surcharger la page.
+ 
+-Contenu :
+-- texte court ;
+-- ambiance ;
+-- type de séjour.
++| Zone | Contenu |
++|---|---|
++| Titre | À propos de la maison |
++| Texte | Description courte, premium et chaleureuse |
++| Points forts | Liste concise avec pictogrammes |
++| Photos | Grande photo + vignettes secondaires |
+ 
+ ### 4. Équipements
+ 
+-Objectif : répondre aux questions pratiques.
++!!! info "Objectif"
++    Répondre aux questions pratiques avant la demande de séjour.
++
++Les équipements doivent être administrables depuis le dashboard.
+ 
+-Les équipements doivent être administrables.
++| Catégorie | Exemples |
++|---|---|
++| Confort | Climatisation, Wi-Fi, linge fourni |
++| Extérieur | Piscine, jardin, terrasse |
++| Famille | Chambres, équipements enfants si disponibles |
++| Pratique | Parking, garage vélos, ménage inclus |
+ 
+ ### 5. Galerie
+ 
+-Objectif : permettre au voyageur de se projeter.
++!!! info "Objectif"
++    Permettre au voyageur de se projeter dans la maison.
+ 
+-Fonctionnalités :
+-- photo principale ;
+-- grille de photos ;
+-- ouverture plein écran ;
+-- ordre configurable depuis l'administration.
++| Fonctionnalité | Règle |
++|---|---|
++| Grille de photos | Ordre configurable depuis l'administration |
++| Filtres | Tous, extérieur, intérieur, chambres, salles de bain |
++| Plein écran | Ouverture au clic sur une photo |
++| Photo principale | Définie depuis le dashboard |
+ 
+ ### 6. Localisation
+ 
+-Objectif : situer la maison en Provence.
++!!! info "Objectif"
++    Situer la maison en Provence sans exposer inutilement l'adresse exacte si ce n'est pas souhaité.
+ 
+-Contenu :
+-- texte court ;
+-- carte ;
+-- points d'intérêt.
++| Zone | Contenu |
++|---|---|
++| Texte | Présentation de l'environnement |
++| Carte | Position approximative ou exacte selon décision propriétaire |
++| Points d'intérêt | Villages, marchés, activités, gares / accès |
+ 
+ ### 7. FAQ
+ 
+-Objectif : lever les objections.
++!!! info "Objectif"
++    Lever les objections les plus courantes.
+ 
+ Exemples :
+-- Les animaux sont-ils acceptés ?
+-- Les draps sont-ils fournis ?
+-- La piscine est-elle chauffée ?
+-- Les fêtes sont-elles autorisées ?
++
++| Question | Réponse attendue |
++|---|---|
++| La maison est-elle adaptée aux enfants ? | Oui / détails à préciser |
++| La piscine est-elle chauffée ? | Oui / période à préciser |
++| Les animaux sont-ils acceptés ? | À arbitrer |
++| Les horaires d'arrivée et de départ ? | Arrivée à partir de 16h, départ avant 10h |
++| Comment se passe le paiement ? | Demande manuelle, réponse propriétaire sous 48h |
+ 
+ ### 8. Disponibilités et estimation
+ 
+-Objectif : convertir.
++!!! info "Objectif"
++    Transformer l'intérêt en demande qualifiée.
+ 
+-```text
+-┌───────────────────────────────┐
+-│ Estimer mon séjour            │
+-├───────────────────────────────┤
+-│ Arrivée   [ 09/07/2025 ]      │
+-│ Départ    [ 17/07/2025 ]      │
+-│ Adultes   [ optionnel ]       │
+-│ Enfants   [ optionnel ]       │
+-├───────────────────────────────┤
+-│ 8 nuits                       │
+-│ 09/07 : 450 €                 │
+-│ 10/07 : 450 €                 │
+-│ 11/07 : 500 €                 │
+-│ ...                           │
+-│ Sous-total : 3 900 €          │
+-│ Ménage : 400 €                │
+-│ Total : 4 300 €               │
+-├───────────────────────────────┤
+-│ [ Envoyer une demande ]       │
+-└───────────────────────────────┘
+-```
++| Étape | Contenu |
++|---|---|
++| 1. Dates | Arrivée et départ |
++| 2. Voyageurs | Adultes et enfants optionnels |
++| 3. Estimation | Nombre de nuits, prix nuit par nuit, frais, total |
++| 4. Coordonnées | Prénom, nom, email, téléphone, message optionnel |
++| 5. Confirmation | Message clair après envoi |
++
++Le module doit afficher les erreurs métier de manière explicite : dates indisponibles, durée minimum non respectée, règle samedi-samedi en haute saison.
+ 
+ ---
+ 
+@@ -157,19 +179,20 @@
+ 
+ | État | Description |
+ |---|---|
+-| Chargement | Calendrier ou photos en cours |
+-| Dates indisponibles | Sélection impossible |
+-| Règle non respectée | Message explicite |
+-| Prix calculé | Détail affiché |
++| Chargement | Calendrier, disponibilité ou photos en cours de chargement |
++| Dates indisponibles | Sélection impossible ou message explicite |
++| Règle non respectée | Message clair avec explication |
++| Prix calculé | Détail affiché nuit par nuit |
+ | Demande envoyée | Confirmation claire |
+-| Erreur technique | Message simple + retry |
++| Erreur technique | Message simple + possibilité de réessayer |
++| Synchronisation externe indisponible | Afficher les disponibilités locales avec une alerte admin, jamais un message technique au voyageur |
+ 
+ ---
+ 
+ ## TODO UX
+ 
+ - [ ] Valider l'ordre final des sections.
+-- [ ] Définir les textes FR/EN/ES.
++- [ ] Rédiger les textes FR/EN.
+ - [ ] Définir les équipements affichés en infos clés.
+-- [ ] Lister les questions FAQ.
++- [ ] Lister les questions FAQ définitives.
+ - [ ] Définir le comportement mobile du calendrier.
+diff -ruN '--exclude=.git' '--exclude=.venv' '--exclude=__MACOSX' '--exclude=.DS_Store' orig/le115-docs/docs/04-Dashboard.md upd/le115-docs/docs/04-Dashboard.md
+--- orig/le115-docs/docs/04-Dashboard.md	2026-06-26 11:25:32.000000000 +0000
++++ upd/le115-docs/docs/04-Dashboard.md	2026-06-29 14:29:57.000000000 +0000
+@@ -10,41 +10,32 @@
+ 
+ ## Navigation admin
+ 
+-```text
+-Dashboard
+-├── Calendrier
+-├── Demandes
+-├── Réservations
+-├── Tarifs
+-├── Maison
+-├── Contenus
+-├── Photos
+-└── Activité
+-```
++| Entrée | Rôle |
++|---|---|
++| Calendrier | Vue principale, disponibilités, réservations et blocages |
++| Demandes | Demandes de séjour à traiter |
++| Réservations | Séjours confirmés |
++| Tarifs | Périodes tarifaires et frais |
++| Maison | Informations principales du bien |
++| Contenus | Textes FR / EN |
++| Photos | Galerie et photo principale |
++| Synchronisations | Imports externes, notamment Abritel / iCal |
++| Activité | Journal des actions importantes |
+ 
+ ---
+ 
+-## Wireframe global
+-
+-```text
+-┌─────────────────────────────────────────────────────────────┐
+-│ Le 115 Admin                              Matthieu ▾        │
+-├───────────────┬─────────────────────────────────────────────┤
+-│ Calendrier    │  Juin 2025                                  │
+-│ Demandes      │                                             │
+-│ Réservations  │  ┌────┬────┬────┬────┬────┬────┬────┐       │
+-│ Tarifs        │  │ Lu │ Ma │ Me │ Je │ Ve │ Sa │ Di │       │
+-│ Maison        │  ├────┼────┼────┼────┼────┼────┼────┤       │
+-│ Photos        │  │    │    │    │    │    │ R  │ R  │       │
+-│ Activité      │  │    │ B  │ B  │    │    │ R  │ R  │       │
+-│               │  └────┴────┴────┴────┴────┴────┴────┘       │
+-│               │                                             │
+-│               │  Demandes en attente                        │
+-│               │  ┌────────────┬────────────┬────────────┐   │
+-│               │  │ Nom        │ Dates      │ Montant    │   │
+-│               │  └────────────┴────────────┴────────────┘   │
+-└───────────────┴─────────────────────────────────────────────┘
+-```
++## Écran d'accueil dashboard
++
++!!! info "Principe"
++    Le dashboard s'ouvre sur le calendrier, avec les demandes en attente visibles sans changer de page.
++
++| Zone | Contenu |
++|---|---|
++| En-tête | Logo admin, accès compte propriétaire |
++| Navigation latérale | Modules du dashboard |
++| Zone principale | Calendrier mensuel ou hebdomadaire |
++| Colonne / bloc secondaire | Demandes en attente, dernières actions, alertes de synchronisation |
++
+ 
+ ---
+ 
+@@ -100,19 +91,14 @@
+ 
+ L'admin peut créer des périodes tarifaires.
+ 
+-```text
+-┌───────────────────────────────────────────────┐
+-│ Nouvelle période tarifaire                    │
+-├───────────────────────────────────────────────┤
+-│ Nom            [ Haute saison août ]          │
+-│ Début          [ 01/08/2025 ]                 │
+-│ Fin incluse    [ 14/08/2025 ]                 │
+-│ Prix / nuit    [ 600 € ]                      │
+-│ Priorité       [ 100 ]                        │
+-│                                               │
+-│ [ Enregistrer ]                               │
+-└───────────────────────────────────────────────┘
+-```
++| Champ | Exemple | Règle |
++|---|---|---|
++| Nom | Haute saison août | Libellé interne |
++| Début | 01/08/2025 | Date incluse |
++| Fin | 14/08/2025 | Date incluse |
++| Prix / nuit | 600 € | Montant en euros, stocké en centimes |
++| Priorité | 100 | Optionnel, utile pour les exceptions |
++
+ 
+ Règle V1 :
+ - deux périodes ne doivent pas se chevaucher à priorité identique ;
+@@ -133,7 +119,36 @@
+ - note affichée ;
+ - nombre d'avis.
+ 
+-Chaque contenu éditorial existe en FR / EN / ES.
++Chaque contenu éditorial existe en FR / EN.
++
++
++---
++
++## Synchronisations externes
++
++Le calendrier devra probablement se synchroniser avec des réservations provenant d'Abritel.
++
++### Décision V1
++
++La V1 doit prévoir une intégration **iCal en import** afin de récupérer les périodes réservées sur Abritel et de les rendre indisponibles sur le site Le 115.
++
++| Source | Sens | Effet sur le calendrier |
++|---|---|---|
++| Abritel / iCal | Import | Crée ou met à jour des blocages externes |
++| Dashboard Le 115 | Local | Gère demandes, réservations et blocages manuels |
++
++### Règles UX admin
++
++| Cas | Comportement |
++|---|---|
++| Synchronisation réussie | Afficher date et heure du dernier import |
++| Nouvelle réservation Abritel détectée | Dates marquées comme indisponibles |
++| Conflit avec une demande en attente | Afficher une alerte admin, sans bloquer l'historique de la demande |
++| Erreur de synchronisation | Alerte visible dans le dashboard |
++
++### Hors V1
++
++L'export iCal depuis Le 115 vers d'autres plateformes est utile, mais peut rester en V1.1 si l'import Abritel est prioritaire.
+ 
+ ---
+ 
+diff -ruN '--exclude=.git' '--exclude=.venv' '--exclude=__MACOSX' '--exclude=.DS_Store' orig/le115-docs/docs/05-Data-Model.md upd/le115-docs/docs/05-Data-Model.md
+--- orig/le115-docs/docs/05-Data-Model.md	2026-06-26 11:25:32.000000000 +0000
++++ upd/le115-docs/docs/05-Data-Model.md	2026-06-29 14:30:57.000000000 +0000
+@@ -18,8 +18,10 @@
+     PROPERTY ||--o{ FAQ_ITEM : has
+     PROPERTY ||--o{ PRICING_PERIOD : has
+     PROPERTY ||--o{ CALENDAR_BLOCK : has
++    PROPERTY ||--o{ EXTERNAL_CALENDAR_SOURCE : imports
+     PROPERTY ||--o{ STAY_REQUEST : receives
+     PROPERTY ||--o{ RESERVATION : has
++    EXTERNAL_CALENDAR_SOURCE ||--o{ EXTERNAL_CALENDAR_EVENT : contains
+ 
+     STAY_REQUEST ||--|| QUOTE_SNAPSHOT : contains
+     RESERVATION ||--|| QUOTE_SNAPSHOT : freezes
+@@ -98,7 +100,7 @@
+ - `field`
+ - `value`
+ 
+-Cette approche évite de créer `title_fr`, `title_en`, `title_es`.
++Cette approche évite de créer des colonnes comme `title_fr` et `title_en` sur chaque table métier.
+ 
+ ### Photo
+ 
+@@ -156,6 +158,33 @@
+ 
+ Bloque les dates.
+ 
++
++### ExternalCalendarSource
++
++Source de calendrier externe importée dans Le 115.
++
++Exemple V1 probable : URL iCal Abritel.
++
++Champs recommandés :
++- `provider` (`abritel`, `ical`) ;
++- `name` ;
++- `ical_url` chiffrée ou stockée de manière sécurisée ;
++- `enabled` ;
++- `last_sync_at` ;
++- `last_sync_status` ;
++- `last_error`.
++
++### ExternalCalendarEvent
++
++Événement importé depuis une source externe.
++
++Responsabilités :
++- bloquer les dates correspondantes ;
++- conserver l'identifiant externe si disponible ;
++- permettre la mise à jour ou la suppression lors des imports suivants.
++
++Un événement externe n'est pas une réservation Le 115 : c'est un blocage de disponibilité issu d'une autre plateforme.
++
+ ### QuoteSnapshot
+ 
+ Capture du devis au moment de la demande ou de la validation.
+diff -ruN '--exclude=.git' '--exclude=.venv' '--exclude=__MACOSX' '--exclude=.DS_Store' orig/le115-docs/docs/06-API.md upd/le115-docs/docs/06-API.md
+--- orig/le115-docs/docs/06-API.md	2026-06-26 11:25:32.000000000 +0000
++++ upd/le115-docs/docs/06-API.md	2026-06-29 14:30:20.000000000 +0000
+@@ -15,7 +15,7 @@
+ Retourne les informations publiques de la maison.
+ 
+ Query :
+-- `locale=fr|en|es`
++- `locale=fr|en`
+ 
+ ### GET /api/public/availability
+ 
+@@ -108,6 +108,30 @@
+ 
+ Supprime un blocage.
+ 
++### GET /api/admin/sync-sources
++
++Liste les sources de synchronisation externes configurées.
++
++Exemple : Abritel via URL iCal.
++
++### POST /api/admin/sync-sources
++
++Ajoute une source de synchronisation externe.
++
++Body :
++- `provider` : `abritel` ou `ical` ;
++- `name` ;
++- `icalUrl` ;
++- `enabled`.
++
++### POST /api/admin/sync-sources/{id}/run
++
++Déclenche manuellement une synchronisation.
++
++### GET /api/admin/sync-runs
++
++Liste les derniers imports, leur statut et les erreurs éventuelles.
++
+ ### GET /api/admin/pricing-periods
+ 
+ Liste les périodes tarifaires.
+diff -ruN '--exclude=.git' '--exclude=.venv' '--exclude=__MACOSX' '--exclude=.DS_Store' orig/le115-docs/docs/08-Roadmap.md upd/le115-docs/docs/08-Roadmap.md
+--- orig/le115-docs/docs/08-Roadmap.md	2026-06-26 11:25:32.000000000 +0000
++++ upd/le115-docs/docs/08-Roadmap.md	2026-06-29 14:30:20.000000000 +0000
+@@ -3,7 +3,7 @@
+ ## V1
+ 
+ - Landing page premium
+-- Internationalisation FR / EN / ES
++- Internationalisation FR / EN
+ - Galerie
+ - Disponibilités
+ - Estimation détaillée
+@@ -12,6 +12,7 @@
+ - Gestion demandes / réservations
+ - Gestion prix
+ - Gestion contenus et photos
++- Préparation synchronisation Abritel / iCal
+ 
+ ## V1.1
+ 
+@@ -23,7 +24,7 @@
+ ## V2
+ 
+ - Paiement acompte
+-- Synchronisation iCal
++- Import Abritel / iCal opérationnel
+ - Page “Découvrir la région”
+ - Promotions
+ - Export CSV
+@@ -31,6 +32,7 @@
+ ## V3
+ 
+ - Synchronisation Airbnb / Booking
++- Export iCal depuis Le 115
+ - Signature électronique
+ - Multi-propriétés
+ - Espace voyageur
+diff -ruN '--exclude=.git' '--exclude=.venv' '--exclude=__MACOSX' '--exclude=.DS_Store' orig/le115-docs/prompts/build-dashboard.md upd/le115-docs/prompts/build-dashboard.md
+--- orig/le115-docs/prompts/build-dashboard.md	2026-06-26 11:25:32.000000000 +0000
++++ upd/le115-docs/prompts/build-dashboard.md	2026-06-29 14:31:15.000000000 +0000
+@@ -16,3 +16,5 @@
+ - Owner can approve/refuse stay requests.
+ - Owner can edit pricing.
+ - Owner can manage content and photos.
++- Owner can configure and run an Abritel/iCal calendar import.
++- Calendar displays imported external blocks distinctly from local reservations.
+diff -ruN '--exclude=.git' '--exclude=.venv' '--exclude=__MACOSX' '--exclude=.DS_Store' orig/le115-docs/prompts/build-landing.md upd/le115-docs/prompts/build-landing.md
+--- orig/le115-docs/prompts/build-landing.md	2026-06-26 11:25:32.000000000 +0000
++++ upd/le115-docs/prompts/build-landing.md	2026-06-29 14:29:36.000000000 +0000
+@@ -14,7 +14,7 @@
+ Constraints:
+ - Stay close to the provided mockup.
+ - Main CTA is `Estimer mon séjour`.
+-- Support FR/EN/ES.
++- Support FR/EN.
+ - Components must be cleanly separated.
+ 
+ Definition of Done:
+diff -ruN '--exclude=.git' '--exclude=.venv' '--exclude=__MACOSX' '--exclude=.DS_Store' orig/le115-docs/specs/dashboard.md upd/le115-docs/specs/dashboard.md
+--- orig/le115-docs/specs/dashboard.md	2026-06-26 11:25:32.000000000 +0000
++++ upd/le115-docs/specs/dashboard.md	2026-06-29 14:31:15.000000000 +0000
+@@ -16,6 +16,7 @@
+ - Pricing
+ - Property content
+ - Photos
++- External calendar sync
+ - Activity
+ 
+ ## Calendar states
+@@ -24,6 +25,7 @@
+ - Pending request
+ - Reserved
+ - Blocked
++- External blocked date
+ 
+ ## Definition of Done
+ 
+@@ -32,3 +34,6 @@
+ - Reservation blocks dates.
+ - Owner can block/unblock dates.
+ - Owner can edit pricing.
++- Owner can configure an Abritel/iCal import source.
++- Imported external reservations block dates.
++- Dashboard displays last sync status and errors.
+diff -ruN '--exclude=.git' '--exclude=.venv' '--exclude=__MACOSX' '--exclude=.DS_Store' orig/le115-docs/specs/landing.md upd/le115-docs/specs/landing.md
+--- orig/le115-docs/specs/landing.md	2026-06-26 11:25:32.000000000 +0000
++++ upd/le115-docs/specs/landing.md	2026-06-29 14:29:36.000000000 +0000
+@@ -43,7 +43,7 @@
+ ## Definition of Done
+ 
+ - Responsive desktop/mobile.
+-- FR/EN/ES content supported.
++- FR/EN content supported.
+ - CTA scrolls correctly.
+ - Gallery opens fullscreen.
+ - Stay planner section is reachable from header CTA.
+diff -ruN '--exclude=.git' '--exclude=.venv' '--exclude=__MACOSX' '--exclude=.DS_Store' orig/le115-docs/tasks/004-build-dashboard.md upd/le115-docs/tasks/004-build-dashboard.md
+--- orig/le115-docs/tasks/004-build-dashboard.md	2026-06-26 11:25:32.000000000 +0000
++++ upd/le115-docs/tasks/004-build-dashboard.md	2026-06-29 14:31:15.000000000 +0000
+@@ -6,4 +6,5 @@
+ - [ ] Reservations
+ - [ ] Pricing editor
+ - [ ] Content editor
++- [ ] External calendar sync import
+ - [ ] Activity log
