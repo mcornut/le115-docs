@@ -1,8 +1,16 @@
 # Le 115, Maison de Provence
 
-> Blueprint produit, fonctionnel et technique — V1
+> Documentation produit, fonctionnel et technique — V1
 
 ![Maquette de référence](assets/landing-reference.png)
+
+> Suggestion front v1 
+
+![Suggestion front v1](assets/front_v1.png)
+
+> Suggestion dashboard v1
+
+![Suggestion dashboard v1](assets/dashboard_v1.png)
 
 ## Vision
 
