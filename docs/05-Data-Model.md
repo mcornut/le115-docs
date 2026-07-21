@@ -19,8 +19,11 @@ erDiagram
     PROPERTY ||--o{ PRICING_PERIOD : has
     PROPERTY ||--o{ CALENDAR_BLOCK : has
     PROPERTY ||--o{ EXTERNAL_CALENDAR_SOURCE : imports
+    PROPERTY ||--o{ ADDITIONAL_FEE : has
+    PROPERTY ||--o{ STAY_RULE : has
     PROPERTY ||--o{ STAY_REQUEST : receives
     PROPERTY ||--o{ RESERVATION : has
+    STAY_REQUEST ||--o| RESERVATION : becomes
     EXTERNAL_CALENDAR_SOURCE ||--o{ EXTERNAL_CALENDAR_EVENT : contains
 
     STAY_REQUEST ||--|| QUOTE_SNAPSHOT : contains
@@ -72,6 +75,7 @@ erDiagram
     RESERVATION {
         uuid id
         uuid property_id
+        uuid stay_request_id
         date arrival_date
         date departure_date
         string status
@@ -146,6 +150,23 @@ V1 :
 
 Modèle générique afin de pouvoir ajouter plus tard linge, animal, chauffage piscine, etc.
 
+### StayRule
+
+Règle de séjour applicable à une période.
+
+Champs recommandés :
+- `start_date` / `end_date` (nulles = règle par défaut) ;
+- `min_nights` ;
+- `allowed_checkin_dows` / `allowed_checkout_dows` (jours d'arrivée / de départ autorisés) ;
+- `derogation_note` ;
+- `priority`.
+
+V1 :
+- basse saison : 3 nuits, arrivée/départ tous les jours ;
+- 14 juin → 28 août : 7 nuits, arrivée/départ le samedi, avec message de dérogation.
+
+La règle applicable est celle de plus haute priorité dont la période contient la date d'arrivée.
+
 ### StayRequest
 
 Demande envoyée par un voyageur.
@@ -189,7 +210,13 @@ Un événement externe n'est pas une réservation Le 115 : c'est un blocage de d
 
 Capture du devis au moment de la demande ou de la validation.
 
+Le snapshot inclut le détail des nuits, les frais et d'éventuels ajustements admin (montant signé, négatif = remise). Un ajustement régénère un nouveau snapshot en conservant le détail d'origine.
+
 Important : si les prix changent plus tard, l'ancien devis reste inchangé.
+
+### Reservation ↔ StayRequest
+
+Une réservation issue d'une demande référence celle-ci via `stay_request_id`. Ce lien est nul pour une réservation créée manuellement depuis le dashboard.
 
 ---
 

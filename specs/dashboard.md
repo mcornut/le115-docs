@@ -30,6 +30,7 @@ Calendar view.
 ## Definition of Done
 
 - Owner can approve/refuse requests.
+- Owner can apply a price adjustment (commercial gesture) that re-freezes the quote snapshot.
 - Approved request creates reservation.
 - Reservation blocks dates.
 - Owner can block/unblock dates.

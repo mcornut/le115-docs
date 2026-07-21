@@ -31,6 +31,16 @@ Pendant la période du 14 juin au 28 août, afficher :
 
 > Challenge PM : modéliser les frais comme des `AdditionalFee` plutôt que coder uniquement `cleaning_fee`. Cela permettra d'ajouter plus tard linge, animal ou autre supplément sans refonte.
 
+## Ajustements
+
+L'administrateur peut appliquer un ajustement de prix (ex : geste commercial −200 €).
+
+- ligne de devis à montant signé (négatif = remise), distincte des frais ;
+- action admin uniquement ;
+- régénère le devis figé (`QuoteSnapshot`), détail d'origine conservé.
+
+Total = sous-total nuits + frais obligatoires + ajustements.
+
 ## Calcul du devis
 
 ```mermaid
@@ -44,6 +54,8 @@ flowchart TD
 ```
 
 ## Exemple
+
+> Cet exemple illustre uniquement le **calcul tarifaire** (prix nuit par nuit). Les dates choisies ne respectent pas la contrainte arrivée/départ le samedi de la haute saison ; un tel séjour serait refusé par les règles de séjour.
 
 Séjour du 9 au 17 juillet :
 

@@ -94,3 +94,14 @@ Conséquence :
 - privilégier un import iCal en V1 ;
 - distinguer les réservations locales des blocages importés ;
 - afficher dans le dashboard l'état de la dernière synchronisation.
+
+## DEC-012 — Ajustement de prix par l'administrateur
+
+Le propriétaire peut ajuster le prix final d'une demande ou d'une réservation, par exemple un geste commercial (−200 €).
+
+Modélisation :
+- l'ajustement est une ligne de devis à montant signé (négatif = remise), distincte des frais ;
+- réservé à l'administrateur (jamais côté voyageur) ;
+- il régénère un devis figé (`QuoteSnapshot`) incluant la ligne d'ajustement ;
+- le détail d'origine est conservé (transparence, cf. DEC-007) ;
+- l'action est journalisée dans l'activité.

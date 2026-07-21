@@ -69,6 +69,7 @@ Champs affichés :
 - accepter ;
 - refuser ;
 - annuler ;
+- ajuster le prix (geste commercial) ;
 - ajouter une note interne.
 
 ---
@@ -84,6 +85,12 @@ Champs :
 - détail du devis ;
 - statut ;
 - note interne.
+
+Actions :
+- ajuster le prix (geste commercial) ;
+- annuler.
+
+Un ajustement régénère le devis figé et fait apparaître la ligne dans le détail.
 
 ---
 
