@@ -197,6 +197,8 @@ Retourne le contenu éditorial bilingue : `rating`, `reviewCount`, `title/subtit
 
 Met à jour les champs éditoriaux property (`title/subtitle/description/location` en `{fr,en}`) + `rating` (0–5) + `reviewCount` (≥0).
 
+**Partiel** : seuls les champs présents dans le corps de la requête sont mis à jour ; les champs omis (y compris `rating`/`reviewCount`) restent inchangés. Chaque champ localisé, quand il est fourni, doit porter les deux locales `{fr,en}`.
+
 ### POST /api/admin/amenities
 
 Crée un équipement (libellé bilingue).
