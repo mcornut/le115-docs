@@ -79,9 +79,12 @@ Total : 4 300 €
 Une date est indisponible si elle appartient à :
 - une réservation confirmée ;
 - un blocage manuel ;
-- une période fermée.
+- une période fermée ;
+- un événement d'un **calendrier externe** synchronisé (Abritel/Vrbo, import iCal) : il bloque les dates au même titre qu'une réservation, sans être une réservation Le 115.
 
 Une demande en attente ne bloque pas les dates.
+
+Côté voyageur, la disponibilité affichée reflète les calendriers externes à la **fraîcheur du dernier sync** (temps réel non garanti côté public).
 
 ## Cycle de vie
 
@@ -104,6 +107,8 @@ stateDiagram-v2
 |---|---|
 | Deux demandes sur les mêmes dates | Autorisé tant qu'aucune n'est validée |
 | Réservation validée | Les dates deviennent indisponibles |
+| Réservation sur un calendrier externe (Abritel) | Les dates deviennent indisponibles (bloquées), sans être une réservation Le 115 |
+| Validation (approbation) d'une demande | Possible **uniquement après une synchronisation réussie** des calendriers externes activés ; si le sync échoue, la validation est **bloquée** (« sync-avant-validation », anti-sur-réservation) |
 | Arrivée le jour du départ précédent | Autorisé |
 | Prix modifié après demande | Le devis de la demande reste figé |
 | Prix modifié avant demande | Le nouveau prix s'applique |

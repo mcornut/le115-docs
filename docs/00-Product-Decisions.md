@@ -105,3 +105,13 @@ Modélisation :
 - il régénère un devis figé (`QuoteSnapshot`) incluant la ligne d'ajustement ;
 - le détail d'origine est conservé (transparence, cf. DEC-007) ;
 - l'action est journalisée dans l'activité.
+
+## DEC-013 — Synchronisation externe bloquante à la validation
+
+Prolonge DEC-011 (synchronisation Abritel via import iCal).
+
+- Les événements d'un calendrier externe (Abritel/Vrbo, import iCal) **bloquent** les dates au même titre qu'une réservation ou un blocage manuel, sans être des réservations Le 115.
+- **L'approbation d'une demande déclenche d'abord une synchronisation fraîche** des sources externes activées, puis vérifie la disponibilité. Objectif : **jamais de sur-réservation** avec Abritel.
+- **Si la synchronisation échoue** (source injoignable), l'approbation est **refusée** avec un message explicite ; l'administrateur réessaie une fois la source de nouveau joignable. On préfère bloquer plutôt que valider sur un calendrier potentiellement périmé.
+- Côté voyageur, la disponibilité affichée reflète le **dernier** sync (le temps réel n'est pas requis).
+- V1 : déclenchement **manuel** de la synchronisation (pas de planification automatique) ; le dashboard affiche l'état/la date du dernier sync.
