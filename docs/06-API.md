@@ -12,10 +12,31 @@ Les noms sont indicatifs, mais doivent rester orientés métier.
 
 ### GET /api/public/property
 
-Retourne les informations publiques de la maison.
+Retourne les informations publiques de la maison enrichies et localisées.
 
 Query :
-- `locale=fr|en`
+- `locale=fr|en` (défaut : `fr`, fallback sur `fr` si locale non disponible)
+
+Response `200` :
+
+```json
+{
+  "title": "La Provençale",
+  "subtitle": "Maison d'exception",
+  "description": "Au cœur de la Provence...",
+  "location": "Luberon",
+  "rating": 4.8,
+  "reviewCount": 42,
+  "amenities": [
+    { "id": "...", "code": "wifi", "icon": "📡", "label": "Wifi haute vitesse" }
+  ],
+  "faq": [
+    { "id": "...", "question": "Puis-je amener mon chien ?", "answer": "Oui, chiens bienvenus." }
+  ]
+}
+```
+
+**Rupture de compatibilité** : l'endpoint ne retourne plus `name` ni `baseline` (remplacés par `title` et `subtitle` localisés).
 
 ### GET /api/public/availability
 
@@ -170,11 +191,43 @@ Supprime une période.
 
 ### GET /api/admin/content
 
-Récupère les contenus éditoriaux.
+Retourne le contenu éditorial bilingue : `rating`, `reviewCount`, `title/subtitle/description/location` en `{fr,en}`, `amenities[]` (`id`, `code`, `icon`, `label{fr,en}`), `faq[]` (`id`, `question{fr,en}`, `answer{fr,en}`).
 
 ### PATCH /api/admin/content
 
-Met à jour les contenus éditoriaux.
+Met à jour les champs éditoriaux property (`title/subtitle/description/location` en `{fr,en}`) + `rating` (0–5) + `reviewCount` (≥0).
+
+### POST /api/admin/amenities
+
+Crée un équipement (libellé bilingue).
+
+### PATCH /api/admin/amenities/{id}
+
+Modifie un équipement.
+
+### DELETE /api/admin/amenities/{id}
+
+Supprime un équipement.
+
+### POST /api/admin/amenities/reorder
+
+Réordonne les équipements.
+
+### POST /api/admin/faq
+
+Crée une question FAQ (question/réponse bilingues).
+
+### PATCH /api/admin/faq/{id}
+
+Modifie une question FAQ.
+
+### DELETE /api/admin/faq/{id}
+
+Supprime une question FAQ.
+
+### POST /api/admin/faq/reorder
+
+Réordonne les questions FAQ.
 
 ### POST /api/admin/photos
 

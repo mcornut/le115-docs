@@ -36,6 +36,8 @@ erDiagram
         string baseline
         int max_guests
         string address
+        numeric rating
+        int review_count
         datetime created_at
         datetime updated_at
     }
@@ -95,14 +97,26 @@ Même si une seule maison existe en V1, cette entité évite de disperser les pa
 
 ### LocalizedContent
 
-Contenus éditoriaux traduits.
+Contenus éditoriaux traduits (modèle EAV).
 
-Champs recommandés :
-- `entity_type`
-- `entity_id`
-- `locale`
-- `field`
-- `value`
+Champs :
+- `entity_type` : type d'entité (`property`, `amenity`, `faq_item`)
+- `entity_id` : UUID de l'entité
+- `locale` : `fr` ou `en`
+- `field` : clé du champ (voir ci-dessous)
+- `value` : contenu texte
+
+Champs par entité :
+
+| entity_type | field | Exemple |
+|---|---|---|
+| `property` | `title` | « La Provençale » |
+| `property` | `subtitle` | « Maison d'exception » |
+| `property` | `description` | « Au cœur de la Provence... » |
+| `property` | `location` | « Luberon » |
+| `amenity` | `label` | « Wifi haute vitesse » |
+| `faq_item` | `question` | « Puis-je amener un animal ? » |
+| `faq_item` | `answer` | « Oui, chiens et chats bienvenus. » |
 
 Cette approche évite de créer des colonnes comme `title_fr` et `title_en` sur chaque table métier.
 
