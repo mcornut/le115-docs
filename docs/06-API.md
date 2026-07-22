@@ -32,11 +32,43 @@ Response `200` :
   ],
   "faq": [
     { "id": "...", "question": "Puis-je amener mon chien ?", "answer": "Oui, chiens bienvenus." }
+  ],
+  "photos": [
+    {
+      "id": "...",
+      "category": "exterieur",
+      "alt": "Vue de la façade principale",
+      "isMain": true,
+      "variants": [
+        { "width": 400, "url": "/api/public/media/.../400" },
+        { "width": 800, "url": "/api/public/media/.../800" },
+        { "width": 1600, "url": "/api/public/media/.../1600" }
+      ],
+      "originalUrl": "/api/public/media/.../original",
+      "originalWidth": 2400,
+      "originalHeight": 1800
+    }
   ]
 }
 ```
 
 **Rupture de compatibilité** : l'endpoint ne retourne plus `name` ni `baseline` (remplacés par `title` et `subtitle` localisés).
+
+### GET /api/public/media/{id}
+
+Sert le binaire d'une photo ou sa variante responsive.
+
+Query :
+- `w` : largeur souhaitée (`400`, `800`, `1600`, ou `original` ; défaut : `original`)
+
+Response `200` : binaire JPEG ou PNG (Content-Type: `image/jpeg` ou `image/png`).
+
+Notes :
+- Pas d'upscale : si `w` dépasse la largeur native, retourne l'original.
+- Cache immuable (`Cache-Control: public, max-age=31536000, immutable`).
+- En dehors du rate limiting public.
+
+Erreurs : `404` si la photo n'existe pas ou si `w` n'est pas reconnu (les variantes < source width seulement).
 
 ### GET /api/public/availability
 
@@ -231,17 +263,76 @@ Supprime une question FAQ.
 
 Réordonne les questions FAQ.
 
+### GET /api/admin/photos
+
+Liste toutes les photos du bien.
+
+Response `200` :
+
+```json
+[
+  {
+    "id": "...",
+    "category": "exterieur",
+    "contentType": "image/jpeg",
+    "width": 2400,
+    "height": 1800,
+    "byteSize": 524288,
+    "sortOrder": 1,
+    "isMain": true,
+    "alt": {
+      "fr": "Vue de la façade",
+      "en": "Facade view"
+    }
+  }
+]
+```
+
 ### POST /api/admin/photos
 
-Upload une photo.
+Upload une photo (multipart, max 20 MiB).
+
+Body :
+- `file` : binaire du fichier (JPEG ou PNG) ;
+- `category` : enum (`exterieur`, `interieur`, `chambres`, `salles-de-bain`, `autre`) ;
+- `altFr` : texte alternatif français ;
+- `altEn` : texte alternatif anglais ;
+- `isMain` (optional, défaut `false`) : définir comme photo principale.
+
+Response `201` : `{ "id": "...", "url": "/api/public/media/..." }` (emplacement + variants générées).
+
+Génère automatiquement les variantes responsive (400/800/1600).
 
 ### PATCH /api/admin/photos/{id}
 
-Modifie alt/order/main.
+Modifie une photo (partiel : seuls les champs présents sont mis à jour).
+
+Body (tous optionnels) :
+- `sortOrder` : réordonner ;
+- `isMain` : définir/annuler comme photo principale ;
+- `altFr`, `altEn` : mettre à jour les textes alternatifs localisés.
+
+Response `200`.
+
+### POST /api/admin/photos/{id}/set-main
+
+Définit la photo comme principale (l'ancienne principale est annulée).
+
+Response `204`.
 
 ### DELETE /api/admin/photos/{id}
 
-Supprime une photo.
+Supprime une photo (y compris ses fichiers et variantes).
+
+Response `204`.
+
+### POST /api/admin/photos/reorder
+
+Réordonne les photos.
+
+Body : `[{ "id": "...", "sortOrder": 1 }, …]`
+
+Response `204`.
 
 ---
 

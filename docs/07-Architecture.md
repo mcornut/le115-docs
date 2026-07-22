@@ -15,7 +15,7 @@ Proposer une architecture simple, testable et adaptée à un projet personnel.
 | Base | PostgreSQL |
 | Auth admin | Cookie HttpOnly |
 | Déploiement | Docker Compose |
-| Stockage photos | Local en dev, S3-compatible possible ensuite |
+| Stockage photos | Système de fichiers local (racine `LE115_MEDIA_DIR`) ; variantes responsive générées à l'upload |
 
 ---
 
@@ -75,6 +75,16 @@ Gère les réservations confirmées.
 ### cms
 
 Gère les contenus éditoriaux multilingues.
+
+### media
+
+Gère les photos et leurs variantes responsive.
+
+Caractéristiques V1 :
+- Catégories fixes (enum) : `exterieur`, `interieur`, `chambres`, `salles-de-bain`, `autre`.
+- Formats acceptés : JPEG, PNG.
+- Variantes générées automatiquement : 400px, 800px, 1600px (pas d'upscale).
+- Textes alternatifs bilingues (FR/EN) via `localized_content` (EAV).
 
 ---
 

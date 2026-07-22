@@ -45,8 +45,11 @@ erDiagram
     PHOTO {
         uuid id
         uuid property_id
-        string url
-        string alt
+        string category
+        string content_type
+        int width
+        int height
+        int byte_size
         int sort_order
         bool is_main
     }
@@ -117,6 +120,7 @@ Champs par entité :
 | `amenity` | `label` | « Wifi haute vitesse » |
 | `faq_item` | `question` | « Puis-je amener un animal ? » |
 | `faq_item` | `answer` | « Oui, chiens et chats bienvenus. » |
+| `photo` | `alt` | « Vue de la piscine » |
 
 Cette approche évite de créer des colonnes comme `title_fr` et `title_en` sur chaque table métier.
 
@@ -125,10 +129,14 @@ Cette approche évite de créer des colonnes comme `title_fr` et `title_en` sur 
 Photo affichée sur le site.
 
 Responsabilités :
-- URL ;
-- ordre ;
-- photo principale ;
-- texte alternatif.
+- catégorie (enum fixe V1 : `exterieur`, `interieur`, `chambres`, `salles-de-bain`, `autre`) ;
+- dimensions (`width`, `height`, `byte_size`) et format (`content_type` : JPEG ou PNG) ;
+- ordre d'affichage ;
+- photo principale (une seule par bien via `is_main` unique) ;
+- texte alternatif bilingue via `localized_content` (`entity_type='photo'`, `field='alt'`, `locale` en `fr`/`en`).
+
+**Pas de colonne `url`** : les URLs sont calculées à partir de l'id photo (`/api/public/media/{id}`) et
+permettent le service avec variantes responsive (widths 400/800/1600/original).
 
 ### Amenity
 
