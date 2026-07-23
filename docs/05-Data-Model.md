@@ -75,6 +75,7 @@ erDiagram
         string phone
         int adults
         int children
+        string locale
     }
 
     RESERVATION {
@@ -214,6 +215,11 @@ La règle applicable est celle de plus haute priorité dont la période contient
 Demande envoyée par un voyageur.
 
 Ne bloque pas les dates.
+
+Mémorise la `locale` choisie par le voyageur (`fr` par défaut, ou `en`) au moment de la
+demande. Cette langue sert à localiser l'email de refus envoyé au voyageur si le propriétaire
+rejette la demande (le devis lui-même reste indépendant de la locale, figé dans
+`QuoteSnapshot`).
 
 ### Reservation
 
