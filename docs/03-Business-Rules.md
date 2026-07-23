@@ -23,6 +23,8 @@ Pendant la période du 14 juin au 28 août, afficher :
 | 15 août → 21 août inclus | 500 € |
 | 22 août → 28 août inclus | 450 € |
 
+**Règle d'anti-chevauchement** : deux périodes tarifaires ne doivent pas se chevaucher à priorité identique. Cette règle est **garantie par une contrainte d'exclusion en base** (PostgreSQL). Un chevauchement de même-priorité → **409 CONFLICT**.
+
 ## Frais
 
 | Frais | Montant | Obligatoire |

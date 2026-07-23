@@ -108,8 +108,10 @@ L'admin peut créer des périodes tarifaires.
 
 
 Règle V1 :
-- deux périodes ne doivent pas se chevaucher à priorité identique ;
+- deux périodes ne doivent pas se chevaucher à priorité identique (garantie par une **contrainte d'exclusion en base**) ;
 - si des priorités sont utilisées, la priorité la plus haute gagne.
+
+Un chevauchement de même-priorité déclenche une erreur **409 CONFLICT** au dashboard.
 
 ---
 

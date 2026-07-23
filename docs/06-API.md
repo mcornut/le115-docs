@@ -89,7 +89,8 @@ Body :
   "arrival": "2026-07-04",
   "departure": "2026-07-11",
   "adults": 4,
-  "children": 2
+  "children": 2,
+  "locale": "fr"
 }
 ```
 
@@ -103,7 +104,7 @@ Response `200` :
   ],
   "subtotalCents": 210000,
   "fees": [
-    { "code": "cleaning", "amountCents": 12000 }
+    { "code": "cleaning", "amountCents": 12000, "label": "Ménage" }
   ],
   "adjustments": [],
   "totalCents": 222000,
@@ -112,6 +113,9 @@ Response `200` :
   "errors": []
 }
 ```
+
+- `locale` : optionnel (défaut `fr`), détermine la langue des libellés des frais (fallback `fr` si locale non disponible).
+- `fees[].label` : libellé du frais résolu dans la locale demandée, à titre informatif (le calcul du montant est inchangé).
 
 - `submittable` : `false` si le devis viole une règle (durée min, jour d'arrivée/départ, dates dans le passé, voyageurs > max). Le devis reste **affichable** mais non soumissible ; `errors[]` porte alors les codes concernés (voir *Erreurs*).
 - `POST /quote` ne vérifie **pas** la disponibilité (prix pur) ; celle-ci est contrôlée à la soumission.
@@ -220,6 +224,37 @@ Modifie une période.
 ### DELETE /api/admin/pricing-periods/{id}
 
 Supprime une période.
+
+### GET /api/admin/fees
+
+Liste les frais additionnels.
+
+### POST /api/admin/fees
+
+Crée un frais additionnel avec libellé bilingue.
+
+Body :
+- `code` : identifiant unique du frais ;
+- `amountCents` : montant en centimes ;
+- `label` : `{ "fr": "...", "en": "..." }`.
+
+Erreur : `409 CONFLICT` si le code existe déjà.
+
+### PATCH /api/admin/fees/{id}
+
+Modifie un frais (partiel : seuls les champs présents sont mis à jour).
+
+Body (tous optionnels) :
+- `label` : `{ "fr": "...", "en": "..." }` ;
+- `amountCents`.
+
+Response `200`.
+
+### DELETE /api/admin/fees/{id}
+
+Supprime un frais.
+
+Response `204`.
 
 ### GET /api/admin/content
 
@@ -376,6 +411,7 @@ Codes métier stables :
 | `UNAUTHORIZED` | 401 | Authentification requise ou identifiants/session invalides |
 | `PROPERTY_NOT_FOUND` | 404 | Bien introuvable |
 | `VALIDATION` | 422 | Demande non soumissible ; `details` liste les codes de règle enfreints |
+| `CONFLICT` | 409 | Conflit d'intégrité : chevauchement de périodes tarifaires (même priorité), code de frais dupliqué, etc. |
 | `DATES_UNAVAILABLE` | 409 | Dates demandées indisponibles |
 | `INTERNAL` | 500 | Erreur interne |
 

@@ -172,6 +172,8 @@ V1 :
 
 Modèle générique afin de pouvoir ajouter plus tard linge, animal, chauffage piscine, etc.
 
+Libellé localisé FR/EN via `localized_content` (`entity_type='additional_fee'`, `field='label'`, `locale` en `fr`/`en`).
+
 ### StayRule
 
 Règle de séjour applicable à une période.
