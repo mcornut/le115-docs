@@ -68,7 +68,9 @@ Notes :
 - Cache immuable (`Cache-Control: public, max-age=31536000, immutable`).
 - En dehors du rate limiting public.
 
-Erreurs : `404` si la photo n'existe pas ou si `w` n'est pas reconnu (les variantes < source width seulement).
+Erreurs : `404` si la photo n'existe pas, si `w` n'est pas reconnu (les variantes < source width
+seulement), **ou** si `{id}` n'est pas un identifiant valide — le visiteur ne doit pas pouvoir
+distinguer « identifiant malformé » d'« identifiant inexistant ».
 
 ### GET /api/public/availability
 
@@ -144,7 +146,7 @@ de dérogation localisée le cas échéant), `409 DATES_UNAVAILABLE` (dates indi
 
 ## Admin API
 
-Toutes les routes admin (hors `login`) exigent une **session authentifiée**. L'authentification se fait par **cookie de session opaque HttpOnly** (compte propriétaire unique, seedé — pas d'inscription). Sans session valide → `401 UNAUTHORIZED`.
+Toutes les routes admin (hors `login`) exigent une **session authentifiée**. L'authentification se fait par **cookie de session opaque HttpOnly** (compte propriétaire unique, seedé — pas d'inscription). Sans session valide → `401 UNAUTHORIZED`. Sur toute route portant un paramètre `{id}`, un identifiant qui n'est pas un UUID valide renvoie `400 INVALID_REQUEST` (et non une erreur de base de données).
 
 ### POST /api/admin/login
 
@@ -188,7 +190,9 @@ Bloque une période.
 
 ### DELETE /api/admin/calendar-blocks/{id}
 
-Supprime un blocage.
+Supprime un blocage. Succès → `204`. `{id}` inexistant → `404 NOT_FOUND` (aucune entrée n'est
+journalisée pour un blocage qui n'a jamais existé). `{id}` n'est pas un identifiant valide →
+`400 INVALID_REQUEST`, comme tout paramètre de route admin nommé `id`.
 
 ### GET /api/admin/sync-sources
 
@@ -482,6 +486,7 @@ Codes métier stables :
 | `INVALID_REQUEST` | 400 | Corps/paramètres invalides (dates mal formées, email manquant/invalide…) |
 | `UNAUTHORIZED` | 401 | Authentification requise ou identifiants/session invalides |
 | `PROPERTY_NOT_FOUND` | 404 | Bien introuvable |
+| `NOT_FOUND` | 404 | Ressource admin introuvable (blocage, photo, tarif, règle de séjour…), y compris un paramètre de route `{id}` syntaxiquement valide mais ne correspondant à rien |
 | `VALIDATION` | 422 | Demande non soumissible ; `details` liste les codes de règle enfreints |
 | `CONFLICT` | 409 | Conflit d'intégrité : chevauchement de périodes tarifaires (même priorité), code de frais dupliqué, etc. |
 | `DATES_UNAVAILABLE` | 409 | Dates demandées indisponibles |
