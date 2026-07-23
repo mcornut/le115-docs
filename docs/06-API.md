@@ -148,9 +148,19 @@ de dérogation localisée le cas échéant), `409 DATES_UNAVAILABLE` (dates indi
 
 Toutes les routes admin (hors `login`) exigent une **session authentifiée**. L'authentification se fait par **cookie de session opaque HttpOnly** (compte propriétaire unique, seedé — pas d'inscription). Sans session valide → `401 UNAUTHORIZED`. Sur toute route portant un paramètre `{id}`, un identifiant qui n'est pas un UUID valide renvoie `400 INVALID_REQUEST` (et non une erreur de base de données).
 
+**CSRF** : chaque session porte un jeton CSRF, livré dans le **corps** de `POST /login` et de
+`GET /me` (jamais par un cookie, pour rester lisible par un front hébergé sur une autre
+origine). Toute écriture admin (méthode autre que `GET`/`HEAD`/`OPTIONS`) doit porter l'en-tête
+`X-CSRF-Token` avec la valeur exacte du jeton de la session courante, sous peine de
+`403 CSRF_INVALID`. `POST /login` (pas encore de session) et `POST /logout` (doit fonctionner
+même sur une session déjà invalide) sont exemptés.
+
 ### POST /api/admin/login
 
-Connexion propriétaire. Body `{ "email", "password" }`. Succès → `204` + cookie de session (`HttpOnly`, `SameSite=Lax`, `Secure` en production). Identifiants invalides → `401 UNAUTHORIZED` (message générique, sans distinguer email inconnu et mot de passe faux). Endpoint **rate-limité**.
+Connexion propriétaire. Body `{ "email", "password" }`. Succès → `200` + `{ "csrfToken" }` +
+cookie de session (`HttpOnly`, `SameSite=Lax`, `Secure` en production). Identifiants invalides →
+`401 UNAUTHORIZED` (message générique, sans distinguer email inconnu et mot de passe faux).
+Endpoint **rate-limité**.
 
 ### POST /api/admin/logout
 
@@ -158,7 +168,8 @@ Déconnexion : invalide la session et efface le cookie. → `204`.
 
 ### GET /api/admin/me
 
-Retourne le propriétaire de la session courante (`{ "email" }`). Protégé.
+Retourne le propriétaire de la session courante et son jeton CSRF (`{ "email", "csrfToken" }`).
+Protégé.
 
 ### GET /api/admin/calendar
 
@@ -485,6 +496,7 @@ Codes métier stables :
 |---|---:|---|
 | `INVALID_REQUEST` | 400 | Corps/paramètres invalides (dates mal formées, email manquant/invalide…) |
 | `UNAUTHORIZED` | 401 | Authentification requise ou identifiants/session invalides |
+| `CSRF_INVALID` | 403 | En-tête `X-CSRF-Token` absent ou ne correspondant pas au jeton de la session courante, sur une écriture admin |
 | `PROPERTY_NOT_FOUND` | 404 | Bien introuvable |
 | `NOT_FOUND` | 404 | Ressource admin introuvable (blocage, photo, tarif, règle de séjour…), y compris un paramètre de route `{id}` syntaxiquement valide mais ne correspondant à rien |
 | `VALIDATION` | 422 | Demande non soumissible ; `details` liste les codes de règle enfreints |
