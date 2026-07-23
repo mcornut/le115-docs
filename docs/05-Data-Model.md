@@ -121,6 +121,8 @@ Champs par entité :
 | `faq_item` | `question` | « Puis-je amener un animal ? » |
 | `faq_item` | `answer` | « Oui, chiens et chats bienvenus. » |
 | `photo` | `alt` | « Vue de la piscine » |
+| `additional_fee` | `label` | « Ménage » / « Cleaning » |
+| `stay_rule` | `derogation_note` | « Hors samedi : nous contacter. » / « Outside Saturdays: please contact us. » |
 
 Cette approche évite de créer des colonnes comme `title_fr` et `title_en` sur chaque table métier.
 
@@ -178,18 +180,34 @@ Libellé localisé FR/EN via `localized_content` (`entity_type='additional_fee'`
 
 Règle de séjour applicable à une période.
 
-Champs recommandés :
+Champs :
 - `start_date` / `end_date` (nulles = règle par défaut) ;
 - `min_nights` ;
-- `allowed_checkin_dows` / `allowed_checkout_dows` (jours d'arrivée / de départ autorisés) ;
-- `derogation_note` ;
+- `allowed_checkin_dows` / `allowed_checkout_dows` (jours d'arrivée / de départ autorisés,
+  entiers `0`–`6`, dimanche = `0`) ;
 - `priority`.
 
+La note de dérogation n'est **pas** une colonne de `stay_rule` : elle vit dans
+`localized_content` (`entity_type='stay_rule'`, `field='derogation_note'`, `locale` en
+`fr`/`en`), comme les autres textes bilingues du modèle.
+
 V1 :
-- basse saison : 3 nuits, arrivée/départ tous les jours ;
-- 14 juin → 28 août : 7 nuits, arrivée/départ le samedi, avec message de dérogation.
+- basse saison (règle par défaut) : 3 nuits, arrivée/départ tous les jours ;
+- 14 juin → 28 août : 7 nuits, arrivée/départ le samedi, avec message de dérogation bilingue.
 
 La règle applicable est celle de plus haute priorité dont la période contient la date d'arrivée.
+
+**Invariants garantis en base :**
+- **Anti-chevauchement à priorité identique** entre règles saisonnières : contrainte
+  d'exclusion PostgreSQL `stay_rule_no_overlap` (`gist`, sur `property_id`, `priority`,
+  `daterange(start_date, end_date, '[]')`), n'affectant que les règles saisonnières
+  (`start_date IS NOT NULL`). Deux règles saisonnières peuvent en revanche se **superposer**
+  si leurs priorités diffèrent (la plus haute gagne).
+- **Une seule règle par défaut** par bien : index unique partiel `stay_rule_one_default`
+  sur `(property_id) WHERE start_date IS NULL`. Cette règle est obligatoire (non
+  supprimable) : sans elle, tout séjour hors saison serait soumissible sans contrainte.
+- **Nature d'une règle immuable** : une règle saisonnière ne devient jamais une règle par
+  défaut (ni l'inverse) après création — conséquence de l'invariant précédent.
 
 ### StayRequest
 

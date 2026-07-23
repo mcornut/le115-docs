@@ -4,12 +4,41 @@
 
 | Période | Durée minimum | Arrivée | Départ |
 |---|---:|---|---|
-| Hors haute saison | 3 nuits | Tous les jours | Tous les jours |
+| Hors haute saison (règle par défaut) | 3 nuits | Tous les jours | Tous les jours |
 | 14 juin → 28 août | 7 nuits | Samedi | Samedi |
 
 Pendant la période du 14 juin au 28 août, afficher :
 
 > *Les demandes de dérogation à cette règle pourront être étudiées.*
+
+Cette note de dérogation est **bilingue FR/EN** et éditable par le propriétaire (voir
+« CRUD règles de séjour » ci-dessous) ; elle est renvoyée dans la langue du visiteur sur le
+devis (`/quote`) et sur le refus d'une demande de séjour non soumissible.
+
+### CRUD règles de séjour (admin)
+
+Le propriétaire édite ces règles depuis le dashboard (nom, saison optionnelle, durée
+minimale, jours d'arrivée/de départ autorisés, note de dérogation bilingue, priorité), sans
+toucher à la base :
+
+- **Superposition autorisée entre règles saisonnières** : deux règles saisonnières peuvent
+  se chevaucher si leurs **priorités diffèrent** (la règle de plus haute priorité s'applique).
+  Le **chevauchement est interdit entre deux règles saisonnières de même priorité** —
+  garanti par une **contrainte d'exclusion en base** (PostgreSQL). Un chevauchement de
+  même-priorité → **409 CONFLICT**.
+- **Exactement une règle par défaut** (la règle sans dates, applicable hors saison) : elle
+  est **obligatoire** — une seconde règle par défaut est refusée à la création
+  (**409 CONFLICT**), et **la supprimer est également refusé** (**409 CONFLICT**) : sans
+  elle, tout séjour hors saison deviendrait soumissible sans aucune contrainte.
+- **La nature d'une règle est immuable** : une règle saisonnière ne peut pas être convertie
+  en règle par défaut (ni l'inverse) par une modification ultérieure — conséquence directe
+  de l'invariant « une seule règle par défaut ». Une tentative de changement de nature est
+  refusée (**422 VALIDATION**).
+- Les jours d'arrivée/de départ autorisés sont exprimés en entiers **0 à 6, dimanche = 0**.
+
+**Hors périmètre V1** : ces règles ne sont pas encore annoncées au visiteur avant sa
+demande (pas d'affichage sur la fiche du bien, pas d'aperçu par dates) ; il les découvre en
+les violant, via le message de refus.
 
 ## Tarifs 2025
 

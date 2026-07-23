@@ -129,11 +129,16 @@ Body :
 - `arrival`, `departure` (ISO) ;
 - `firstName`, `lastName`, `email` (**requis, adresse valide**), `phone` ;
 - `adults`, `children` (optionnels) ;
-- `message`.
+- `message` ;
+- `locale` : optionnel (défaut `fr`, comme `/quote`), détermine la langue de la note de
+  dérogation renvoyée dans `details[]` si la demande est refusée pour violation d'une règle
+  de séjour (fallback `fr` si locale non disponible).
 
 Response `201` : `{ "id": "...", "quote": { ... } }` (le devis figé).
 
-Erreurs possibles : `422 VALIDATION` (devis non soumissible, `details` = codes), `409 DATES_UNAVAILABLE` (dates indisponibles), `400 INVALID_REQUEST` (email manquant/invalide, dates invalides, corps invalide).
+Erreurs possibles : `422 VALIDATION` (devis non soumissible, `details` = codes, avec la note
+de dérogation localisée le cas échéant), `409 DATES_UNAVAILABLE` (dates indisponibles),
+`400 INVALID_REQUEST` (email manquant/invalide, dates invalides, corps invalide).
 
 ---
 
@@ -255,6 +260,73 @@ Response `200`.
 Supprime un frais.
 
 Response `204`.
+
+### GET /api/admin/stay-rules
+
+Liste les règles de séjour.
+
+Response `200` :
+
+```json
+[
+  {
+    "id": "...",
+    "name": "Haute saison",
+    "from": "2026-06-14",
+    "to": "2026-08-28",
+    "minNights": 7,
+    "allowedCheckinDows": [6],
+    "allowedCheckoutDows": [6],
+    "derogationNote": { "fr": "Hors samedi : nous contacter.", "en": "Outside Saturdays: please contact us." },
+    "priority": 10,
+    "isDefault": false
+  }
+]
+```
+
+- `from`/`to` à `null` ⇒ règle par défaut (`isDefault: true`).
+- `allowedCheckinDows`/`allowedCheckoutDows` : entiers `0`–`6`, dimanche = `0`.
+
+### POST /api/admin/stay-rules
+
+Crée une règle de séjour. Body : mêmes champs que la réponse (hors `id`/`isDefault` :
+`from`/`to` absents ou `null` ⇒ règle par défaut).
+
+Response `201` : `{ "id": "..." }`.
+
+Erreurs :
+- `422 VALIDATION` : nom vide, `minNights` hors `1`–`365`, un seul de `from`/`to` fourni,
+  `to < from`, jour hors `0`–`6`.
+- `409 CONFLICT` : chevauchement avec une règle saisonnière existante de **même priorité**
+  (la superposition est autorisée entre règles de priorités différentes) ; ou tentative de
+  créer une **seconde règle par défaut** (une seule autorisée par bien).
+
+### PATCH /api/admin/stay-rules/{id}
+
+Modifie une règle de séjour (partiel : seuls les champs présents sont mis à jour).
+
+Body (tous optionnels) : `name`, `from`, `to`, `minNights`, `allowedCheckinDows`,
+`allowedCheckoutDows`, `derogationNote`, `priority`.
+
+Response `204`.
+
+Erreurs :
+- `422 VALIDATION` : mêmes règles qu'à la création, plus le refus d'un changement de
+  **nature** de la règle (convertir une règle saisonnière en règle par défaut, ou l'inverse).
+- `409 CONFLICT` : chevauchement à priorité identique avec une autre règle.
+- `404 NOT_FOUND` : identifiant inconnu.
+
+### DELETE /api/admin/stay-rules/{id}
+
+Supprime une règle de séjour.
+
+Response `204`.
+
+Erreurs :
+- `409 CONFLICT` : la règle visée est **la règle par défaut** — elle ne peut pas être
+  supprimée (elle est obligatoire ; sans elle, tout séjour hors saison serait soumissible
+  sans aucune contrainte).
+- `404 NOT_FOUND` : identifiant inconnu.
 
 ### GET /api/admin/content
 
