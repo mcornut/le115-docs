@@ -50,6 +50,11 @@ Raison :
 - c'est l'information la plus utile au propriétaire ;
 - elle permet de voir rapidement les réservations, blocages et disponibilités.
 
+> **Remplacée par DEC-014** : l'écran d'accueil du dashboard V1 livré est le
+> **Tableau de bord** (synthèse), pas directement le Calendrier — le
+> Calendrier reste une entrée de navigation à part entière, accessible en un
+> clic.
+
 ## DEC-007 — Détail du prix obligatoire
 
 Le devis affiche le détail :
@@ -115,3 +120,42 @@ Prolonge DEC-011 (synchronisation Abritel via import iCal).
 - **Si la synchronisation échoue** (source injoignable), l'approbation est **refusée** avec un message explicite ; l'administrateur réessaie une fois la source de nouveau joignable. On préfère bloquer plutôt que valider sur un calendrier potentiellement périmé.
 - Côté voyageur, la disponibilité affichée reflète le **dernier** sync (le temps réel n'est pas requis).
 - V1 : déclenchement **manuel** de la synchronisation (pas de planification automatique) ; le dashboard affiche l'état/la date du dernier sync.
+
+## DEC-014 — Dashboard = SPA séparée, déploiement même origine que l'API
+
+Le dashboard admin est développé comme une **application front séparée**
+(Vite / React / TypeScript, dépôt `le115-dashboard`), distincte du site
+public. Il consomme l'API backend existante (`/api/admin/...`) sans jamais
+réimplémenter de logique métier côté front.
+
+Topologie retenue : **même origine en production**. Le bundle statique du
+dashboard (`dist/`) est servi **derrière le même reverse-proxy / même
+domaine** que l'API — pas de sous-domaine ni d'hébergement séparé pour la
+V1.
+
+Conséquences :
+- le cookie de session admin reste `SameSite=Lax` (déjà en place côté
+  backend), sans configuration `SameSite=None` ni CORS à ouvrir ;
+- en développement, un proxy du serveur de dev (Vite) reproduit la même
+  origine vers le backend local, pour un comportement identique à la
+  production ;
+- l'écran d'accueil du dashboard V1 est le **Tableau de bord** (synthèse),
+  pas directement le Calendrier — cf. remarque sous DEC-006 ;
+- la navigation V1 du dashboard compte huit entrées : Tableau de bord,
+  Calendrier, Demandes, Réservations, Tarifs, Maison, Synchronisations,
+  Activité (détail : `04-Dashboard.md`) ;
+- le chrome du dashboard (navigation, libellés d'interface) est **en
+  français uniquement** — aucune internationalisation de l'interface admin
+  elle-même ; seuls les contenus édités (site public) restent bilingues
+  FR/EN (cf. DEC-010).
+
+## DEC-015 — Périmètre du dashboard V1 : mono-bien
+
+Le dashboard V1 est conçu et livré pour **un seul bien** (Le 115), sur le
+backend existant, lui-même mono-bien en V1.
+
+Conséquence :
+- aucune notion de sélection de bien/logement dans l'interface V1 ;
+- les modules imaginés au-delà de ce périmètre (multi-bien, gestion de
+  logements, utilisateurs multiples, etc.) sont **reportés post-V1** —
+  cf. `04-Dashboard.md` (« Modules reportés post-V1 ») et `08-Roadmap.md`.
