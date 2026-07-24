@@ -177,7 +177,16 @@ Retourne les réservations, demandes et blocages.
 
 ### GET /api/admin/stay-requests
 
-Liste les demandes.
+Liste les demandes, les plus récentes d'abord. Paramètre optionnel `status`
+(`pending` | `approved` | `rejected`) ; absent, toutes les demandes sont
+renvoyées.
+
+Chaque élément porte `id`, `status`, `firstName`, `lastName`, `email`, `phone`,
+`arrival`, `departure`, `adults`, `children`, `totalCents`, `createdAt`.
+
+`totalCents` est lu dans le devis figé de la demande. Un instantané dépourvu
+de total vaut `0` — jamais une erreur, pour qu'une ligne héritée ne prive pas
+le propriétaire de toute sa liste.
 
 ### GET /api/admin/stay-requests/{id}
 
