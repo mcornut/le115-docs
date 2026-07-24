@@ -235,10 +235,10 @@ flowchart TD
 
 ## TODO
 
+- [x] Créer la liste des demandes.
+- [x] Créer la fiche demande.
+- [x] Implémenter accepter/refuser (et la note interne).
 - [ ] Créer l'écran calendrier.
-- [ ] Créer la liste des demandes.
-- [ ] Créer la fiche demande.
-- [ ] Implémenter accepter/refuser.
 - [ ] Créer l'éditeur de tarifs.
 - [ ] Créer l'éditeur de contenus.
 - [ ] Créer le journal d'activité.
