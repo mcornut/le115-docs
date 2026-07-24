@@ -72,18 +72,24 @@ Champs affichés :
 - email ;
 - téléphone ;
 - dates ;
-- montant ;
+- montant (issu du devis figé) ;
 - statut ;
 - date de création.
 
+La liste est triée par date de création décroissante. Le filtre de statut est
+porté par l'URL, et ouvre par défaut sur les demandes **en attente**.
+
 ### Actions
 
-- voir le détail ;
-- accepter ;
-- refuser ;
-- annuler ;
-- ajuster le prix (geste commercial) ;
+- voir le détail (dont le devis figé au moment de la soumission) ;
+- accepter (crée une réservation confirmée) ;
+- refuser (notifie le voyageur par email, dans sa langue) ;
 - ajouter une note interne.
+
+!!! note "Annuler et ajuster le prix"
+    Ces deux actions portent sur une **réservation confirmée**, pas sur une
+    demande : elles sont décrites dans la section Réservations. Une demande
+    ne peut être qu'acceptée, refusée ou annotée.
 
 ---
 
