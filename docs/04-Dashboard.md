@@ -102,6 +102,10 @@ Une réservation est créée après acceptation d'une demande.
     par une demande) est reportée post-V1 — voir « Modules reportés
     post-V1 » plus bas.
 
+La liste est triée par **date d'arrivée croissante** (séjours à venir en tête)
+et filtrable par statut (défaut : **confirmées**). Le détail expose le devis
+figé — ajustements compris — et la note interne.
+
 Champs :
 - dates ;
 - voyageur ;
@@ -111,10 +115,9 @@ Champs :
 - note interne.
 
 Actions :
-- ajuster le prix (geste commercial) ;
-- annuler.
-
-Un ajustement régénère le devis figé et fait apparaître la ligne dans le détail.
+- ajuster le prix (geste commercial guidé : sens remise/supplément + montant, régénère le devis figé) ;
+- annuler (libère les dates ; aucune notification voyageur en V1) ;
+- ajouter une note interne.
 
 ---
 
@@ -239,6 +242,9 @@ flowchart TD
 - [x] Créer la liste des demandes.
 - [x] Créer la fiche demande.
 - [x] Implémenter accepter/refuser (et la note interne).
+- [x] Créer la liste des réservations (tri par arrivée, filtre de statut).
+- [x] Créer la fiche réservation (devis figé + note interne).
+- [x] Implémenter annuler et ajuster le prix.
 - [ ] Créer l'écran calendrier.
 - [ ] Créer l'éditeur de tarifs.
 - [ ] Créer l'éditeur de contenus.

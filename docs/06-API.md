@@ -204,6 +204,11 @@ Refuse une demande.
 
 Liste les réservations.
 
+### GET /api/admin/reservations/{id}
+
+Détail d'une réservation (mêmes champs que la ligne de liste + `internalNote`
+et `quoteSnapshot` figé). `{id}` inconnu → `404 NOT_FOUND`.
+
 ### POST /api/admin/calendar-blocks
 
 Bloque une période.
