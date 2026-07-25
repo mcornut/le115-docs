@@ -61,6 +61,17 @@ sont couvertes par le module `Maison`.
 | Réservé | Rouge | Oui |
 | Bloqué | Gris / noir | Oui |
 
+Le dashboard affiche les **3 types d'occupation** servis par l'API
+(`GET /api/admin/calendar`) : **réservé** (vert), **bloqué** (gris),
+**externe** (rouge, imports Abritel/iCal) ; le reste est **disponible**. Les
+demandes en attente n'apparaissent pas sur le calendrier (elles ne bloquent
+pas la disponibilité et vivent dans le module Demandes).
+
+L'admin **bloque une période** via un formulaire **Du / Au** (dates
+**inclusives** — « du 15 au 20 » bloque les 6 jours, le 20 compris) + un
+motif, et **lève un blocage** en cliquant dessus puis en confirmant. Une
+case de réservation renvoie vers la fiche `/reservations/:id`.
+
 ---
 
 ## Demandes de séjour
@@ -245,7 +256,7 @@ flowchart TD
 - [x] Créer la liste des réservations (tri par arrivée, filtre de statut).
 - [x] Créer la fiche réservation (devis figé + note interne).
 - [x] Implémenter annuler et ajuster le prix.
-- [ ] Créer l'écran calendrier.
+- [x] Créer l'écran calendrier (grille mensuelle, blocages manuels).
 - [ ] Créer l'éditeur de tarifs.
 - [ ] Créer l'éditeur de contenus.
 - [ ] Créer le journal d'activité.
