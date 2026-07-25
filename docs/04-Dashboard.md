@@ -228,6 +228,7 @@ flowchart TD
     C -->|Accepter| D[Créer réservation]
     C -->|Refuser| E[Marquer refusée]
     D --> F[Dates indisponibles]
+    D --> H[Email confirmation]
     E --> G[Email refus]
 ```
 
