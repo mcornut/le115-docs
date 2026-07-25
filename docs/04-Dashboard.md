@@ -54,12 +54,12 @@ sont couvertes par le module `Maison`.
 
 ## États du calendrier
 
-| État | Couleur suggérée | Bloque la disponibilité |
+| État | Couleur | Bloque la disponibilité |
 |---|---|---|
-| Disponible | Vert / neutre | Non |
-| Demande en attente | Orange | Non |
-| Réservé | Rouge | Oui |
-| Bloqué | Gris / noir | Oui |
+| Disponible | Neutre | Non |
+| Réservé | Vert | Oui |
+| Bloqué | Gris | Oui |
+| Externe | Rouge | Oui |
 
 Le dashboard affiche les **3 types d'occupation** servis par l'API
 (`GET /api/admin/calendar`) : **réservé** (vert), **bloqué** (gris),
