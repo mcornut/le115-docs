@@ -82,7 +82,7 @@ porté par l'URL, et ouvre par défaut sur les demandes **en attente**.
 ### Actions
 
 - voir le détail (dont le devis figé au moment de la soumission) ;
-- accepter (crée une réservation confirmée) ;
+- accepter (crée une réservation confirmée, notifie le voyageur par email dans sa langue) ;
 - refuser (notifie le voyageur par email, dans sa langue) ;
 - ajouter une note interne.
 
