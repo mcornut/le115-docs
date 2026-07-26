@@ -151,6 +151,21 @@ Règle V1 :
 
 Un chevauchement de même-priorité déclenche une erreur **409 CONFLICT** au dashboard.
 
+Le module **Tarifs** (`/tarifs`) gère deux entités sur une page unique :
+
+**Périodes tarifaires** — nom, dates **du / au inclusives** (`[du, au]`, le
+jour « au » est compris), prix par nuit et **priorité** (champ avancé, replié,
+défaut 0). Deux périodes ne peuvent se chevaucher **qu'à priorité identique**
+(sinon la plus haute l'emporte) ; un chevauchement à priorité égale est refusé
+(**409 CONFLICT**). Création, modification et suppression depuis le dashboard ;
+les devis déjà figés ne sont pas affectés par une suppression.
+
+**Frais** — code unique (identifiant technique), libellés **FR / EN**, montant,
+caractère **obligatoire**, **ordre d'affichage**, et un état **Actif / Inactif**.
+Désactiver un frais le retire des nouveaux devis sans le perdre (pause non
+destructive) ; on peut aussi le **supprimer** définitivement. Un code déjà
+utilisé est refusé (**409 CONFLICT**).
+
 ---
 
 ## Maison / CMS
@@ -257,6 +272,6 @@ flowchart TD
 - [x] Créer la fiche réservation (devis figé + note interne).
 - [x] Implémenter annuler et ajuster le prix.
 - [x] Créer l'écran calendrier (grille mensuelle, blocages manuels).
-- [ ] Créer l'éditeur de tarifs.
+- [x] Créer l'éditeur de tarifs.
 - [ ] Créer l'éditeur de contenus.
 - [ ] Créer le journal d'activité.
