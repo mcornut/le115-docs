@@ -225,6 +225,16 @@ Aujourd'hui
 - Photo ajoutée : piscine.jpg
 ```
 
+L'écran **Activité** (`/activite`) affiche, en **lecture seule**, le journal
+servi par l'API (`GET /api/admin/activity-log`) : les entrées sont **groupées
+par jour** (en-têtes « Aujourd'hui », « Hier », puis la date, en heure
+d'Europe/Paris), du plus récent au plus ancien, chacune portant un **badge de
+catégorie** (Demande, Réservation, Calendrier, Tarif, Contenu, Sync, Alerte).
+Un bouton **« Voir plus »** charge davantage d'entrées (plafond 500).
+
+En V1, une entrée n'est pas cliquable vers l'élément concerné : le journal ne
+transporte pas de référence machine, seulement un message déjà rédigé.
+
 ---
 
 ## Modules reportés post-V1
@@ -274,4 +284,4 @@ flowchart TD
 - [x] Créer l'écran calendrier (grille mensuelle, blocages manuels).
 - [x] Créer l'éditeur de tarifs.
 - [ ] Créer l'éditeur de contenus.
-- [ ] Créer le journal d'activité.
+- [x] Créer le journal d'activité.
