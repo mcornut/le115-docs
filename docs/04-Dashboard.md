@@ -235,6 +235,18 @@ Un bouton **« Voir plus »** charge davantage d'entrées (plafond 500).
 En V1, une entrée n'est pas cliquable vers l'élément concerné : le journal ne
 transporte pas de référence machine, seulement un message déjà rédigé.
 
+Le message met en avant des **noms/titres lisibles** (nom du voyageur, nom de
+la période tarifaire, motif du blocage, catégorie de la photo), suivis de
+l'**identifiant court** de l'entité entre parenthèses (les huit premiers
+caractères de l'UUID, par exemple `(réservation a1b2c3d4)`). Aucun UUID complet
+n'est exposé. Exemples de messages tels qu'ils apparaissent :
+
+```text
+Demande de Camille Fabre approuvée → réservation confirmée (2026-08-08 → 2026-08-15) (réservation a1b2c3d4)
+Blocage « Entretien de la piscine » créé (2026-10-01 → 2026-10-04) (blocage f7e8d9c0)
+Photo « exterieur » ajoutée (photo 5c6d7e8f)
+```
+
 ---
 
 ## Modules reportés post-V1
