@@ -208,6 +208,29 @@ La V1 doit prévoir une intégration **iCal en import** afin de récupérer les 
 | Conflit avec une demande en attente | Afficher une alerte admin, sans bloquer l'historique de la demande |
 | Erreur de synchronisation | Alerte visible dans le dashboard |
 
+### Module V1 livré
+
+L'écran **Synchronisations** (`/synchronisations`) est livré en **consultation +
+import manuel** : il **liste les sources** de calendrier externe (Abritel /
+iCal) avec, pour chacune, le **statut du dernier import** (Succès / Vide ignoré
+/ Erreur / Jamais synchronisée), sa **date/heure**, l'éventuel **message
+d'erreur**, et un bouton **« Synchroniser maintenant »** qui relance un import à
+la demande.
+
+Deux états explicites distinguent l'absence de données : **« Synchronisation
+externe non configurée »** (aucune clé de chiffrement côté serveur) et **« Aucune
+source de synchronisation »** (service actif, mais rien de configuré).
+
+Les **alertes détaillées** (conflit avec une demande en attente, erreur, sync
+vide ignorée) restent servies par le module **Activité** — l'écran
+Synchronisations ne les duplique pas.
+
+Sont **reportés** (hors V1) : la création / édition / activation / suppression
+d'une source depuis le dashboard, un historique horodaté des imports, un panneau
+de conflits avec liens vers les demandes, et toute **synchronisation
+périodique** (l'import reste manuel, plus une resynchro automatique avant chaque
+approbation de réservation).
+
 ### Hors V1
 
 L'export iCal depuis Le 115 vers d'autres plateformes est utile, mais peut rester en V1.1 si l'import Abritel est prioritaire.
