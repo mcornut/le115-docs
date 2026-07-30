@@ -170,19 +170,40 @@ utilisé est refusé (**409 CONFLICT**).
 
 ## Maison / CMS
 
-L'admin peut modifier :
-- titre ;
-- sous-titre ;
-- description ;
-- équipements ;
-- FAQ ;
-- localisation ;
-- photos ;
-- note affichée ;
-- nombre d'avis.
+L'écran **Maison** (`/maison`) réunit les contenus éditoriaux du bien en
+**trois sections empilées**. Chaque texte existe en **français et en anglais**,
+saisis **côte à côte** : une traduction anglaise manquante est signalée, sans
+bloquer — le site public retombe alors sur le français.
 
-Chaque contenu éditorial existe en FR / EN.
+### Informations du bien
 
+Titre, sous-titre, description et localisation (FR/EN), plus la **note
+affichée** (0 à 5) et le **nombre d'avis**. On modifie librement puis on
+**enregistre la section** ; seuls les champs réellement modifiés sont
+transmis. Une note déjà enregistrée peut être **changée mais pas effacée**.
+
+### Équipements
+
+Liste ordonnée — l'ordre est celui du site public, réglé par des **flèches
+monter / descendre**. Un équipement porte un **code** (identifiant technique,
+unique : un doublon est refusé), une **icône choisie dans un catalogue fermé**
+et un **libellé FR/EN**.
+
+Catalogue d'icônes V1 (vocabulaire que le site public doit savoir dessiner) :
+`pool`, `wifi`, `parking`, `ac`, `heating`, `kitchen`, `dishwasher`, `washer`,
+`tv`, `bbq`, `garden`, `bike`, `pets`, `baby`, `bathtub`, `cleaning`, plus
+« aucune » (valeur vide).
+
+### FAQ
+
+Liste ordonnée de questions/réponses bilingues, même mécanique de
+réordonnancement et d'édition que les équipements.
+
+### Photos
+
+Les **photos sont livrées dans un second temps** : le backend les gère déjà
+(upload, variantes responsive, photo principale, catégories, alt FR/EN), mais
+l'écran correspondant fait l'objet d'un chantier distinct.
 
 ---
 

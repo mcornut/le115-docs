@@ -367,13 +367,21 @@ Met à jour les champs éditoriaux property (`title/subtitle/description/locatio
 
 **Partiel** : seuls les champs présents dans le corps de la requête sont mis à jour ; les champs omis (y compris `rating`/`reviewCount`) restent inchangés. Chaque champ localisé, quand il est fourni, doit porter les deux locales `{fr,en}`.
 
+Un champ ne peut pas être **effacé** par cette route : l'absence d'une clé
+signifie « inchangé ». En particulier, une `rating` déjà enregistrée peut être
+modifiée, pas remise à `null`.
+
 ### POST /api/admin/amenities
 
 Crée un équipement (libellé bilingue).
 
+Le `code` est unique par bien : un doublon renvoie **409 CONFLICT**.
+
 ### PATCH /api/admin/amenities/{id}
 
 Modifie un équipement.
+
+Le `code` est unique par bien : un doublon renvoie **409 CONFLICT**.
 
 ### DELETE /api/admin/amenities/{id}
 
@@ -514,7 +522,7 @@ Codes métier stables :
 | `PROPERTY_NOT_FOUND` | 404 | Bien introuvable |
 | `NOT_FOUND` | 404 | Ressource admin introuvable (blocage, photo, tarif, règle de séjour…), y compris un paramètre de route `{id}` syntaxiquement valide mais ne correspondant à rien |
 | `VALIDATION` | 422 | Demande non soumissible ; `details` liste les codes de règle enfreints |
-| `CONFLICT` | 409 | Conflit d'intégrité : chevauchement de périodes tarifaires (même priorité), code de frais dupliqué, etc. |
+| `CONFLICT` | 409 | Conflit d'intégrité : chevauchement de périodes tarifaires (même priorité), code de frais dupliqué, code d'équipement dupliqué, etc. |
 | `DATES_UNAVAILABLE` | 409 | Dates demandées indisponibles |
 | `INTERNAL` | 500 | Erreur interne |
 
