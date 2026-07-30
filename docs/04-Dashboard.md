@@ -339,5 +339,6 @@ flowchart TD
 - [x] Implémenter annuler et ajuster le prix.
 - [x] Créer l'écran calendrier (grille mensuelle, blocages manuels).
 - [x] Créer l'éditeur de tarifs.
-- [ ] Créer l'éditeur de contenus.
+- [x] Créer l'éditeur de contenus texte (informations du bien, équipements, FAQ).
+- [ ] Créer l'éditeur de photos.
 - [x] Créer le journal d'activité.
