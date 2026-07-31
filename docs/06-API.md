@@ -28,7 +28,7 @@ Response `200` :
   "rating": 4.8,
   "reviewCount": 42,
   "amenities": [
-    { "id": "...", "code": "wifi", "icon": "📡", "label": "Wifi haute vitesse" }
+    { "id": "...", "code": "wifi", "icon": "wifi", "label": "Wifi haute vitesse" }
   ],
   "faq": [
     { "id": "...", "question": "Puis-je amener mon chien ?", "answer": "Oui, chiens bienvenus." }
@@ -367,21 +367,33 @@ Met à jour les champs éditoriaux property (`title/subtitle/description/locatio
 
 **Partiel** : seuls les champs présents dans le corps de la requête sont mis à jour ; les champs omis (y compris `rating`/`reviewCount`) restent inchangés. Chaque champ localisé, quand il est fourni, doit porter les deux locales `{fr,en}`.
 
-Un champ ne peut pas être **effacé** par cette route : l'absence d'une clé
-signifie « inchangé ». En particulier, une `rating` déjà enregistrée peut être
-modifiée, pas remise à `null`.
+**Effacement** : l'absence d'une clé signifie « inchangé ». Les valeurs
+scalaires ne peuvent donc pas être remises à vide par cette route — une
+`rating` déjà enregistrée peut être modifiée, pas remise à `null`. Un champ
+localisé transmis avec des chaînes vides, en revanche, est bel et bien
+enregistré vide ; c'est le dashboard qui exige un français non vide sur les
+quatre textes éditoriaux.
 
 ### POST /api/admin/amenities
 
 Crée un équipement (libellé bilingue).
 
-Le `code` est unique par bien : un doublon renvoie **409 CONFLICT**.
+Le `code` est unique par bien : un doublon renvoie **409 CONFLICT**. Il est
+enregistré débarrassé de ses espaces de bord.
+
+L'`icon` doit appartenir au **catalogue fermé** (cf. `04-Dashboard.md`) : toute
+autre valeur renvoie **422 VALIDATION**. La chaîne vide (« aucune ») est
+acceptée.
 
 ### PATCH /api/admin/amenities/{id}
 
 Modifie un équipement.
 
-Le `code` est unique par bien : un doublon renvoie **409 CONFLICT**.
+Le `code` est unique par bien : un doublon renvoie **409 CONFLICT**. Il est
+enregistré débarrassé de ses espaces de bord.
+
+L'`icon` doit appartenir au **catalogue fermé** : toute autre valeur renvoie
+**422 VALIDATION**.
 
 ### DELETE /api/admin/amenities/{id}
 

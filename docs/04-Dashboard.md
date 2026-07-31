@@ -28,7 +28,7 @@ Nav V1 réelle, huit entrées, chrome en français uniquement :
 | Demandes | Demandes de séjour à traiter |
 | Réservations | Séjours confirmés |
 | Tarifs | Périodes tarifaires et frais |
-| Maison | Informations principales du bien (contenus FR/EN, photos) |
+| Maison | Contenus du bien : informations principales FR/EN, équipements et FAQ (photos à venir) |
 | Synchronisations | Imports externes, notamment Abritel / iCal |
 | Activité | Journal des actions importantes |
 
@@ -189,10 +189,13 @@ monter / descendre**. Un équipement porte un **code** (identifiant technique,
 unique : un doublon est refusé), une **icône choisie dans un catalogue fermé**
 et un **libellé FR/EN**.
 
-Catalogue d'icônes V1 (vocabulaire que le site public doit savoir dessiner) :
-`pool`, `wifi`, `parking`, `ac`, `heating`, `kitchen`, `dishwasher`, `washer`,
-`tv`, `bbq`, `garden`, `bike`, `pets`, `baby`, `bathtub`, `cleaning`, plus
-« aucune » (valeur vide).
+Catalogue d'icônes V1 (vocabulaire que le site public doit savoir dessiner),
+dans l'ordre du sélecteur : « aucune » (valeur vide), puis `pool`, `wifi`,
+`parking`, `ac`, `heating`, `kitchen`, `dishwasher`, `washer`, `tv`, `bbq`,
+`garden`, `bike`, `pets`, `baby`, `bathtub`, `cleaning`.
+
+Le catalogue est **fermé côté serveur** : une icône qui n'y figure pas est
+refusée en `422 VALIDATION`, pas seulement grisée dans le dashboard.
 
 ### FAQ
 
