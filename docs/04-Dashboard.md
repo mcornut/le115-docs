@@ -19,7 +19,7 @@ un clic depuis la navigation.
 
 ## Navigation admin
 
-Nav V1 réelle, huit entrées, chrome en français uniquement :
+Nav V1 réelle, dix entrées, chrome en français uniquement :
 
 | Entrée | Rôle |
 |---|---|
@@ -28,12 +28,16 @@ Nav V1 réelle, huit entrées, chrome en français uniquement :
 | Demandes | Demandes de séjour à traiter |
 | Réservations | Séjours confirmés |
 | Tarifs | Périodes tarifaires et frais |
-| Maison | Contenus du bien : informations principales FR/EN, équipements et FAQ (photos à venir) |
+| Maison | Informations principales du bien FR/EN (photos à venir) |
+| Équipements | Liste ordonnée des équipements du bien, bilingue FR/EN |
+| FAQ | Liste ordonnée de questions/réponses, bilingue FR/EN |
 | Synchronisations | Imports externes, notamment Abritel / iCal |
 | Activité | Journal des actions importantes |
 
-`Contenus` et `Photos` ne sont pas des entrées de navigation séparées : elles
-sont couvertes par le module `Maison`.
+`Photos` n’est pas une entrée de navigation séparée : elle reste couverte par
+le module `Maison`. `Équipements` et `FAQ`, en revanche, ont chacun leur
+propre entrée — ce ne sont plus des sections de `Maison` (cf. DEC-016 dans
+`00-Product-Decisions.md`).
 
 ---
 
@@ -45,7 +49,7 @@ sont couvertes par le module `Maison`.
 | Zone | Contenu |
 |---|---|
 | En-tête | Logo admin, accès compte propriétaire |
-| Navigation latérale | Modules du dashboard (nav V1, huit entrées) |
+| Navigation latérale | Modules du dashboard (nav V1, dix entrées) |
 | Zone principale | Synthèse de l'activité (indicateurs, aperçu calendrier) |
 | Colonne / bloc secondaire | Demandes en attente, dernières actions, alertes de synchronisation |
 
@@ -170,19 +174,33 @@ utilisé est refusé (**409 CONFLICT**).
 
 ## Maison / CMS
 
-L'écran **Maison** (`/maison`) réunit les contenus éditoriaux du bien en
-**trois sections empilées**. Chaque texte existe en **français et en anglais**,
-saisis **côte à côte** : une traduction anglaise manquante est signalée, sans
-bloquer — le site public retombe alors sur le français.
+L’écran **Maison** (`/maison`) réunit les informations principales du bien.
+Équipements et FAQ, autrefois des sections de cet écran, en sont sortis pour
+devenir des modules à part entière (cf. DEC-016) ; Photos reste la seule
+extension prévue de Maison, dans un second temps.
 
 ### Informations du bien
 
-Titre, sous-titre, description et localisation (FR/EN), plus la **note
-affichée** (0 à 5) et le **nombre d'avis**. On modifie librement puis on
-**enregistre la section** ; seuls les champs réellement modifiés sont
-transmis. Une note déjà enregistrée peut être **changée mais pas effacée**.
+Titre, sous-titre, description et localisation (FR/EN), saisis **côte à
+côte** : une traduction anglaise manquante est signalée, sans bloquer — le
+site public retombe alors sur le français. S’y ajoutent la **note affichée**
+(0 à 5) et le **nombre d'avis**. On modifie librement puis on **enregistre**
+; seuls les champs réellement modifiés sont transmis. Une note déjà
+enregistrée peut être **changée mais pas effacée**.
 
-### Équipements
+### Photos
+
+Les **photos sont livrées dans un second temps** : le backend les gère déjà
+(upload, variantes responsive, photo principale, catégories, alt FR/EN), mais
+l’écran correspondant fait l’objet d’un chantier distinct.
+
+---
+
+## Équipements
+
+L’écran **Équipements** (`/equipements`) est un module à part entière,
+accessible par sa propre entrée de menu — ce n’est plus une section de
+Maison (cf. DEC-016).
 
 Liste ordonnée — l'ordre est celui du site public, réglé par des **flèches
 monter / descendre**. Un équipement porte un **code** (identifiant technique,
@@ -197,16 +215,19 @@ dans l'ordre du sélecteur : « aucune » (valeur vide), puis `pool`, `wifi`,
 Le catalogue est **fermé côté serveur** : une icône qui n'y figure pas est
 refusée en `422 VALIDATION`, pas seulement grisée dans le dashboard.
 
-### FAQ
+---
 
-Liste ordonnée de questions/réponses bilingues, même mécanique de
-réordonnancement et d'édition que les équipements.
+## FAQ
 
-### Photos
+L’écran **FAQ** (`/faq`) est, de la même façon, un module à part entière,
+accessible par sa propre entrée de menu — ce n’est plus une section de
+Maison (cf. DEC-016). Liste ordonnée de questions/réponses bilingues, même
+mécanique de réordonnancement et d’édition que les équipements.
 
-Les **photos sont livrées dans un second temps** : le backend les gère déjà
-(upload, variantes responsive, photo principale, catégories, alt FR/EN), mais
-l'écran correspondant fait l'objet d'un chantier distinct.
+Cette séparation ne concerne que le dashboard admin : côté site public, le
+payload `GET /api/public/property` continue de porter équipements et FAQ
+ensemble ; l’opportunité d’une page FAQ publique dédiée reste une question
+ouverte, à trancher quand le site visiteur sera cadré.
 
 ---
 
@@ -342,6 +363,8 @@ flowchart TD
 - [x] Implémenter annuler et ajuster le prix.
 - [x] Créer l'écran calendrier (grille mensuelle, blocages manuels).
 - [x] Créer l'éditeur de tarifs.
-- [x] Créer l'éditeur de contenus texte (informations du bien, équipements, FAQ).
+- [x] Créer l’éditeur de contenus texte : informations du bien, équipements et
+      FAQ sont livrés, désormais sur trois écrans distincts (`/maison`,
+      `/equipements`, `/faq`).
 - [ ] Créer l'éditeur de photos.
 - [x] Créer le journal d'activité.

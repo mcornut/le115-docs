@@ -141,9 +141,9 @@ Conséquences :
   production ;
 - l'écran d'accueil du dashboard V1 est le **Tableau de bord** (synthèse),
   pas directement le Calendrier — cf. remarque sous DEC-006 ;
-- la navigation V1 du dashboard compte huit entrées : Tableau de bord,
-  Calendrier, Demandes, Réservations, Tarifs, Maison, Synchronisations,
-  Activité (détail : `04-Dashboard.md`) ;
+- la navigation V1 du dashboard compte dix entrées : Tableau de bord,
+  Calendrier, Demandes, Réservations, Tarifs, Maison, Équipements, FAQ,
+  Synchronisations, Activité (détail : `04-Dashboard.md`) ;
 - le chrome du dashboard (navigation, libellés d'interface) est **en
   français uniquement** — aucune internationalisation de l'interface admin
   elle-même ; seuls les contenus édités (site public) restent bilingues
@@ -159,3 +159,21 @@ Conséquence :
 - les modules imaginés au-delà de ce périmètre (multi-bien, gestion de
   logements, utilisateurs multiples, etc.) sont **reportés post-V1** —
   cf. `04-Dashboard.md` (« Modules reportés post-V1 ») et `08-Roadmap.md`.
+
+## DEC-016 — Équipements et FAQ : écrans dédiés dans le dashboard (2026-08-01)
+
+Les équipements et la FAQ quittent le module `Maison` du dashboard admin pour
+devenir chacun un **module à part entière**, avec son propre écran et sa
+propre entrée de menu (`/equipements`, `/faq`). L’écran `Maison` (`/maison`)
+se limite désormais aux informations principales du bien ; Photos y reste la
+seule extension prévue, dans un second temps.
+
+Portée et limites :
+- décision **limitée au dashboard admin** — c’est une réorganisation
+  d’écrans, pas un changement de modèle de données ni de contrat API ;
+- le **site public n’est pas concerné** : `GET /api/public/property` continue
+  de renvoyer équipements et FAQ dans le même payload, sans changement ;
+- l’opportunité d’une **page FAQ dédiée côté site public** reste une question
+  ouverte, à trancher quand le site visiteur sera cadré ;
+- la navigation V1 du dashboard passe de huit à dix entrées (cf. DEC-014,
+  mis à jour en conséquence).
