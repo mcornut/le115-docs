@@ -141,9 +141,9 @@ Conséquences :
   production ;
 - l'écran d'accueil du dashboard V1 est le **Tableau de bord** (synthèse),
   pas directement le Calendrier — cf. remarque sous DEC-006 ;
-- la navigation V1 du dashboard compte dix entrées : Tableau de bord,
+- la navigation V1 du dashboard compte onze entrées : Tableau de bord,
   Calendrier, Demandes, Réservations, Tarifs, Maison, Équipements, FAQ,
-  Synchronisations, Activité (détail : `04-Dashboard.md`) ;
+  Photos, Synchronisations, Activité (détail : `04-Dashboard.md`) ;
 - le chrome du dashboard (navigation, libellés d'interface) est **en
   français uniquement** — aucune internationalisation de l'interface admin
   elle-même ; seuls les contenus édités (site public) restent bilingues
@@ -177,3 +177,18 @@ Portée et limites :
   ouverte, à trancher quand le site visiteur sera cadré ;
 - la navigation V1 du dashboard passe de huit à dix entrées (cf. DEC-014,
   mis à jour en conséquence).
+
+## DEC-017 — Photos : écran dédié dans le dashboard (2026-08-02)
+
+Prolongement de DEC-016. Les photos du bien ont leur propre écran `/photos` et
+leur entrée de menu, plutôt qu’une seconde section de « Maison ». Motif :
+galerie, ajout en lot, catégories et réordonnancement forment le plus lourd des
+écrans de contenu ; les empiler sous les informations du bien recréerait la page
+longue dont Équipements et FAQ viennent de sortir.
+
+Conséquence : **« Maison » se limite définitivement aux informations du bien** —
+photos était sa dernière extension prévue. La navigation passe à onze entrées.
+
+**Portée : écran d’administration seul.** Le site visiteur n’est pas concerné :
+`GET /api/public/property` continue de servir les photos avec le reste du
+contenu.

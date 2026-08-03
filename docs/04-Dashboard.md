@@ -19,7 +19,7 @@ un clic depuis la navigation.
 
 ## Navigation admin
 
-Nav V1 réelle, dix entrées, chrome en français uniquement :
+Nav V1 réelle, onze entrées, chrome en français uniquement :
 
 | Entrée | Rôle |
 |---|---|
@@ -28,15 +28,15 @@ Nav V1 réelle, dix entrées, chrome en français uniquement :
 | Demandes | Demandes de séjour à traiter |
 | Réservations | Séjours confirmés |
 | Tarifs | Périodes tarifaires et frais |
-| Maison | Informations principales du bien FR/EN (photos à venir) |
+| Maison | Informations principales du bien FR/EN |
 | Équipements | Liste ordonnée des équipements du bien, bilingue FR/EN |
 | FAQ | Liste ordonnée de questions/réponses, bilingue FR/EN |
+| Photos | Galerie ordonnée, catégories, photo principale, alt FR/EN |
 | Synchronisations | Imports externes, notamment Abritel / iCal |
 | Activité | Journal des actions importantes |
 
-`Photos` n’est pas une entrée de navigation séparée : elle reste couverte par
-le module `Maison`. `Équipements` et `FAQ`, en revanche, ont chacun leur
-propre entrée — ce ne sont plus des sections de `Maison` (cf. DEC-016 dans
+`Photos`, `Équipements` et `FAQ` ont chacun leur propre entrée de navigation
+— ce ne sont plus des sections de `Maison` (cf. DEC-016 et DEC-017 dans
 `00-Product-Decisions.md`).
 
 ---
@@ -49,7 +49,7 @@ propre entrée — ce ne sont plus des sections de `Maison` (cf. DEC-016 dans
 | Zone | Contenu |
 |---|---|
 | En-tête | Logo admin, accès compte propriétaire |
-| Navigation latérale | Modules du dashboard (nav V1, dix entrées) |
+| Navigation latérale | Modules du dashboard (nav V1, onze entrées) |
 | Zone principale | Synthèse de l'activité (indicateurs, aperçu calendrier) |
 | Colonne / bloc secondaire | Demandes en attente, dernières actions, alertes de synchronisation |
 
@@ -175,9 +175,10 @@ utilisé est refusé (**409 CONFLICT**).
 ## Maison / CMS
 
 L’écran **Maison** (`/maison`) réunit les informations principales du bien.
-Équipements et FAQ, autrefois des sections de cet écran, en sont sortis pour
-devenir des modules à part entière (cf. DEC-016) ; Photos reste la seule
-extension prévue de Maison, dans un second temps.
+Équipements, FAQ (cf. DEC-016) puis Photos (cf. DEC-017), autrefois envisagées
+ou livrées comme des sections de cet écran, en sont sorties pour devenir des
+modules à part entière ; `Maison` se limite désormais, et définitivement, aux
+informations du bien.
 
 ### Informations du bien
 
@@ -188,11 +189,9 @@ site public retombe alors sur le français. S’y ajoutent la **note affichée**
 ; seuls les champs réellement modifiés sont transmis. Une note déjà
 enregistrée peut être **changée mais pas effacée**.
 
-### Photos
-
-Les **photos sont livrées dans un second temps** : le backend les gère déjà
-(upload, variantes responsive, photo principale, catégories, alt FR/EN), mais
-l’écran correspondant fait l’objet d’un chantier distinct.
+Les photos ne sont plus une extension de cet écran : elles ont leur propre
+écran et leur propre entrée de menu, décrits dans la section **Photos**
+ci-dessous.
 
 ---
 
@@ -228,6 +227,34 @@ Cette séparation ne concerne que le dashboard admin : côté site public, le
 payload `GET /api/public/property` continue de porter équipements et FAQ
 ensemble ; l’opportunité d’une page FAQ publique dédiée reste une question
 ouverte, à trancher quand le site visiteur sera cadré.
+
+---
+
+## Photos
+
+L’écran **Photos** (`/photos`) est, à son tour, un module à part entière,
+accessible par sa propre entrée de menu plutôt que par une seconde section de
+`Maison` (cf. DEC-017).
+
+La grille affiche les photos dans l’**ordre du site public**, réglé par des
+**flèches monter / descendre** ; ces flèches sont **masquées dès qu’un filtre
+de catégorie est actif**, car déplacer une photo d’un cran n’aurait pas de
+sens dans une vue partielle — le réordonnancement porte sur l’ordre global du
+bien. Le filtre lui-même parcourt le **catalogue fermé de cinq catégories** :
+Extérieur, Intérieur, Chambres, Salles de bain, Autre.
+
+Chaque photo porte une **catégorie** (obligatoire, dans ce même catalogue),
+un **texte alternatif bilingue FR/EN** et le statut de **photo principale** —
+une seule à la fois par bien : la définir sur une nouvelle photo retire
+automatiquement l’ancienne.
+
+L’ajout se fait **en lot** : plusieurs fichiers choisis en une fois, rattachés
+à une **catégorie commune** choisie avant l’envoi (modifiable ensuite photo
+par photo) ; les textes alternatifs, eux, restent à compléter individuellement
+après coup. Formats acceptés : **JPEG et PNG** uniquement, jusqu’à **20 Mo**
+par photo et **8000 px** maximum par côté. Un fichier hors de ces bornes est
+écarté avec un message explicite nommant le fichier et la raison, sans
+empêcher l’envoi du reste du lot.
 
 ---
 
@@ -312,7 +339,7 @@ n'est exposé. Exemples de messages tels qu'ils apparaissent :
 ```text
 Demande de Camille Fabre approuvée → réservation confirmée (2026-08-08 → 2026-08-15) (réservation a1b2c3d4)
 Blocage « Entretien de la piscine » créé (2026-10-01 → 2026-10-04) (blocage f7e8d9c0)
-Photo « exterieur » ajoutée (photo 5c6d7e8f)
+Photo « Extérieur » ajoutée (photo 5c6d7e8f)
 ```
 
 ---
@@ -366,5 +393,5 @@ flowchart TD
 - [x] Créer l’éditeur de contenus texte : informations du bien, équipements et
       FAQ sont livrés, désormais sur trois écrans distincts (`/maison`,
       `/equipements`, `/faq`).
-- [ ] Créer l'éditeur de photos.
+- [x] Créer l'éditeur de photos.
 - [x] Créer le journal d'activité.
