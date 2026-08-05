@@ -46,27 +46,31 @@ Nav V1 réelle, onze entrées, chrome en français uniquement :
 !!! info "Principe"
     Le dashboard s'ouvre sur le **Tableau de bord**, avec les demandes en attente visibles sans changer de page. Le Calendrier détaillé est à un clic.
 
-Le tableau de bord est un **poste de pilotage** : il répond à « qu'est-ce qui
-m'attend », pas à « comment se porte l'affaire ». Il ne porte **aucun
-indicateur d'agrégation** (cf. DEC-018).
+Le tableau de bord est un **poste de pilotage** : il répond à « qu’est-ce qui
+m’attend », pas à « comment se porte l’affaire ». Il ne porte **aucun
+indicateur d’agrégation** (cf. DEC-018).
 
 Quatre cartes, en grille :
 
 | Carte | Contenu | Mène à |
 |---|---|---|
 | Demandes en attente | les cinq plus récentes (nom, dates, montant) ; le compteur porte le total | la fiche de la demande |
-| Arrivées et départs | les cinq prochains mouvements des séjours confirmés, départ avant arrivée à date égale | la fiche de la réservation |
+| Arrivées et départs | les cinq prochains mouvements des séjours confirmés, départ avant arrivée à date égale | la fiche de la réservation ; le lien de pied ouvre le calendrier |
 | Dernières actions | les dix dernières entrées du journal, avec leur badge de catégorie | le journal complet |
 | Synchronisations | chaque source avec son statut, et une **pastille de tête** verte / ambre / rouge | le module Synchronisations |
 
-La carte Synchronisations ne disparaît jamais : un état calme n'est pas une
-alerte permanente, c'est la confirmation que l'import a tourné — ce qu'on veut
-savoir avant d'accepter une demande. Une source **désactivée** n'entre pas dans
-le calcul du niveau ; un import « vide ignoré » vaut de l'ambre, car le
-calendrier externe peut être périmé.
+La carte Synchronisations ne disparaît jamais : un état calme n’est pas une
+alerte permanente, c’est la confirmation que l’import a tourné — ce qu’on veut
+savoir avant d’accepter une demande. Le niveau affiché est le **pire** parmi les
+sources **activées** : une source désactivée est un choix, pas une panne, et
+n’entre pas dans le calcul. L’ambre couvre deux cas — une source **jamais
+importée**, et un import **« vide ignoré »** (le garde-fou anti-effacement du
+backend a refusé un import vide) : dans les deux, le calendrier externe peut
+être périmé. Enfin, quand la synchronisation externe n’est **pas configurée**,
+la carte reste grise et **sans pastille** : il n’y a rien à surveiller.
 
-Chaque carte charge, échoue et se vide **indépendamment** : une panne d'un
-endpoint n'emporte jamais les trois autres cartes.
+Chaque carte charge, échoue et se vide **indépendamment** : une panne d’un
+endpoint n’emporte jamais les trois autres cartes.
 
 
 ---
