@@ -192,3 +192,23 @@ photos était sa dernière extension prévue. La navigation passe à onze entré
 **Portée : écran d’administration seul.** Le site visiteur n’est pas concerné :
 `GET /api/public/property` continue de servir les photos avec le reste du
 contenu.
+
+## DEC-018 — Tableau de bord : poste de pilotage, sans chiffres d’agrégation (2026-08-05)
+
+L’écran d’accueil du dashboard répond à « qu’est-ce qui m’attend » et non à
+« comment se porte l’affaire ». Il affiche quatre cartes — demandes en attente,
+arrivées et départs, dernières actions, état des synchronisations — et **aucun
+indicateur d’agrégation**.
+
+Sont donc **reportés post-V1**, sans être annulés : taux d’occupation, chiffre
+d’affaires, nombre de nouvelles réservations, donut d’occupation, courbe de
+revenus, sélecteur de période et comparaisons « vs période précédente » — tous
+présents dans la maquette `assets/dashboard_v1.png` (écran 01).
+
+Motif : sur un bien unique dont le volume annuel se compte en dizaines de
+séjours, une comparaison période à période est du bruit statistique présenté
+comme une mesure. Le propriétaire ouvre ce dashboard pour **traiter** quelque
+chose.
+
+Le calendrier détaillé n’est pas repris sur l’accueil : il reste à un clic dans
+la navigation.
