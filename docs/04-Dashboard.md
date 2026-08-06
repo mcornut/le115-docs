@@ -23,7 +23,7 @@ Nav V1 réelle, onze entrées, chrome en français uniquement :
 
 | Entrée | Rôle |
 |---|---|
-| Tableau de bord | Écran d'accueil : synthèse de l'activité (demandes en attente, dernières actions, alertes de synchronisation) |
+| Tableau de bord | Écran d’accueil : quatre cartes — demandes en attente, arrivées et départs, dernières actions, état des synchronisations (cf. DEC-018) |
 | Calendrier | Disponibilités, réservations et blocages |
 | Demandes | Demandes de séjour à traiter |
 | Réservations | Séjours confirmés |
@@ -66,8 +66,14 @@ sources **activées** : une source désactivée est un choix, pas une panne, et
 n’entre pas dans le calcul. L’ambre couvre deux cas — une source **jamais
 importée**, et un import **« vide ignoré »** (le garde-fou anti-effacement du
 backend a refusé un import vide) : dans les deux, le calendrier externe peut
-être périmé. Enfin, quand la synchronisation externe n’est **pas configurée**,
-la carte reste grise et **sans pastille** : il n’y a rien à surveiller.
+être périmé. La pastille disparaît aussi quand **toutes les sources
+configurées sont désactivées** : la carte continue de lister ces sources
+avec leur badge de statut, mais comme aucune n’est activée, il n’y a rien à
+surveiller — même absence de pastille que la synchronisation externe **pas
+configurée**, pour la même raison, mais un état différent (des sources
+existent, elles sont juste toutes mises en pause). Enfin, quand la
+synchronisation externe n’est **pas configurée**, la carte reste grise et
+**sans pastille** : il n’y a rien à surveiller.
 
 Chaque carte charge, échoue et se vide **indépendamment** : une panne d’un
 endpoint n’emporte jamais les trois autres cartes.
