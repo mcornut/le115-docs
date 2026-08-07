@@ -141,9 +141,10 @@ Conséquences :
   production ;
 - l'écran d'accueil du dashboard V1 est le **Tableau de bord** (synthèse),
   pas directement le Calendrier — cf. remarque sous DEC-006 ;
-- la navigation V1 du dashboard compte onze entrées : Tableau de bord,
-  Calendrier, Demandes, Réservations, Tarifs, Maison, Équipements, FAQ,
-  Photos, Synchronisations, Activité (détail : `04-Dashboard.md`) ;
+- la navigation V1 du dashboard compte douze entrées : Tableau de bord,
+  Calendrier, Demandes, Réservations, Tarifs, Règles de séjour, Maison,
+  Équipements, FAQ, Photos, Synchronisations, Activité (détail :
+  `04-Dashboard.md`) ;
 - le chrome du dashboard (navigation, libellés d'interface) est **en
   français uniquement** — aucune internationalisation de l'interface admin
   elle-même ; seuls les contenus édités (site public) restent bilingues
