@@ -19,7 +19,7 @@ un clic depuis la navigation.
 
 ## Navigation admin
 
-Nav V1 réelle, onze entrées, chrome en français uniquement :
+Nav V1 réelle, douze entrées, chrome en français uniquement :
 
 | Entrée | Rôle |
 |---|---|
@@ -28,6 +28,7 @@ Nav V1 réelle, onze entrées, chrome en français uniquement :
 | Demandes | Demandes de séjour à traiter |
 | Réservations | Séjours confirmés |
 | Tarifs | Périodes tarifaires et frais |
+| Règles de séjour | Durée minimale, jours d’arrivée et de départ, saisons |
 | Maison | Informations principales du bien FR/EN |
 | Équipements | Liste ordonnée des équipements du bien, bilingue FR/EN |
 | FAQ | Liste ordonnée de questions/réponses, bilingue FR/EN |
@@ -194,6 +195,34 @@ caractère **obligatoire**, **ordre d'affichage**, et un état **Actif / Inactif
 Désactiver un frais le retire des nouveaux devis sans le perdre (pause non
 destructive) ; on peut aussi le **supprimer** définitivement. Un code déjà
 utilisé est refusé (**409 CONFLICT**).
+
+---
+
+## Règles de séjour
+
+Écran `/regles-de-sejour`. Le propriétaire édite ici la durée minimale de séjour, les jours d’arrivée et de départ
+autorisés, la note de dérogation bilingue et la priorité de chaque règle.
+
+**Aperçu de l’année.** Une frise couvrant une année civile, avec un sélecteur `‹ 2026 ›`,
+montre la règle par défaut en socle pleine largeur et chaque saison posée dessus, triées par
+priorité décroissante. Les bandes se **superposent** : l’écran ne calcule jamais quelle règle
+l’emporte à une date donnée, il l’énonce en légende (« la règle de plus haute priorité
+l’emporte sur la date d’arrivée »). La résolution reste au serveur, seul endroit où elle est
+implémentée.
+
+Les règles portent des dates **absolues**, pas des récurrences : la haute saison de l’année
+suivante doit être re-datée à la main. Le sélecteur d’année sert précisément à rendre cet
+oubli visible — une année sans saison affiche « Aucune saison définie pour 2027 : la règle par
+défaut s’applique toute l’année. »
+
+**La règle par défaut a un statut particulier**, hérité des invariants métier : elle est
+unique et obligatoire. L’écran ne permet donc **ni de la créer ni de la supprimer** — sa ligne
+porte un badge « Par défaut » et n’offre pas l’action de suppression, et la modale de création
+ne propose que des saisons. Elle se modifie, sans champs de dates : sa nature est immuable.
+
+**Jours autorisés.** Sept cases par groupe, lundi en tête. Une phrase sous les cases dit ce
+que l’œil ne devine pas : aucune case cochée signifie « aucune restriction, tous les jours »,
+et non « aucun jour ».
 
 ---
 

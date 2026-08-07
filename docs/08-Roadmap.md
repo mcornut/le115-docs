@@ -8,12 +8,13 @@
 - Disponibilités
 - Estimation détaillée
 - Demande de séjour
-- Dashboard admin (SPA séparée, déploiement même origine que l'API, mono-bien — cf. DEC-014, DEC-015), onze écrans :
+- Dashboard admin (SPA séparée, déploiement même origine que l'API, mono-bien — cf. DEC-014, DEC-015), douze écrans :
   - Tableau de bord (accueil — cf. DEC-018)
   - Calendrier
   - Demandes
   - Réservations
   - Tarifs
+  - Règles de séjour
   - Maison (informations du bien)
   - Équipements (cf. DEC-016)
   - FAQ (cf. DEC-016)

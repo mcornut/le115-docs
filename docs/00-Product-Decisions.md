@@ -212,3 +212,19 @@ chose.
 
 Le calendrier détaillé n’est pas repris sur l’accueil : il reste à un clic dans
 la navigation.
+
+## DEC-019 — Les règles de séjour ont leur écran, et leur aperçu ne résout rien (2026-08-06)
+
+**Décision.** Les règles de séjour obtiennent une entrée de navigation dédiée
+(`/regles-de-sejour`, douzième), et non une section des Tarifs. L’écran porte un aperçu annuel
+en **bandes superposées** : il montre les périodes et leurs priorités, sans jamais calculer
+quelle règle l’emporte à une date donnée.
+
+**Pourquoi.** Résoudre la priorité côté interface dupliquerait une règle métier qui vit dans
+le domaine serveur. Deux implémentations d’une même règle divergent tôt ou tard, et l’aperçu
+mentirait alors sur ce que le visiteur subit réellement. Les bandes superposées, triées par
+priorité et accompagnées d’une légende, donnent la même lecture sans créer cette seconde
+source de vérité.
+
+**Conséquence.** Si les chevauchements se révèlent illisibles à l’usage, la réponse sera un
+endpoint de résolution côté serveur — pas un calcul côté interface.
