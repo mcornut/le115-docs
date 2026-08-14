@@ -21,6 +21,10 @@ Response `200` :
 
 ```json
 {
+  "slug": "le-115",
+  "maxGuests": 12,
+  "currency": "EUR",
+  "baseNightlyPriceCents": 45000,
   "title": "La Provençale",
   "subtitle": "Maison d'exception",
   "description": "Au cœur de la Provence...",
@@ -28,10 +32,10 @@ Response `200` :
   "rating": 4.8,
   "reviewCount": 42,
   "amenities": [
-    { "id": "...", "code": "wifi", "icon": "wifi", "label": "Wifi haute vitesse" }
+    { "code": "wifi", "icon": "wifi", "label": "Wifi haute vitesse" }
   ],
   "faq": [
-    { "id": "...", "question": "Puis-je amener mon chien ?", "answer": "Oui, chiens bienvenus." }
+    { "question": "Puis-je amener mon chien ?", "answer": "Oui, chiens bienvenus." }
   ],
   "photos": [
     {
@@ -39,18 +43,25 @@ Response `200` :
       "category": "exterieur",
       "alt": "Vue de la façade principale",
       "isMain": true,
+      "sortOrder": 1,
       "variants": [
-        { "width": 400, "url": "/api/public/media/.../400" },
-        { "width": 800, "url": "/api/public/media/.../800" },
-        { "width": 1600, "url": "/api/public/media/.../1600" }
+        { "width": 400, "url": "/api/public/media/...?w=400" },
+        { "width": 800, "url": "/api/public/media/...?w=800" },
+        { "width": 1600, "url": "/api/public/media/...?w=1600" }
       ],
-      "originalUrl": "/api/public/media/.../original",
-      "originalWidth": 2400,
-      "originalHeight": 1800
+      "originalUrl": "/api/public/media/...?w=original"
     }
   ]
 }
 ```
+
+> **Corrigé le 2026-08-15, vérifié en conditions réelles contre l’API.** Les URL de
+> variantes s’écrivent `/api/public/media/{id}?w=400`, jamais `/api/public/media/{id}/400`
+> — la largeur est un **paramètre de requête**, cohérent avec `GET /api/public/media/{id}`
+> décrit juste en dessous. Trois autres écarts relevés à la même occasion : `amenities[]`
+> et `faq[]` ne portent **pas** d’`id`, `photos[]` porte un `sortOrder`, et
+> `originalWidth` / `originalHeight` **n’existent pas** dans la réponse.
+> Le site public (`../le115-frontend`, `src/lib/api/types.ts`) est typé sur l’API réelle.
 
 **Rupture de compatibilité** : l'endpoint ne retourne plus `name` ni `baseline` (remplacés par `title` et `subtitle` localisés).
 
@@ -455,7 +466,9 @@ Body :
 - `altEn` : texte alternatif anglais ;
 - `isMain` (optional, défaut `false`) : définir comme photo principale.
 
-Response `201` : `{ "id": "...", "url": "/api/public/media/..." }` (emplacement + variants générées).
+Response `201` : `{ "id": "..." }` — l’identifiant seul (vérifié contre l’API le
+2026-08-15 : il n’y a **pas** de champ `url`). Les URL de service se construisent
+depuis cet identifiant : `/api/public/media/{id}?w=400|800|1600|original`.
 
 Génère automatiquement les variantes responsive (400/800/1600).
 

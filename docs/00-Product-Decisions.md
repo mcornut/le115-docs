@@ -229,3 +229,71 @@ source de vérité.
 
 **Conséquence.** Si les chevauchements se révèlent illisibles à l’usage, la réponse sera un
 endpoint de résolution côté serveur — pas un calcul côté interface.
+
+## DEC-020 — Direction graphique du site public : l’hybride des deux maquettes (2026-08-15)
+
+**Décision.** Le site public visiteur retient la **mise en page de
+`landing-reference.png`** — deux niveaux d’en-tête, logo en arche, accent terracotta,
+dégradé latéral, note et avis en en-tête, bandeau d’atouts à icônes chevauchant le
+visuel — avec trois corrections :
+
+- le bouton principal dit **« Estimer mon séjour »** (DEC-003), et non « Réserver » :
+  rien ne se réserve en ligne (DEC-004) ;
+- la navigation garde les **ancres réelles** du produit, et non les libellés de la
+  maquette (« Commodités », « Les environs ») qui pointent vers des contenus
+  inexistants ;
+- les **onglets d’audience mènent à des pages** de contenu, pas à un filtre de la
+  galerie.
+
+Rendu de référence : [`assets/landing-hybride.html`](assets/landing-hybride.html).
+
+**Pourquoi.** Les deux maquettes ne disent pas la même chose. `front_v1.png` est
+fidèle aux décisions déjà prises mais compose le titre en blanc sur photo plein
+cadre — or la photo principale réelle est une **cour close en plein jour**, ce qui
+imposerait un voile sombre marqué et assombrirait une belle lumière pour pouvoir
+écrire dessus. Le dégradé latéral de `landing-reference.png` n’occupe que le tiers
+gauche et laisse la photo respirer. À l’inverse, la chaleur de cette seconde maquette
+tient largement à ses **convives attablés**, alors que les photos réelles sont
+architecturales et vides.
+
+**Écartés.** La direction sobre de `front_v1.png` seule (voile sombre imposé par la
+photo de jour) ; la direction chaleureuse appliquée telle quelle (promesses fausses,
+contenus inexistants).
+
+## DEC-021 — Aucun tiers sur le site public, donc aucun bandeau de consentement (2026-08-15)
+
+**Décision.** Le site public **ne charge aucun service tiers**. La carte de la section
+Localisation est une **image statique** servie par le site lui-même, doublée d’un lien
+« Ouvrir dans Google Maps » qui, lui, part chez eux — au clic du visiteur, jamais
+avant. Aucune mesure d’audience pour l’instant.
+
+**Pourquoi.** En France, tout tiers déposant des cookies impose un bandeau de
+consentement conforme : stockage du choix, blocage des scripts avant acceptation, page
+de politique de confidentialité. C’est une fonctionnalité transverse entière, et une
+dette de conformité permanente, pour un gain nul en V1.
+
+**Écartés.** OpenStreetMap via Leaflet (sans cookie, mais un îlot JavaScript et des
+tuiles peu soignées en zone rurale) ; Google Maps embarqué et une mesure d’audience
+(le bandeau et tout ce qu’il traîne).
+
+**Conséquence.** Le jour où une mesure d’audience devient nécessaire, elle rouvre cette
+décision : ce n’est pas un réglage, c’est un chantier.
+
+## DEC-022 — Adresse approximative avant confirmation du séjour (2026-08-15)
+
+**Décision.** Le site public situe la maison par son **secteur**, jamais par son
+portail : la carte montre la zone, le texte situe sans localiser, et une mention le dit
+au visiteur. **L’adresse exacte part par email une fois le séjour confirmé.**
+
+`02-UX.md` laissait le choix au propriétaire (« position approximative ou exacte selon
+décision propriétaire ») ; c’est ce choix qui est tranché ici.
+
+**Pourquoi.** Le site publierait sinon, au même endroit, **où** se trouve la maison
+**et quand** elle est inoccupée — le calendrier de disponibilité étant public par
+nature. Le coût pour le visiteur est nul : à ce stade il veut savoir dans quelle
+région il atterrit, pas quelle rue.
+
+**À confirmer par le propriétaire.** Les coordonnées et le secteur affichés
+aujourd’hui (téléphone, email, commune) sont des **valeurs de remplacement** posées
+côté site pour livrer le socle ; elles doivent être remplacées par les vraies avant
+toute mise en ligne (cf. `../le115-backend/docs/DEBTS.md`).

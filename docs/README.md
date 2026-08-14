@@ -4,6 +4,22 @@
 
 ![Maquette de référence](assets/landing-reference.png)
 
+> Direction retenue — [assets/landing-hybride.html](assets/landing-hybride.html) *(à ouvrir dans un navigateur)*
+
+C’est la **direction validée** pour le site public visiteur (cf. DEC-020). Elle
+reprend la mise en page de `landing-reference.png` — deux niveaux d’en-tête, logo
+en arche, accent terracotta, dégradé latéral, note et avis en en-tête, bandeau
+d’atouts chevauchant le visuel — et en corrige trois points :
+
+- le bouton principal dit **« Estimer mon séjour »** (DEC-003), pas « Réserver » ;
+- la navigation porte les **ancres réelles** du produit, pas des libellés qui
+  mènent à des contenus inexistants ;
+- les **onglets d’audience mènent à des pages** de contenu, pas à un filtre de la
+  galerie.
+
+Le rendu utilise la photo réelle de la maison (`assets/photo-cour.jpg`) et
+s’ouvre sans backend.
+
 > Suggestion front v1 
 
 ![Suggestion front v1](assets/front_v1.png)
@@ -51,6 +67,21 @@ le115-docs/
 ├── prompts/    Prompts prêts pour Claude Code
 └── tasks/      Plan de développement par tâches
 ```
+
+---
+
+## Les quatre dépôts
+
+Le produit vit dans quatre dépôts frères. Celui-ci ne porte aucun code : il fait
+foi sur le **produit et les règles métier**, jamais sur les choix techniques, qui
+restent dans le dépôt concerné.
+
+| Dépôt | Rôle |
+|---|---|
+| `le115-docs` *(ici)* | **Source de vérité produit** : glossaire, décisions, règles métier, UX, modèle de données, roadmap |
+| `le115-backend` | API Go + PostgreSQL : disponibilités, tarifs, règles de séjour, devis, demandes, contenus FR/EN, photos, iCal. Porte aussi `docs/DEBTS.md`, **registre unique des dettes du projet** |
+| `le115-dashboard` | Back-office React (Vite), douze modules — le propriétaire y **saisit** les contenus que le site public affiche |
+| `le115-frontend` | **Site public visiteur** (Next.js), rendu au serveur, FR/EN — cf. DEC-020 à DEC-022 |
 
 ---
 
