@@ -120,7 +120,8 @@ le115-frontend/
 │   ├── content/        # pages d’audience, contenu statique FR/EN
 │   ├── i18n/           # libellés d’interface, un fichier par langue
 │   └── lib/            # api (seule frontière réseau), photos, métadonnées
-└── public/             # carte statique du secteur, favicon
+└── public/             # carte statique du secteur (seul fichier ; le favicon,
+                        #   lui, vit dans src/app/, convention App Router)
 ```
 
 Le détail des choix techniques (segment de langue, routage, neutralisation de

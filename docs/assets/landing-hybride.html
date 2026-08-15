@@ -1,15 +1,41 @@
-<h2>Direction hybride — la chaleur de la référence, sans ce qu’elle promettait de faux</h2>
-<p class="subtitle">
-  Mise en page de <code>landing-reference.png</code> : deux niveaux d’en-tête, accent terracotta,
-  dégradé latéral qui laisse la photo respirer, bandeau d’infos clés à icônes.
-  Trois corrections : le bouton dit <b>« Estimer mon séjour »</b> (<code>DEC-003</code>, et rien ne
-  se réserve en ligne), la navigation garde <b>tes ancres réelles</b>, et les onglets d’audience
-  deviennent <b>cinq pages de contenu</b> — pas un filtre.
-</p>
-
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le 115 — direction graphique retenue (DEC-020)</title>
 <style>
+  :root { color-scheme: light; }
+  body { margin:0; padding:34px 22px 60px; background:#f4f1ea; color:#2b2b2b;
+         font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+         font-size:14px; line-height:1.6; }
+  .page { max-width:980px; margin:0 auto; }
+  h1 { font-family:Georgia,serif; font-size:27px; line-height:1.25; font-weight:normal;
+       margin:0 0 14px; }
+  h2 { font-family:Georgia,serif; font-size:19px; font-weight:normal; margin:38px 0 10px; }
+  .subtitle { color:#5a5348; font-size:13.5px; margin:0 0 6px; }
+  .meta { color:#8a8175; font-size:12px; margin:0 0 26px; }
+  code { background:#e9e5db; border-radius:3px; padding:1px 5px; font-size:12.5px; }
+  a { color:#a8532e; }
+  .note { border-left:3px solid #c4643c; background:#efe9df; padding:11px 15px;
+          margin:22px 0; font-size:13px; color:#4a453c; }
+  .note p { margin:0 0 8px; }
+  .note p:last-child { margin-bottom:0; }
+  ul { padding-left:20px; }
+  li { margin-bottom:6px; }
+
+  /* Cadres de présentation des deux rendus. */
+  .mockup { background:#fff; border:1px solid #ded7cb; border-radius:12px;
+            overflow:hidden; box-shadow:0 1px 10px rgba(0,0,0,.05); }
+  .mockup-header { background:#efe9df; border-bottom:1px solid #ded7cb;
+                   padding:9px 16px; font-size:11.5px; letter-spacing:.05em;
+                   text-transform:uppercase; color:#7a7266; }
+  .mockup-body { padding:20px; overflow-x:auto; }
+
+  /* Éléments propres au rendu de la page d’accueil. */
   .fr2 { background:#fff; border:1px solid #e4ded4; border-radius:10px; overflow:hidden;
-         font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
+         font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+         min-width:760px; }
   .aud { padding:8px 13px; border-radius:8px; text-align:center; font-size:10px; color:#5a5348;
          line-height:1.5; white-space:nowrap; }
   .aud.on { background:#efe9df; }
@@ -23,6 +49,35 @@
   .phone { width:270px; border:9px solid #2b2b2b; border-radius:26px; overflow:hidden;
            background:#fff; flex:none; }
 </style>
+</head>
+<body>
+<div class="page">
+
+<h1>Direction hybride — la chaleur de la référence, sans ce qu’elle promettait de faux</h1>
+
+<p class="subtitle">
+  Mise en page de <code>landing-reference.png</code> : deux niveaux d’en-tête, accent terracotta,
+  dégradé latéral qui laisse la photo respirer, bandeau d’atouts à icônes.
+  Trois corrections : le bouton dit <b>« Estimer mon séjour »</b> (<code>DEC-003</code>, et rien ne
+  se réserve en ligne), la navigation garde <b>les ancres réelles</b> du produit, et les onglets
+  d’audience deviennent <b>cinq pages de contenu</b> — pas un filtre de la galerie.
+</p>
+
+<p class="meta">
+  Rendu de référence de <code>DEC-020</code> (2026-08-15). La photo est celle de la maison
+  (<code>photo-cour.jpg</code>) ; le fichier s’ouvre seul, sans backend.
+</p>
+
+<div class="note">
+  <p><b>Ce rendu documente une direction, pas l’état livré.</b> Le bandeau d’atouts y annonce
+  encore « 12 couchages / 6 chambres » et « Terrain 5 000 m² », repris de la maquette d’origine :
+  le modèle de données ne porte <b>ni</b> nombre de chambres, <b>ni</b> salles de bain, <b>ni</b>
+  superficie. Le site livré affiche à la place la capacité et les équipements, que le propriétaire
+  contrôle déjà — voir la dette consignée dans
+  <code>../le115-backend/docs/DEBTS.md</code>.</p>
+  <p>De même, le lien « Voir les 6 atouts » du repli mobile décrit l’intention ; il n’est pas
+  encore posé dans le site.</p>
+</div>
 
 <div class="mockup">
   <div class="mockup-header">Bureau — page d’accueil, haut de page</div>
@@ -65,7 +120,7 @@
         <div style="position:absolute;inset:0;background:linear-gradient(100deg,rgba(28,26,20,.88) 0%,rgba(28,26,20,.6) 33%,rgba(28,26,20,0) 60%);"></div>
         <div style="position:absolute;inset:0;display:flex;align-items:center;padding:0 44px;">
           <div style="color:#fff;max-width:53%;">
-            <div style="letter-spacing:.24em;font-size:9px;opacity:.75;margin-bottom:13px;">À 15 MINUTES D’AIX-EN-PROVENCE</div>
+            <div style="letter-spacing:.24em;font-size:9px;opacity:.75;margin-bottom:13px;">À 15 MINUTES D’AVIGNON</div>
             <div style="font-family:Georgia,serif;font-size:35px;line-height:1.16;">Le 115,<br>Maison de Provence</div>
             <div style="font-size:12.5px;opacity:.9;margin:15px 0 22px;line-height:1.6;">Vaste demeure avec piscine, oliviers et vue sur les collines.<br>Ici, on se retrouve, on profite, on ralentit.</div>
             <span style="background:#c4643c;color:#fff;border-radius:7px;padding:12px 21px;font-size:12.5px;margin-right:9px;">Estimer mon séjour ›</span>
@@ -108,7 +163,7 @@
              alt="" style="width:100%;height:100%;object-fit:cover;display:block;">
         <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(28,26,20,.25) 0%,rgba(28,26,20,.35) 45%,rgba(28,26,20,.88) 100%);"></div>
         <div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;color:#fff;">
-          <div style="letter-spacing:.2em;font-size:7.5px;opacity:.8;margin-bottom:8px;">À 15 MIN D’AIX-EN-PROVENCE</div>
+          <div style="letter-spacing:.2em;font-size:7.5px;opacity:.8;margin-bottom:8px;">À 15 MIN D’AVIGNON</div>
           <div style="font-family:Georgia,serif;font-size:22px;line-height:1.18;">Le 115,<br>Maison de Provence</div>
           <div style="font-size:10.5px;opacity:.9;margin:8px 0 13px;line-height:1.5;">Ici, on se retrouve, on profite, on ralentit.</div>
           <span style="background:#c4643c;color:#fff;border-radius:6px;padding:10px 0;font-size:11px;text-align:center;display:block;">Estimer mon séjour ›</span>
@@ -140,19 +195,20 @@
   </div>
 </div>
 
-<div class="options" style="margin-top:24px;">
-  <div class="option" data-choice="ok" onclick="toggleSelect(this)">
-    <div class="letter">✓</div>
-    <div class="content">
-      <h3>C’est la bonne direction</h3>
-      <p>On part là-dessus et je cadre le reste des sections dans cet esprit.</p>
-    </div>
-  </div>
-  <div class="option" data-choice="ajuster" onclick="toggleSelect(this)">
-    <div class="letter">~</div>
-    <div class="content">
-      <h3>La direction est bonne, mais il y a des points à ajuster</h3>
-      <p>Dis-moi lesquels — placement des onglets d’audience, intensité du terracotta, taille du titre, contenu du bandeau…</p>
-    </div>
-  </div>
+<h2>Ce que cette direction écarte</h2>
+
+<ul>
+  <li><b>La direction sobre de <code>front_v1.png</code> seule</b> : sa composition — titre blanc
+  sur photo plein cadre — exige un voile sombre marqué, alors que la photo principale réelle est
+  une cour close en plein jour. Le dégradé latéral retenu n’occupe que le tiers gauche et laisse
+  la lumière intacte.</li>
+  <li><b>La direction chaleureuse appliquée telle quelle</b> : sa chaleur tient largement à ses
+  convives attablés, quand les photos réelles sont architecturales et vides ; et elle emporte des
+  décisions qui ne sont pas graphiques — « Réserver » là où <code>DEC-003</code> impose « Estimer
+  mon séjour », une navigation qui renvoie à des contenus inexistants, des onglets d’audience qui
+  filtrent au lieu de mener quelque part.</li>
+</ul>
+
 </div>
+</body>
+</html>

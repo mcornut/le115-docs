@@ -293,7 +293,12 @@ décision propriétaire ») ; c’est ce choix qui est tranché ici.
 nature. Le coût pour le visiteur est nul : à ce stade il veut savoir dans quelle
 région il atterrit, pas quelle rue.
 
-**À confirmer par le propriétaire.** Les coordonnées et le secteur affichés
-aujourd’hui (téléphone, email, commune) sont des **valeurs de remplacement** posées
-côté site pour livrer le socle ; elles doivent être remplacées par les vraies avant
-toute mise en ligne (cf. `../le115-backend/docs/DEBTS.md`).
+**À confirmer par le propriétaire.** Les coordonnées affichées aujourd’hui (téléphone,
+email) et l’image de carte du secteur sont des **valeurs de remplacement** posées côté
+site pour livrer le socle ; elles doivent être remplacées par les vraies avant toute
+mise en ligne (cf. `../le115-backend/docs/DEBTS.md`).
+
+**Le secteur, lui, n’est pas au choix du site.** Il doit dire ce que dit la donnée
+saisie par le propriétaire (`property.location`), aujourd’hui « À 15 minutes
+d’Avignon ». Le site a un temps annoncé Aix-en-Provence, à environ soixante-dix
+kilomètres de là : erreur corrigée le 2026-08-15, cf. `02-UX.md` et `DEBTS.md`.
