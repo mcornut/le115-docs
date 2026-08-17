@@ -149,9 +149,28 @@ Body :
 
 Response `201` : `{ "id": "...", "quote": { ... } }` (le devis figé).
 
+**Deux emails partent à la création** (depuis le 2026-08-18), tous deux en best-effort — un
+échec SMTP est journalisé, il ne fait jamais échouer la demande :
+
+| Destinataire | Contenu | Langue |
+|---|---|---|
+| La propriétaire | Nouvelle demande : dates, voyageurs, coordonnées, total du devis figé. `Reply-To` = le voyageur | Français |
+| **Le demandeur** | **Accusé de réception** : dates, montant du devis figé, référence de la demande. Il dit explicitement qu’il **n’est pas** une confirmation de séjour, pour ne pas se confondre avec l’email d’acceptation | La `locale` mémorisée sur la demande (fr/en) |
+
+Le second est le pendant naturel des emails d’acceptation et de refus, qui existaient déjà :
+le voyageur savait qu’on lui répondait, il ne savait pas qu’on l’avait reçu.
+
 Erreurs possibles : `422 VALIDATION` (devis non soumissible, `details` = codes, avec la note
 de dérogation localisée le cas échéant), `409 DATES_UNAVAILABLE` (dates indisponibles),
 `400 INVALID_REQUEST` (email manquant/invalide, dates invalides, corps invalide).
+
+> **Les trois `400` partagent un seul code, et c’est une ambiguïté à lever.** Un appelant qui
+> reçoit `INVALID_REQUEST` ne peut pas distinguer une **adresse email refusée** — la seule des
+> trois que le visiteur puisse corriger — d’un corps mal formé ou trop gros. Le site public doit
+> donc parier, et son pari est parfois faux : il conseille de vérifier l’email à quelqu’un dont
+> l’adresse n’a rien d’anormal. **Décision de contrat à prendre** : donner au refus d’email son
+> propre code stable (`INVALID_EMAIL`) côté Go. Consignée dans
+> `../le115-backend/docs/DEBTS.md`.
 
 ---
 
@@ -514,6 +533,7 @@ sequenceDiagram
     participant A as API
     participant Q as QuoteService
     participant S as StayRequestService
+    participant N as Notifier
 
     U->>F: Sélectionne dates
     F->>A: POST /quote
@@ -524,8 +544,14 @@ sequenceDiagram
     F->>A: POST /stay-requests
     A->>S: create()
     S-->>A: StayRequest
+    S->>N: Nouvelle demande (propriétaire)
+    S->>N: Accusé de réception (voyageur)
     A-->>F: Confirmation
 ```
+
+Les deux envois sont **synchrones et best-effort** : ils se font après l’écriture en base,
+dans la requête HTTP appelante, plafonnés à 5 s chacun. Un relais SMTP lent retarde donc la
+confirmation rendue au visiteur, sans jamais faire échouer la demande déjà enregistrée.
 
 ---
 
@@ -541,7 +567,7 @@ Codes métier stables :
 
 | Code | HTTP | Sens |
 |---|---:|---|
-| `INVALID_REQUEST` | 400 | Corps/paramètres invalides (dates mal formées, email manquant/invalide…) |
+| `INVALID_REQUEST` | 400 | Corps/paramètres invalides (dates mal formées, email manquant/invalide…). **Trop large sur `POST /stay-requests`** : il ne distingue pas un email refusé d’un corps invalide ou trop gros — cf. la note sous cet endpoint |
 | `UNAUTHORIZED` | 401 | Authentification requise ou identifiants/session invalides |
 | `CSRF_INVALID` | 403 | En-tête `X-CSRF-Token` absent ou ne correspondant pas au jeton de la session courante, sur une écriture admin |
 | `PROPERTY_NOT_FOUND` | 404 | Bien introuvable |

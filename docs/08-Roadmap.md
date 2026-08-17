@@ -9,25 +9,37 @@
 - Estimation détaillée
 - Demande de séjour
 - Site public visiteur — **en chantier** (dépôt `le115-frontend`, cf. DEC-020 à
-  DEC-022), découpé en **trois sous-projets** :
+  DEC-025), découpé en **trois sous-projets**, dont **deux sont livrés** :
 
   | Sous-projet | Contenu | Livrable | État |
   |---|---|---|---|
   | 1. Socle et contenus | Coquille, navigation, FR/EN, accueil, FAQ, contact, localisation, une page d’audience | Un site qu’on peut montrer | **livré** |
-  | 2. Parcours de demande | **Calendrier de disponibilité**, devis, formulaire, confirmation, erreurs métier | Un site qui convertit | à venir, **rien n’en est commencé** |
+  | 2. Parcours de demande | **Calendrier de disponibilité**, devis, formulaire, confirmation, erreurs métier | Un site qui convertit | **livré** |
   | 3. Mise en ligne | `sitemap.xml`, `robots.txt`, `CSP`/`HSTS`, CDN des médias, domaine | Un site accessible au public | à venir |
 
-  Le sous-projet 1 ne livre **aucun affichage de disponibilité ni aucun moyen de
-  demander un séjour** : le seul appel à l’action mène à la page de contact, qui
-  affiche un téléphone et un email. Tout le parcours — voir les dates libres, obtenir
-  une estimation, envoyer sa demande, la voir confirmée — est le sous-projet 2, et
-  rien n’en est commencé.
+  Le sous-projet 2 est livré le **2026-08-18** (cf. DEC-023 à DEC-025). Le visiteur a
+  désormais une page dédiée, `/[langue]/demande`, où le seul appel à l’action du site le
+  mène : un calendrier de disponibilité sur douze mois glissants, un devis recalculé au
+  serveur à chaque changement, un formulaire qui n’apparaît qu’une fois le devis
+  soumissible, et une confirmation qui fige ce qui a été envoyé. **Rien ne se réserve en
+  ligne** (DEC-003, DEC-004) : le parcours s’arrête à « demande envoyée », la
+  propriétaire arbitre depuis son dashboard.
+
+  Une seule addition côté backend : la création d’une demande envoie désormais **deux**
+  emails, celui de la propriétaire et un **accusé de réception au voyageur**
+  (cf. `06-API.md`). Tout le reste tient sur les endpoints publics existants.
 
   Deux fonctionnalités écartées de ce découpage, chacune demandant du backend neuf :
   le **formulaire de contact** (les coordonnées sont affichées, sans formulaire) et
   l’**exposition publique des règles de séjour**. À quoi s’ajoute, décidé le
   2026-08-16, l’**édition des pages d’audience depuis le dashboard** (voir V2) —
   préalable aux quatre pages restantes.
+
+  La seconde se paie désormais comptant : le calendrier ne peut annoncer ni la durée
+  minimale ni les jours d’arrivée autorisés, faute de route publique qui les expose. Le
+  visiteur choisit ses dates, puis **découvre la contrainte par le message d’erreur du
+  devis**. Assumé au cadrage du sous-projet 2, à traiter dans le plan qui figera le
+  contrat d’exposition publique des règles.
 - Dashboard admin (SPA séparée, déploiement même origine que l’API, mono-bien — cf. DEC-014, DEC-015), douze écrans :
   - Tableau de bord (accueil — cf. DEC-018)
   - Calendrier

@@ -302,3 +302,66 @@ mise en ligne (cf. `../le115-backend/docs/DEBTS.md`).
 saisie par le propriétaire (`property.location`), aujourd’hui « À 15 minutes
 d’Avignon ». Le site a un temps annoncé Aix-en-Provence, à environ soixante-dix
 kilomètres de là : erreur corrigée le 2026-08-15, cf. `02-UX.md` et `DEBTS.md`.
+
+## DEC-023 — La demande de séjour a sa page, pas une ancre de l’accueil (2026-08-18)
+
+**Décision.** Le parcours de demande vit sur une **URL dédiée**,
+`/[langue]/demande`, au même titre que `/contact`, `/informations-pratiques` et les
+pages d’audience. L’appel à l’action du site — « Estimer mon séjour » (DEC-003) —
+pointe vers elle, et vers elle seule.
+
+**Pourquoi.** Une demande sans URL propre ne se partage pas, ne se référence pas, ne
+se reprend pas. Un visiteur qui hésite doit pouvoir s’envoyer le lien, le rouvrir le
+lendemain, ou le recevoir de quelqu’un d’autre. Une ancre de l’accueil ne permet
+aucun des trois.
+
+**Écartée.** La section sous une ancre `#estimation` de l’accueil, que prévoyait la
+maquette d’origine. Cette ancre n’a d’ailleurs jamais existé dans le site : le bouton
+principal a pointé un temps vers une cible morte, puis vers la page de contact faute
+de mieux.
+
+**Conséquence.** Rien ne change au contrat de DEC-003 ni de DEC-004 : la page ne
+réserve pas, elle **demande**. Le parcours s’arrête à « demande envoyée », la
+propriétaire arbitre depuis son dashboard et s’engage à répondre sous 48 h.
+
+## DEC-024 — Le formulaire n’apparaît qu’une fois le devis soumissible (2026-08-18)
+
+**Décision.** Le visiteur choisit d’abord ses **dates** et son nombre de
+**voyageurs** ; le devis se met à jour à chaque changement ; **les coordonnées ne
+sont demandées que lorsque le serveur déclare le devis soumissible.** Tant qu’une
+règle de séjour est violée, le devis reste affiché — avec son détail et son obstacle
+— mais le formulaire n’est pas là.
+
+**Pourquoi.** Réclamer nom, email et téléphone pour un séjour que les règles
+refuseront est une friction gratuite, et une déception à retardement. Le backend
+porte déjà le verdict (`submittable` sur le devis) : le site l’**affiche**, il ne le
+décide pas.
+
+**Écartés.** Tout afficher d’emblée (le visiteur remplit ses coordonnées, puis se
+voit refuser) ; un assistant en étapes numérotées (plus lourd, et il cache le devis
+pendant qu’on choisit ses dates).
+
+**Conséquence.** DEC-005 tient toujours : adultes et enfants restent facultatifs au
+sens où le visiteur n’a rien à saisir pour obtenir une estimation — ils sont
+présélectionnés. Mais un nombre de voyageurs supérieur à la capacité du bien rend le
+devis non soumissible, donc **`max_guests` doit être juste**. Il n’est éditable nulle
+part aujourd’hui : dette consignée dans `../le115-backend/docs/DEBTS.md`, remontée en
+priorité par cette décision.
+
+## DEC-025 — Horizon de réservation : douze mois glissants (2026-08-18)
+
+**Décision.** Le calendrier de disponibilité montre et laisse choisir **de demain
+jusqu’à un an**. Le passé n’est pas sélectionnable ; au-delà de douze mois, rien
+n’est proposé.
+
+**Pourquoi.** Les périodes tarifaires sont saisies par la propriétaire saison par
+saison, et elles ne le sont pas au-delà d’un an. Un devis calculé si loin
+retomberait sur le seul prix de base et **annoncerait un montant qui ne sera pas le
+bon** — un chiffre faux vaut moins qu’une absence de chiffre.
+
+**Écarté.** Un horizon ouvert, ou un horizon fixe à l’année civile (qui rétrécirait
+jusqu’à quelques semaines en décembre).
+
+**Conséquence.** L’horizon suit la date du jour, il ne se règle nulle part. Le jour
+où la propriétaire saisira ses tarifs plus loin, c’est cette décision qu’il faudra
+rouvrir — pas un paramètre.
