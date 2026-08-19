@@ -11,7 +11,8 @@ reprend la mise en page de `landing-reference.png` — deux niveaux d’en-tête
 en arche, accent terracotta, dégradé latéral, note et avis en en-tête, bandeau
 d’atouts chevauchant le visuel — et en corrige trois points :
 
-- le bouton principal dit **« Estimer mon séjour »** (DEC-003), pas « Réserver » ;
+- le bouton principal dit **« Réserver »** (DEC-026, qui a renversé DEC-003), et la
+  page qu’il ouvre détrompe aussitôt : rien ne se réserve en ligne (DEC-004) ;
 - la navigation porte les **ancres réelles** du produit, pas des libellés qui
   mènent à des contenus inexistants ;
 - les **onglets d’audience mènent à des pages** de contenu, pas à un filtre de la
@@ -105,7 +106,8 @@ restent dans le dépôt concerné.
 ## Principes
 
 - Rester fidèle à la direction artistique fournie.
-- Utiliser le CTA principal **“Estimer mon séjour”**.
+- Utiliser le CTA principal **« Réserver »** (DEC-026), et détromper sur la page
+  qu’il ouvre, pas dans le bouton.
 - Afficher un devis détaillé, jamais uniquement un total.
 - Ne pas bloquer les dates pour une simple demande.
 - Ouvrir le dashboard sur le calendrier.

@@ -19,7 +19,13 @@ Conséquence :
 - conserver une image premium, claire et élégante ;
 - les propositions UX doivent respecter cette base visuelle.
 
-## DEC-003 — CTA principal : “Estimer mon séjour”
+## DEC-003 — CTA principal : “Estimer mon séjour” — ⚠️ REMPLACÉE par [DEC-026](#dec-026--lappel-à-laction-devient--réserver--la-page-détrompe-2026-08-19)
+
+> **Le libellé retenu ici n’est plus celui du site.** Depuis le 2026-08-19, le CTA
+> principal dit **« Réserver »** (« Book »). La fiche reste pour l’historique et
+> pour son raisonnement, qui n’a pas été jugé faux — seulement arbitré autrement.
+> Ce qui survit de DEC-003 : rien ne se réserve en ligne (DEC-004). C’est
+> désormais la **page** `/[langue]/demande` qui détrompe, plus le bouton.
 
 Le CTA principal n'est pas “Réserver”.
 
@@ -238,7 +244,8 @@ dégradé latéral, note et avis en en-tête, bandeau d’atouts à icônes chev
 visuel — avec trois corrections :
 
 - le bouton principal dit **« Estimer mon séjour »** (DEC-003), et non « Réserver » :
-  rien ne se réserve en ligne (DEC-004) ;
+  rien ne se réserve en ligne (DEC-004) — *libellé renversé depuis par DEC-026 : le
+  bouton dit « Réserver », et c’est la page qui détrompe ; le reste tient* ;
 - la navigation garde les **ancres réelles** du produit, et non les libellés de la
   maquette (« Commodités », « Les environs ») qui pointent vers des contenus
   inexistants ;
@@ -307,8 +314,8 @@ kilomètres de là : erreur corrigée le 2026-08-15, cf. `02-UX.md` et `DEBTS.md
 
 **Décision.** Le parcours de demande vit sur une **URL dédiée**,
 `/[langue]/demande`, au même titre que `/contact`, `/informations-pratiques` et les
-pages d’audience. L’appel à l’action du site — « Estimer mon séjour » (DEC-003) —
-pointe vers elle, et vers elle seule.
+pages d’audience. L’appel à l’action du site — « Estimer mon séjour » (DEC-003),
+devenu « Réserver » depuis DEC-026 — pointe vers elle, et vers elle seule.
 
 **Pourquoi.** Une demande sans URL propre ne se partage pas, ne se référence pas, ne
 se reprend pas. Un visiteur qui hésite doit pouvoir s’envoyer le lien, le rouvrir le
