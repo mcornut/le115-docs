@@ -156,7 +156,8 @@ Champs :
 - note interne.
 
 Actions :
-- ajuster le prix (geste commercial guidé : sens remise/supplément + montant, régénère le devis figé) ;
+- ajuster le prix (geste commercial guidé : sens remise/supplément + montant, régénère le devis figé ;
+  une remise est bornée au total courant, refusée si elle le dépasserait) ;
 - annuler (libère les dates ; aucune notification voyageur en V1) ;
 - ajouter une note interne.
 
