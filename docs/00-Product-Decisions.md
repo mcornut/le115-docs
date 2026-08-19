@@ -403,3 +403,39 @@ les deux langues côté site — la distinction libellé court / libellé long,
 qui existait pour tenir la rangée d’en-tête à 320 px, devient sans objet tant
 que « Réserver » reste le texte retenu (cf. commentaire dans
 `le115-frontend/src/i18n/fr.ts`). `02-UX.md` est mis à jour en conséquence.
+
+## DEC-027 — Charte graphique adoptée : identité pure en décor, variantes assombries pour le texte (2026-08-19)
+
+**Décision.** Le site public adopte la charte graphique transmise par le
+graphiste de la propriétaire : dix couleurs (cinq principales, exactement les
+teintes du logo, et cinq secondaires) et deux polices — Cormorant Garamond et
+Montserrat, sous licence SIL Open Font. Les dix couleurs restent l’identité
+complète — aplats, traits, fonds, pastilles, et le logo, qui les code déjà en
+dur. Pour le texte et les boutons seuls, cinq d’entre elles existent en
+variante assombrie (teinte et saturation inchangées, seule la clarté descend),
+le temps de tenir les seuils WCAG (4,5:1 pour le texte, 3:1 pour l’interface).
+Détail complet — codes, ratios mesurés sur les trois fonds, affectations — dans
+`02-UX.md` (« Identité visuelle »).
+
+**Pourquoi.** Cette charte est conçue pour du papier. Appliquée telle quelle à
+l’écran, seules deux des dix couleurs pures atteignent le seuil de lisibilité
+du texte courant (Ardoise 6,35:1, Olive profond 5,58:1, sur le plus sombre des
+trois fonds) ; les six autres tombent entre 1,49:1 et 2,90:1, et le blanc sur
+Terre cuite pure — la teinte qu’aurait naturellement le bouton « Réserver » —
+ne donne que 3,10:1. Éclaircir uniformément aurait éloigné la charte des
+teintes du logo ; l’assombrissement ciblé garde teinte et saturation intactes
+et ne touche que la clarté, sur cinq couleurs seulement.
+
+**L’affectation de rôle n’était pas donnée par le graphiste.** Le dossier
+livre dix couleurs sans dire laquelle sert de texte, de fond ou de décor :
+cette affectation a été proposée et validée par la propriétaire.
+
+**Ça ne contredit aucune décision antérieure**, en particulier `DEC-021` : les
+deux polices sont hébergées dans le dépôt (`le115-frontend/src/app/fonts/`),
+pas chargées d’un service distant — aucun tiers ne s’ajoute, aucun bandeau de
+consentement ne s’impose.
+
+**Écarté.** Éclaircir uniformément les couleurs qui échouent le contraste, ce
+qui les aurait éloignées des teintes du logo ; s’en tenir aux deux seules
+couleurs conformes (Ardoise, Olive profond), ce qui aurait réduit le site à une
+palette bicolore sans rapport avec la charte transmise.
