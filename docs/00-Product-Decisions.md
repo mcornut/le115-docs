@@ -365,3 +365,41 @@ jusqu’à quelques semaines en décembre).
 **Conséquence.** L’horizon suit la date du jour, il ne se règle nulle part. Le jour
 où la propriétaire saisira ses tarifs plus loin, c’est cette décision qu’il faudra
 rouvrir — pas un paramètre.
+
+## DEC-026 — L’appel à l’action devient « Réserver », la page détrompe (2026-08-19)
+
+**Décision.** Le CTA principal du site public — bouton d’en-tête et bouton du
+hero — dit désormais **« Réserver »** (« Book » en anglais), et non plus le
+libellé retenu depuis DEC-003 (« Estimer mon séjour » sur ce document,
+« Demander une estimation » dans le code livré — les deux jamais recalés
+l’un sur l’autre). Il mène toujours à `/[langue]/demande` (DEC-023), dont le
+titre devient **« Réserver votre séjour »** et dont la première phrase dit
+d’emblée : la demande est étudiée sous 48 heures, rien n’est engagé tant
+qu’elle n’est pas acceptée.
+
+**Pourquoi.** Arbitrage du propriétaire : « Réserver » attire davantage
+qu’une formule prudente, et un bouton qui n’invite pas franchement à l’action
+convertit moins.
+
+**Ça ne contredit ni DEC-003 ni DEC-004.** Les deux tiennent : rien ne se
+réserve en ligne, la propriétaire arbitre chaque demande depuis son
+dashboard. Aucune étape du parcours ne change de sens — le bouton d’envoi dit
+toujours « Envoyer ma demande », la confirmation dit toujours que la demande
+est envoyée, pas acceptée. Le nuancier retenu : le bouton **attire**, la page
+qu’il ouvre **détrompe aussitôt**, avant même le calendrier.
+
+**Risque assumé.** Un visiteur qui clique « Réserver » puis lit dans la même
+respiration « rien n’est engagé » peut se sentir découragé, voire dupé — un
+« Demander une estimation » ne créait pas cette attente à détromper. C’est le
+prix accepté pour un bouton plus engageant ; à surveiller si le taux
+d’abandon sur `/demande` augmente après ce changement.
+
+**Écarté.** Garder le libellé prudent (fidèle à DEC-003, mais jugé moins
+engageant) ; un intermédiaire du type « Faire une demande », écarté par le
+propriétaire au profit de « Réserver ».
+
+**Conséquence.** `nav.cta` et `hero.cta` valent désormais le même texte dans
+les deux langues côté site — la distinction libellé court / libellé long,
+qui existait pour tenir la rangée d’en-tête à 320 px, devient sans objet tant
+que « Réserver » reste le texte retenu (cf. commentaire dans
+`le115-frontend/src/i18n/fr.ts`). `02-UX.md` est mis à jour en conséquence.
