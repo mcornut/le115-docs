@@ -69,17 +69,15 @@ L'administrateur peut appliquer un ajustement de prix (ex : geste commercial −
 - ligne de devis à montant signé (négatif = remise), distincte des frais ;
 - action admin uniquement ;
 - régénère le devis figé (`QuoteSnapshot`), détail d'origine conservé ;
-- **une remise ne peut pas dépasser le total** : le montant après ajustement
-  ne descend jamais sous zéro.
+- **une remise ne peut pas dépasser le total** : une remise qui ferait
+  descendre le total sous zéro est **refusée** (422 `DISCOUNT_EXCEEDS_TOTAL`),
+  et la réponse porte le maximum applicable. Une remise **exactement égale** au
+  total est acceptée : un total nul est légal. Les **suppléments** ne sont pas
+  plafonnés.
+- le plafond porte sur le **total résultant**, pas sur le montant saisi : deux
+  remises chacune inférieure au total peuvent être illégales ensemble.
 
-Total = sous-total nuits + frais obligatoires + ajustements, **borné à zéro par
-le bas**.
-
-> **La borne n'est aujourd'hui appliquée nulle part** — ni au domaine, ni à
-> l'API, ni au dashboard, qui va jusqu'à prévisualiser un total négatif avant
-> de le confirmer. Règle énoncée le 2026-08-19 à la demande de la
-> propriétaire ; l'écart est consigné dans `../le115-backend/docs/DEBTS.md`,
-> section « Cœur métier ».
+Total = sous-total nuits + frais obligatoires + ajustements.
 
 ## Calcul du devis
 
