@@ -446,3 +446,62 @@ consentement ne s’impose.
 qui les aurait éloignées des teintes du logo ; s’en tenir aux deux seules
 couleurs conformes (Ardoise, Olive profond), ce qui aurait réduit le site à une
 palette bicolore sans rapport avec la charte transmise.
+
+## DEC-028 — La capacité gouverne les demandes à venir, pas les engagements pris (2026-08-21)
+
+**Décision.** La fiche du bien est désormais éditable depuis l’espace de
+gestion : nom, accroche, adresse, capacité d’accueil (`max_guests`) et prix de
+base. L’identifiant (`slug`) et la devise en restent exclus — le premier est
+dupliqué par la configuration du serveur, le modifier depuis l’interface
+casserait le serveur en marche ; changer la seconde réinterpréterait
+rétroactivement tous les montants déjà enregistrés en centimes. Les deux
+restent affichés, en lecture seule, pour que l’état réel soit visible.
+
+**La règle de rétroactivité.** `max_guests` gouverne les demandes **à venir**.
+Une réservation déjà confirmée est un engagement pris : elle n’est jamais
+relue à l’aune d’une règle posée après elle. Baisser la capacité sous
+l’effectif d’un séjour confirmé est donc **accepté**, jamais refusé — et
+signalé à qui fait le geste, par le nombre de séjours confirmés et non encore
+terminés que la nouvelle valeur ne couvrirait plus.
+
+**Pourquoi.** Refuser la baisse tant qu’un séjour dépassant la nouvelle
+capacité reste confirmé aurait lié la main du propriétaire à ses propres
+engagements passés, pour un cas rare (revoir sa capacité à la baisse pendant
+qu’un séjour nombreux est déjà accepté) — au prix d’un formulaire qui se
+bloque sans qu’on sache pourquoi. Avertir plutôt que refuser laisse la main au
+propriétaire tout en le prévenant de ce que sa décision touche.
+
+**Sa limite : le signalement ne voit que ce qu’il peut compter.** L’effectif
+d’un séjour vit sur la demande qui l’a fait naître, pas sur la réservation
+elle-même. Un séjour saisi à la main, sans demande liée, n’a donc pas
+d’effectif connu et n’est **jamais compté** — l’avertissement peut sous-évaluer
+l’impact d’une baisse, jamais le sur-évaluer.
+
+**Ça ne remplace pas DEC-024, ça la complète.** DEC-024 reste en vigueur :
+une demande dont l’effectif dépasse `max_guests` n’est toujours pas
+soumissible, et c’est le bon comportement. DEC-024 avait aussi consigné la
+dette qui manquait pour l’appliquer correctement — `max_guests` n’était
+éditable nulle part. C’est cette dette que DEC-028 solde : la garde ne change
+pas, elle gagne enfin un moyen d’être corrigée.
+
+**Ça croise DEC-022 sans la modifier.** DEC-022 a déjà décidé du sort de
+l’adresse : le site situe la maison par son **secteur** (`property.location`,
+champ traduit, édité côté contenu), jamais par l’adresse exacte, et **cette
+adresse exacte part par email une fois le séjour confirmé**. Le champ
+`address` que DEC-028 rend éditable est précisément cette adresse exacte —
+secteur et adresse restent deux données distinctes, l’une publiée en
+permanence, l’autre jamais publiée et communiquée au cas par cas. DEC-028 lui
+donne enfin un moyen d’être saisie ; DEC-022 continue de dire ce qu’on en
+fait. L’envoi par email ne la porte pas encore — dette consignée dans
+`../le115-backend/docs/DEBTS.md`.
+
+**Écarté.** Refuser la baisse de capacité tant qu’une réservation confirmée la
+dépasse : aurait transformé un geste de gestion légitime en blocage, pour un
+avertissement que le propriétaire peut très bien vouloir ignorer (ex. un
+séjour exceptionnel, ponctuel, qu’on ne compte pas reproduire).
+
+**Conséquence.** Le nom et l’accroche ne sont pas publiés par ce geste : le
+site tient sa marque en bilingue dans ses propres bundles i18n
+(`le115-frontend/src/i18n/`), et une colonne non traduite ne peut pas la
+porter. Les rendre éditables ici ne leur donne qu’un lecteur interne, côté
+gestion — pas un effet visiteur.
