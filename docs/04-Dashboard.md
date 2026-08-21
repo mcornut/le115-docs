@@ -182,7 +182,15 @@ Règle V1 :
 
 Un chevauchement de même-priorité déclenche une erreur **409 CONFLICT** au dashboard.
 
-Le module **Tarifs** (`/tarifs`) gère deux entités sur une page unique :
+Le module **Tarifs** (`/tarifs`) réunit trois sections sur une page unique :
+
+**Prix de base** — le tarif de repli, appliqué à toute nuit qu’aucune période
+ci-dessous ne couvre. Il vit **en tête de la page**, au-dessus des périodes qui
+le surchargent, pour qu’on le modifie en voyant ce qui le rend sans effet.
+C’est une colonne de `property` (`base_nightly_price_cents`), éditée par la
+même route partielle `PATCH /api/admin/property` que l’**Identité du bien**
+sur l’écran Maison (cf. « Identité du bien » ci-dessous) : un seul champ
+euros, positif, converti en centimes.
 
 **Périodes tarifaires** — nom, dates **du / au inclusives** (`[du, au]`, le
 jour « au » est compris), prix par nuit et **priorité** (champ avancé, replié,
@@ -247,6 +255,29 @@ enregistrée peut être **changée mais pas effacée**.
 Les photos ne sont plus une extension de cet écran : elles ont leur propre
 écran et leur propre entrée de menu, décrits dans la section **Photos**
 ci-dessous.
+
+### Identité du bien
+
+Depuis le 2026-08-21, l’écran **Maison** porte aussi la **fiche du bien**
+elle-même — les colonnes non traduites de `property`, distinctes du contenu
+FR/EN ci-dessus : **nom**, **accroche**, **adresse** et **capacité
+d’accueil** (`max_guests`). `slug` et **devise** restent affichés en lecture
+seule, sans champ de saisie — le premier est dupliqué par la configuration du
+serveur, la seconde réinterpréterait rétroactivement tous les montants déjà
+stockés en centimes. Un seul `PATCH /api/admin/property` partiel porte cette
+section et, depuis la même route, la section **Prix de base** de l’écran
+Tarifs (ci-dessus).
+
+Le nom est **obligatoire** ; en dessous de 1, la capacité est refusée
+(**422 VALIDATION**). **Baisser la capacité sous l’effectif d’une réservation
+déjà confirmée et non terminée est accepté, jamais refusé** — `max_guests`
+gouverne les demandes à venir, une réservation confirmée est un engagement
+pris — et la réponse **signale** le nombre de séjours concernés sans bloquer
+l’enregistrement ; ce signalement est **aveugle aux réservations saisies à la
+main**, qui n’ont pas de demande d’origine et donc pas d’effectif connu
+(DEC-028). L’adresse exacte n’est **jamais affichée au visiteur** : le site
+public situe la maison par son secteur (champ **Localisation** ci-dessus) et
+l’adresse complète part par email une fois le séjour confirmé (DEC-022).
 
 ---
 

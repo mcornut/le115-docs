@@ -387,6 +387,52 @@ Erreurs :
   sans aucune contrainte).
 - `404 NOT_FOUND` : identifiant inconnu.
 
+### GET /api/admin/property
+
+Retourne la fiche du bien : `slug`, `name`, `baseline`, `address`, `maxGuests`, `baseNightlyPriceCents`, `currency`.
+
+### PATCH /api/admin/property
+
+Met à jour tout ou partie de `name`, `baseline`, `address`, `maxGuests`, `baseNightlyPriceCents` — les cinq colonnes non traduites de `property`. `slug` et `currency` sont en **lecture seule** : ils ne figurent pas dans le contrat de la requête, et les transmettre est refusé.
+
+**Partiel** : seuls les champs présents dans le corps de la requête sont mis à jour ; les champs omis restent inchangés.
+
+Body (tous optionnels) :
+- `name` : chaîne, rognée puis exigée non vide ;
+- `baseline`, `address` : chaînes, rognées ; une valeur vide transmise est bel et bien enregistrée vide, ce n’est pas une absence ;
+- `maxGuests` : entier ≥ 1 ;
+- `baseNightlyPriceCents` : entier > 0.
+
+Erreurs :
+- `422 VALIDATION` : nom (rogné) vide, `maxGuests` < 1, ou `baseNightlyPriceCents` ≤ 0.
+- `400 INVALID_REQUEST` : corps portant une clé hors contrat, notamment `slug` ou `currency`.
+- `404 NOT_FOUND` : bien introuvable.
+
+Response `200` :
+
+```json
+{
+  "property": {
+    "slug": "le-115",
+    "name": "Le 115, Maison de Provence",
+    "baseline": "Maison premium en Provence",
+    "address": "…",
+    "maxGuests": 8,
+    "baseNightlyPriceCents": 15000,
+    "currency": "EUR"
+  },
+  "warnings": []
+}
+```
+
+`warnings` est **toujours un tableau**, jamais `null`. Baisser `maxGuests` sous l’effectif d’une réservation déjà confirmée et non terminée est **accepté, jamais refusé** — `max_guests` gouverne les demandes à venir, une réservation confirmée est un engagement pris (DEC-028). La réponse signale alors le nombre de séjours concernés sans bloquer l’enregistrement :
+
+```json
+{ "code": "GUESTS_BELOW_EXISTING_RESERVATIONS", "count": 2 }
+```
+
+Ce signalement est **aveugle aux réservations saisies à la main** : sans demande d’origine (`stay_request_id` nul), elles n’ont pas d’effectif connu et ne sont jamais comptées.
+
 ### GET /api/admin/content
 
 Retourne le contenu éditorial bilingue : `rating`, `reviewCount`, `title/subtitle/description/location` en `{fr,en}`, `amenities[]` (`id`, `code`, `icon`, `label{fr,en}`), `faq[]` (`id`, `question{fr,en}`, `answer{fr,en}`).
