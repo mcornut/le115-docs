@@ -77,7 +77,10 @@ Response `200` : binaire JPEG ou PNG (Content-Type: `image/jpeg` ou `image/png`)
 Notes :
 - Pas d'upscale : si `w` dépasse la largeur native, retourne l'original.
 - Cache immuable (`Cache-Control: public, max-age=31536000, immutable`).
-- En dehors du rate limiting public.
+- Rate-limité par un plafond qui lui est propre, pas celui des lectures JSON publiques — voir
+  « Rate limiting » plus bas.
+- `ETag` posé et `304 Not Modified` rendu **avant** tout accès base/disque sur une requête
+  conditionnelle (`If-None-Match`).
 
 Erreurs : `404` si la photo n'existe pas, si `w` n'est pas reconnu (les variantes < source width
 seulement), **ou** si `{id}` n'est pas un identifiant valide — le visiteur ne doit pas pouvoir
@@ -147,6 +150,11 @@ Body :
   dérogation renvoyée dans `details[]` si la demande est refusée pour violation d'une règle
   de séjour (fallback `fr` si locale non disponible).
 
+**Bornes de longueur** sur les champs libres, comptées en **runes** (pas en octets, pour
+qu’une saisie française accentuée ne soit pas pénalisée) : `firstName` et `lastName` ≤ 100,
+`email` ≤ 254, `phone` ≤ 40, `message` ≤ 2000. Un dépassement renvoie `400 INVALID_REQUEST`
+avec `details.field` nommant le premier champ fautif (un seul à la fois).
+
 Response `201` : `{ "id": "...", "quote": { ... } }` (le devis figé).
 
 **Deux emails partent à la création** (depuis le 2026-08-18), tous deux en best-effort — un
@@ -162,14 +170,21 @@ le voyageur savait qu’on lui répondait, il ne savait pas qu’on l’avait re
 
 Erreurs possibles : `422 VALIDATION` (devis non soumissible, `details` = codes, avec la note
 de dérogation localisée le cas échéant), `409 DATES_UNAVAILABLE` (dates indisponibles),
-`400 INVALID_REQUEST` (email manquant/invalide, dates invalides, corps invalide).
+`409 DUPLICATE_REQUEST` (même email et mêmes dates envoyés dans les 24 heures précédentes),
+`400 INVALID_REQUEST` (email manquant/invalide, dates invalides, corps invalide, ou un champ
+au-delà de sa borne de longueur — `details.field` nomme alors le champ).
 
-> **Les trois `400` partagent un seul code, et c’est une ambiguïté à lever.** Un appelant qui
-> reçoit `INVALID_REQUEST` ne peut pas distinguer une **adresse email refusée** — la seule des
-> trois que le visiteur puisse corriger — d’un corps mal formé ou trop gros. Le site public doit
-> donc parier, et son pari est parfois faux : il conseille de vérifier l’email à quelqu’un dont
-> l’adresse n’a rien d’anormal. **Décision de contrat à prendre** : donner au refus d’email son
-> propre code stable (`INVALID_EMAIL`) côté Go. Consignée dans
+> **Plusieurs causes de `400` partagent encore un seul code, et c’est une ambiguïté à lever.**
+> Un appelant qui reçoit `INVALID_REQUEST` ne peut pas distinguer une **adresse email
+> refusée** — la seule cause, avec un champ trop long, que le visiteur puisse corriger — d’un
+> corps mal formé ou trop gros. Le champ trop long fait désormais exception : il porte
+> `details.field` (cf. bornes de longueur ci-dessus), ajouté après ce constat. L’email refusé,
+> lui, ne porte toujours aucun détail. Le site public doit donc parier sur les causes qui n’en
+> portent pas, et son pari est parfois faux : il conseille de vérifier l’email à quelqu’un dont
+> l’adresse n’a rien d’anormal — **et il ne lit d’ailleurs pas `details.field` non plus**,
+> traitant toute `400` comme un problème d’email (`le115-frontend/src/app/[locale]/demande/actions.ts`).
+> **Décision de contrat à prendre** : donner au refus d’email son propre code stable
+> (`INVALID_EMAIL`) côté Go, et faire lire `details.field` au site. Consignée dans
 > `../le115-backend/docs/DEBTS.md`.
 
 ---
@@ -621,6 +636,7 @@ Codes métier stables :
 | `VALIDATION` | 422 | Demande non soumissible ; `details` liste les codes de règle enfreints |
 | `CONFLICT` | 409 | Conflit d'intégrité : chevauchement de périodes tarifaires (même priorité), code de frais dupliqué, code d'équipement dupliqué, etc. |
 | `DATES_UNAVAILABLE` | 409 | Dates demandées indisponibles |
+| `DUPLICATE_REQUEST` | 409 | `POST /stay-requests` : une demande identique (même email, mêmes dates) a déjà été envoyée dans les 24 heures précédentes. Le message renvoyé invite à contacter directement la propriétaire pour corriger une demande déjà partie — il n’existe aujourd’hui aucun autre moyen |
 | `INTERNAL` | 500 | Erreur interne |
 
 Codes de règle (portés par `errors[]` d'un devis et par `details` d'un `VALIDATION`) :
@@ -632,11 +648,25 @@ Codes de règle (portés par `errors[]` d'un devis et par `details` d'un `VALIDA
 | `CHECKOUT_DAY` | Jour de départ non autorisé |
 | `INVALID_DATES` | Arrivée ≥ départ |
 | `DATES_IN_PAST` | Arrivée dans le passé (« aujourd'hui » Europe/Paris) |
-| `GUESTS_EXCEED_MAX` | Nombre de voyageurs supérieur à la capacité |
+| `GUESTS_EXCEED_MAX` | Nombre de voyageurs supérieur à la capacité réelle du bien |
+| `STAY_TOO_LONG` | Durée du séjour supérieure à la borne technique de 365 nuits — au-delà, le calcul énumérerait une date par nuit ; sans lien avec les durées commerciales des règles de séjour |
+| `GUESTS_INVALID` | Nombre de voyageurs négatif ou hors bornes techniques (garde anti-débordement de l’addition adultes + enfants) — distinct de `GUESTS_EXCEED_MAX`, qui refuse un effectif réel supérieur à la capacité du bien |
 
 ## Rate limiting
 
-Les endpoints publics et la connexion admin sont soumis à un rate limiting (dépassement → `429`). Le corps des requêtes est borné.
+Les endpoints publics et la connexion admin sont soumis à un rate limiting, par IP cliente,
+en fenêtre fixe. Un dépassement renvoie `429`. Les plafonds diffèrent volontairement d’une
+route à l’autre :
+
+| Portée | Limite | Pourquoi |
+|---|---|---|
+| Lectures JSON publiques — `GET /property`, `GET /availability`, `POST /quote` | 60 / minute | plafond général de l’API publique |
+| `POST /stay-requests` | 10 / heure | bien plus strict que les lectures ci-dessus : chaque appel déclenche **deux** envois SMTP, dont un vers une adresse **fournie par l’appelant**. Le domaine expéditeur porte un DMARC en rejet strict — un abus ne ferait donc pas que du bruit, il ferait mettre le domaine expéditeur en liste noire, après quoi le site cesse de notifier quoi que ce soit, silencieusement. Dix plutôt que cinq laisse de la place à un foyer, un bureau, ou un NAT d’opérateur mobile partageant une IP entre de nombreux abonnés, sans changer la donne côté abus |
+| `GET /media/{id}` | 600 / minute **et** 20 / seconde — les deux fenêtres se cumulent | la fenêtre minute borne le débit soutenu ; la fenêtre seconde borne la rafale que la minute seule laisse passer à son ouverture (un audit de sécurité avait mesuré 75 requêtes rapides sans un seul refus) |
+| `POST /api/admin/login` | 10 / minute | anti-force-brute sur l’unique compte propriétaire |
+
+Le corps des requêtes est par ailleurs borné : 64 KiB sur l’API publique, 16 KiB sur les
+routes admin hors upload, 20 MiB sur l’upload de photo.
 
 ## TODO
 

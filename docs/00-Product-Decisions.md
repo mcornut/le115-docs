@@ -505,3 +505,39 @@ site tient sa marque en bilingue dans ses propres bundles i18n
 (`le115-frontend/src/i18n/`), et une colonne non traduite ne peut pas la
 porter. Les rendre éditables ici ne leur donne qu’un lecteur interne, côté
 gestion — pas un effet visiteur.
+
+## DEC-029 — Deux bornes techniques sur une demande, et le refus des doublons qui leur est voisin (2026-08-22)
+
+**Décision.** Une demande de séjour est désormais refusée dans deux cas
+purement techniques, ajoutés aux règles métier existantes : une durée de
+séjour supérieure à **365 nuits** (code stable `STAY_TOO_LONG`), et un
+nombre de voyageurs négatif ou absurde, au-delà de mille adultes ou mille
+enfants (code stable `GUESTS_INVALID`). Aucune des deux n’est une règle
+commerciale — la capacité réelle du bien continue de se juger par
+`GUESTS_EXCEED_MAX` (DEC-028), qui n’est pas concernée.
+
+**Pourquoi.** Sans borne sur la durée, le calcul du devis énumère une date
+par nuit : un audit de sécurité du 2026-08-22 a mesuré qu’une plage anonyme
+de mille ans faisait grimper le tas à 490 Mo et la réponse à 150 Mo, pour
+une requête de soixante octets — de quoi faire tomber le site avec une
+seule requête. Sans borne sur l’effectif, l’addition du nombre d’adultes et
+d’enfants peut déborder avant même d’atteindre la comparaison à la
+capacité, un compte négatif compensant un excès positif. La durée retenue,
+365 nuits, n’est pas une valeur inventée pour l’occasion : c’est celle déjà
+utilisée par les règles de séjour, pour que les deux seuils ne puissent
+jamais diverger.
+
+**La conséquence pour un client réel.** Aucune. Un séjour d’un an dans une
+maison de vacances, ou un groupe de mille personnes, ne sont pas des cas
+d’usage : les deux bornes sont des garde-fous d’arithmétique, jamais
+rencontrés par une saisie humaine.
+
+**Et la règle voisine.** Une demande identique — même adresse email, mêmes
+dates — est refusée dans les 24 heures suivant son envoi, avec le code
+stable `DUPLICATE_REQUEST`. Contrairement aux deux bornes ci-dessus, ce
+n’est pas un garde-fou d’arithmétique mais un frein à l’abus : chaque
+demande déclenche deux envois d’email, et une rafale de doublons épuiserait
+le budget d’envoi pour un gain nul côté visiteur. Un visiteur qui veut
+**corriger** une demande qu’il vient d’envoyer se heurte pour l’instant à
+ce même refus pendant 24 heures, sans autre recours que d’écrire
+directement — un manque produit, pas un défaut du refus lui-même.
