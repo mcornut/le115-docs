@@ -541,3 +541,44 @@ le budget d’envoi pour un gain nul côté visiteur. Un visiteur qui veut
 **corriger** une demande qu’il vient d’envoyer se heurte pour l’instant à
 ce même refus pendant 24 heures, sans autre recours que d’écrire
 directement — un manque produit, pas un défaut du refus lui-même.
+
+## DEC-030 — Trois demandes par adresse et par jour, et le site cesse de dire qu’une maison libre est prise (2026-08-22)
+
+**Décision.** Une même adresse email ne peut déclencher plus de **trois
+demandes de séjour sur 24 heures**, quelles que soient les dates. La
+quatrième est refusée avec le code stable `DUPLICATE_REQUEST`, le même que
+le refus de doublon exact de DEC-029. Côté site, ce refus reçoit enfin son
+propre message — il était rendu comme « ces dates viennent d’être prises,
+choisissez-en d’autres ».
+
+**Pourquoi le plafond.** Le refus de DEC-029 porte sur le triplet (adresse,
+arrivée, départ) : il suffisait de **faire varier les dates** pour ne jamais
+le déclencher. Chaque demande acceptée envoie un accusé de réception à
+l’adresse saisie, depuis le domaine de la propriétaire ; quelqu’un qui change
+d’adresse IP — ce que la limitation par IP ne voit pas — pouvait donc en
+adresser autant qu’il voulait à une victime de son choix. C’est exactement le
+blacklistage du domaine que ces garde-fous existent pour éviter.
+
+**Pourquoi trois.** Une voyageuse qui hésite compare deux ou trois séjours —
+une semaine en juillet, une en août, un long week-end — et ne doit pas être
+prise dans le filet ; c’est le comportement réel le plus étendu à couvrir.
+Dans l’autre sens, trois accusés de réception par adresse et par jour est un
+désagrément pour une victime, pas une campagne. Au-delà, le message invite à
+nous joindre directement.
+
+**Un seul code pour deux garde-fous, à dessein.** Distinguer le doublon exact
+du plafond apprendrait à qui sonde l’API lequel des deux l’arrête, donc
+comment contourner l’autre. L’appelant n’a pas à le savoir.
+
+**Ce que le visiteur lit, et ce qu’il lisait.** `DUPLICATE_REQUEST` était rendu
+sur le seul code HTTP `409`, partagé avec `DATES_UNAVAILABLE` : le site
+affichait donc « ces dates viennent d’être prises. Choisissez-en d’autres :
+le calendrier est à jour » — un **mensonge** pour une maison libre, doublé du
+seul conseil qui ne pouvait pas aboutir. Pire, ce message-là s’efface dès que
+d’autres dates sont choisies, c’est-à-dire exactement au geste qu’il ordonne.
+Le doublon a désormais son message propre — la demande est déjà arrivée, ne
+pas la renvoyer, nous joindre directement pour la modifier — et il **ne
+s’efface pas** au changement de dates, puisque changer de dates n’y change
+rien. Le refus pour excès de demandes (`429`) reçoit lui aussi son message :
+il était rendu comme « votre demande n’a pas pu être envoyée, réessayez dans
+un instant », alors que c’est précisément de réessayer qu’on refuse.

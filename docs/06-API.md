@@ -170,7 +170,8 @@ le voyageur savait qu’on lui répondait, il ne savait pas qu’on l’avait re
 
 Erreurs possibles : `422 VALIDATION` (devis non soumissible, `details` = codes, avec la note
 de dérogation localisée le cas échéant), `409 DATES_UNAVAILABLE` (dates indisponibles),
-`409 DUPLICATE_REQUEST` (même email et mêmes dates envoyés dans les 24 heures précédentes),
+`409 DUPLICATE_REQUEST` (même email et mêmes dates envoyés dans les 24 heures précédentes, **ou**
+plus de trois demandes de la même adresse sur 24 heures, dates confondues — DEC-030),
 `400 INVALID_REQUEST` (email manquant/invalide, dates invalides, corps invalide, ou un champ
 au-delà de sa borne de longueur — `details.field` nomme alors le champ).
 
@@ -636,7 +637,7 @@ Codes métier stables :
 | `VALIDATION` | 422 | Demande non soumissible ; `details` liste les codes de règle enfreints |
 | `CONFLICT` | 409 | Conflit d'intégrité : chevauchement de périodes tarifaires (même priorité), code de frais dupliqué, code d'équipement dupliqué, etc. |
 | `DATES_UNAVAILABLE` | 409 | Dates demandées indisponibles |
-| `DUPLICATE_REQUEST` | 409 | `POST /stay-requests` : une demande identique (même email, mêmes dates) a déjà été envoyée dans les 24 heures précédentes. Le message renvoyé invite à contacter directement la propriétaire pour corriger une demande déjà partie — il n’existe aujourd’hui aucun autre moyen |
+| `DUPLICATE_REQUEST` | 409 | `POST /stay-requests`, **deux garde-fous sous un seul code** : une demande identique (même email, mêmes dates) déjà envoyée dans les 24 heures précédentes, **ou** une quatrième demande de la même adresse sur 24 heures, dates confondues (DEC-030). Les distinguer apprendrait à qui sonde l’API lequel des deux l’arrête. Le message renvoyé invite à contacter directement la propriétaire pour corriger une demande déjà partie — il n’existe aujourd’hui aucun autre moyen |
 | `INTERNAL` | 500 | Erreur interne |
 
 Codes de règle (portés par `errors[]` d'un devis et par `details` d'un `VALIDATION`) :
