@@ -576,9 +576,18 @@ affichait donc « ces dates viennent d’être prises. Choisissez-en d’autres 
 le calendrier est à jour » — un **mensonge** pour une maison libre, doublé du
 seul conseil qui ne pouvait pas aboutir. Pire, ce message-là s’efface dès que
 d’autres dates sont choisies, c’est-à-dire exactement au geste qu’il ordonne.
-Le doublon a désormais son message propre — la demande est déjà arrivée, ne
-pas la renvoyer, nous joindre directement pour la modifier — et il **ne
-s’efface pas** au changement de dates, puisque changer de dates n’y change
-rien. Le refus pour excès de demandes (`429`) reçoit lui aussi son message :
+Le doublon a désormais son message propre — une demande a déjà été bien
+reçue, inutile de la renvoyer, nous joindre directement pour la modifier —
+et il ne nomme plus aucune date : les deux garde-fous partagent le même code
+`DUPLICATE_REQUEST`, à dessein, et le site ne sait donc pas lequel a refusé.
+Or seul le doublon exact porte sur des dates précises ; le plafond, lui, n’en
+a cure. Un message qui aurait continué à dire « pour ces dates » resterait
+donc faux à chaque fois que c’est le plafond qui a tranché, et daterait une
+demande sur des dates que la visiteuse n’a parfois jamais soumises. Pour la
+même raison, ce message **ne s’efface pas** au changement de dates : pour le
+plafond, changer de dates n’y change rien ; pour le doublon exact, cela
+pourrait suffire, mais le site ne peut pas le savoir sans une nouvelle
+soumission, donc il reste prudent. Le refus pour excès de demandes (`429`)
+reçoit lui aussi son message :
 il était rendu comme « votre demande n’a pas pu être envoyée, réessayez dans
 un instant », alors que c’est précisément de réessayer qu’on refuse.
