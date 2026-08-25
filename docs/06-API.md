@@ -29,8 +29,7 @@ Response `200` :
   "subtitle": "Maison d'exception",
   "description": "Au cœur de la Provence...",
   "location": "Luberon",
-  "rating": 4.8,
-  "reviewCount": 42,
+  "reviewsUrl": "https://g.page/le-115",
   "amenities": [
     { "code": "wifi", "icon": "wifi", "label": "Wifi haute vitesse" }
   ],
@@ -405,11 +404,11 @@ Erreurs :
 
 ### GET /api/admin/property
 
-Retourne la fiche du bien : `slug`, `name`, `baseline`, `address`, `maxGuests`, `baseNightlyPriceCents`, `currency`.
+Retourne la fiche du bien : `slug`, `name`, `baseline`, `address`, `maxGuests`, `baseNightlyPriceCents`, `currency`, `reviewsUrl`.
 
 ### PATCH /api/admin/property
 
-Met à jour tout ou partie de `name`, `baseline`, `address`, `maxGuests`, `baseNightlyPriceCents` — les cinq colonnes non traduites de `property`. `slug` et `currency` sont en **lecture seule** : ils ne figurent pas dans le contrat de la requête, et les transmettre est refusé.
+Met à jour tout ou partie de `name`, `baseline`, `address`, `maxGuests`, `baseNightlyPriceCents`, `reviewsUrl` — les six colonnes non traduites éditables de `property`. `slug` et `currency` sont en **lecture seule** : ils ne figurent pas dans le contrat de la requête, et les transmettre est refusé.
 
 **Partiel** : seuls les champs présents dans le corps de la requête sont mis à jour ; les champs omis restent inchangés.
 
@@ -417,10 +416,11 @@ Body (tous optionnels) :
 - `name` : chaîne, rognée puis exigée non vide ;
 - `baseline`, `address` : chaînes, rognées ; une valeur vide transmise est bel et bien enregistrée vide, ce n’est pas une absence ;
 - `maxGuests` : entier ≥ 1 ;
-- `baseNightlyPriceCents` : entier > 0.
+- `baseNightlyPriceCents` : entier > 0 ;
+- `reviewsUrl` : adresse de la fiche **Google Business** du bien, rognée. Vide ou URL **absolue en `https`** — `http` est refusé (l'adresse est affichée dans une page servie en HTTPS sous CSP stricte). Aucune restriction de domaine : Google sert ces fiches sous plusieurs hôtes, et la liste bouge. La **chaîne vide est une valeur**, pas une absence : c'est ainsi qu'on efface une fiche saisie par erreur.
 
 Erreurs :
-- `422 VALIDATION` : nom (rogné) vide, `maxGuests` < 1, ou `baseNightlyPriceCents` ≤ 0.
+- `422 VALIDATION` : nom (rogné) vide, `maxGuests` < 1, `baseNightlyPriceCents` ≤ 0, ou `reviewsUrl` non vide qui n'est pas une URL absolue en `https`.
 - `400 INVALID_REQUEST` : corps portant une clé hors contrat, notamment `slug` ou `currency`.
 - `404 NOT_FOUND` : bien introuvable.
 
@@ -435,7 +435,8 @@ Response `200` :
     "address": "…",
     "maxGuests": 8,
     "baseNightlyPriceCents": 15000,
-    "currency": "EUR"
+    "currency": "EUR",
+    "reviewsUrl": "https://g.page/le-115"
   },
   "warnings": []
 }
@@ -451,20 +452,25 @@ Ce signalement est **aveugle aux réservations saisies à la main** : sans deman
 
 ### GET /api/admin/content
 
-Retourne le contenu éditorial bilingue : `rating`, `reviewCount`, `title/subtitle/description/location` en `{fr,en}`, `amenities[]` (`id`, `code`, `icon`, `label{fr,en}`), `faq[]` (`id`, `question{fr,en}`, `answer{fr,en}`).
+Retourne le contenu éditorial bilingue : `title/subtitle/description/location` en `{fr,en}`, `amenities[]` (`id`, `code`, `icon`, `label{fr,en}`), `faq[]` (`id`, `question{fr,en}`, `answer{fr,en}`).
 
 ### PATCH /api/admin/content
 
-Met à jour les champs éditoriaux property (`title/subtitle/description/location` en `{fr,en}`) + `rating` (0–5) + `reviewCount` (≥0).
+Met à jour les champs éditoriaux property (`title/subtitle/description/location` en `{fr,en}`).
 
-**Partiel** : seuls les champs présents dans le corps de la requête sont mis à jour ; les champs omis (y compris `rating`/`reviewCount`) restent inchangés. Chaque champ localisé, quand il est fourni, doit porter les deux locales `{fr,en}`.
+**Partiel** : seuls les champs présents dans le corps de la requête sont mis à jour ; les champs omis restent inchangés. Chaque champ localisé, quand il est fourni, doit porter les deux locales `{fr,en}`.
 
-**Effacement** : l'absence d'une clé signifie « inchangé ». Les valeurs
-scalaires ne peuvent donc pas être remises à vide par cette route — une
-`rating` déjà enregistrée peut être modifiée, pas remise à `null`. Un champ
-localisé transmis avec des chaînes vides, en revanche, est bel et bien
-enregistré vide ; c'est le dashboard qui exige un français non vide sur les
-quatre textes éditoriaux.
+**Effacement** : l'absence d'une clé signifie « inchangé ». Un champ localisé
+transmis avec des chaînes vides, en revanche, est bel et bien enregistré vide ;
+c'est le dashboard qui exige un français non vide sur les quatre textes
+éditoriaux.
+
+**`rating` et `reviewCount` ont quitté ce contrat** (2026-08-26) : les avis font
+foi sur une fiche Google Business, dont l'adresse s'édite via
+`PATCH /api/admin/property` (`reviewsUrl`). Les deux clés sont désormais **hors
+contrat** — les transmettre rend `400 INVALID_REQUEST`, comme toute clé inconnue.
+Les colonnes `rating` et `review_count` restent en base, gelées à leur dernière
+valeur, mais **plus rien ne les écrit ni ne les lit**.
 
 ### POST /api/admin/amenities
 

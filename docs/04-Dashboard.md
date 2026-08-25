@@ -247,10 +247,15 @@ informations du bien.
 
 Titre, sous-titre, description et localisation (FR/EN), saisis **côte à
 côte** : une traduction anglaise manquante est signalée, sans bloquer — le
-site public retombe alors sur le français. S’y ajoutent la **note affichée**
-(0 à 5) et le **nombre d'avis**. On modifie librement puis on **enregistre**
-; seuls les champs réellement modifiés sont transmis. Une note déjà
-enregistrée peut être **changée mais pas effacée**.
+site public retombe alors sur le français. On modifie librement puis on
+**enregistre** ; seuls les champs réellement modifiés sont transmis.
+
+**Les avis ne se configurent pas ici** (2026-08-26). Ils font foi sur la fiche
+**Google Business** de la maison : le dashboard les affiche en lecture seule,
+avec leur origine et un lien vers la fiche, et ne propose aucun champ pour les
+modifier. Ce qui se saisit, c'est l'**adresse de cette fiche**, dans
+« Identité du bien » — voir la section ci-dessous. Tant qu'elle n'est pas
+renseignée, le site public n'affiche aucun lien vers les avis.
 
 Les photos ne sont plus une extension de cet écran : elles ont leur propre
 écran et leur propre entrée de menu, décrits dans la section **Photos**
@@ -260,8 +265,9 @@ ci-dessous.
 
 Depuis le 2026-08-21, l’écran **Maison** porte aussi la **fiche du bien**
 elle-même — les colonnes non traduites de `property`, distinctes du contenu
-FR/EN ci-dessus : **nom**, **accroche**, **adresse** et **capacité
-d’accueil** (`max_guests`). `slug` et **devise** restent affichés en lecture
+FR/EN ci-dessus : **nom**, **accroche**, **adresse**, **capacité
+d’accueil** (`max_guests`) et, depuis le 2026-08-26, l’adresse de la **page
+Google Business** du bien (`reviews_url`). `slug` et **devise** restent affichés en lecture
 seule, sans champ de saisie — le premier est dupliqué par la configuration du
 serveur, la seconde réinterpréterait rétroactivement tous les montants déjà
 stockés en centimes. Un seul `PATCH /api/admin/property` partiel porte cette
@@ -278,6 +284,13 @@ main**, qui n’ont pas de demande d’origine et donc pas d’effectif connu
 (DEC-028). L’adresse exacte n’est **jamais affichée au visiteur** : le site
 public situe la maison par son secteur (champ **Localisation** ci-dessus) et
 l’adresse complète part par email une fois le séjour confirmé (DEC-022).
+
+La **page Google Business** est l’adresse de la fiche Google de la maison :
+c’est elle qui fait foi pour les avis (DEC-031). Vide, ou une URL absolue en
+`https` — `http` est refusé (**422 VALIDATION**). La vider est permis, et
+c’est ainsi qu’on corrige une adresse saisie par erreur. Tant qu’elle est
+vide, le dashboard affiche l’état « à renseigner » et le site public
+n’affiche aucun lien vers les avis.
 
 ---
 

@@ -591,3 +591,35 @@ soumission, donc il reste prudent. Le refus pour excès de demandes (`429`)
 reçoit lui aussi son message :
 il était rendu comme « votre demande n’a pas pu être envoyée, réessayez dans
 un instant », alors que c’est précisément de réessayer qu’on refuse.
+
+## DEC-031 — Les avis font foi chez Google, le produit n’en tient pas de copie (2026-08-26)
+
+Une fiche **Google Business** a été créée pour la maison. C’est désormais elle
+qui fait foi pour les avis : le produit **cesse d’en tenir une copie**.
+
+`property.rating` et `property.review_count` étaient jusqu’ici **deux champs de
+formulaire librement modifiables** dans le dashboard, sans aucun lien avec
+Google. La propriétaire y recopiait une note et un décompte qui dérivaient dès
+le premier avis publié, et rien nulle part ne disait d’où ces chiffres
+sortaient : deux sources de vérité pour la même information, dont une que
+personne ne resynchronisait.
+
+**Ce qui change.** Les deux champs quittent le dashboard, les deux contrats
+d’API et le site public. À leur place, une seule donnée saisissable :
+l’**adresse de la fiche Google**, éditée avec l’identité du bien
+(`PATCH /api/admin/property`, `reviewsUrl`). Le dashboard affiche la note en
+lecture seule, avec son origine et un lien vers la fiche. Le site public
+remplace ses étoiles par un lien « Voir nos avis Google », **rendu seulement si
+l’adresse est renseignée** — il cesse ainsi d’afficher une réputation qu’il ne
+peut pas tenir à jour.
+
+**Ce qui ne change pas.** Aucune synchronisation avec Google : rien n’appelle
+d’API Google, ni au build ni à l’exécution. Le produit stocke une **adresse**,
+pas des avis. Et, comme pour Google Maps (DEC-022 et la carte du site), le lien
+ne part chez Google **qu’au clic du visiteur, jamais avant** : aucune requête
+tierce au chargement de la page.
+
+**Les colonnes restent en base**, gelées à leur dernière valeur. Les supprimer
+est irréversible et n’apporte rien qu’une colonne muette ne coûte déjà pas ; une
+migration de suppression pourra venir quand plus aucun code ne les nommera
+depuis assez longtemps.

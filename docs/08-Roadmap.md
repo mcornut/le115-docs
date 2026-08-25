@@ -61,7 +61,8 @@ Envisagés en amont, non retenus dans la nav V1 livrée (détail dans
 `04-Dashboard.md`) :
 
 - Clients (fiche transverse)
-- Avis unitaires
+- Avis unitaires — et depuis DEC-031, plus seulement « pas encore » : les avis font foi
+  sur la fiche Google Business, le produit n'en tient aucune copie
 - Messages
 - Rapports
 - Multi-bien / Logements
