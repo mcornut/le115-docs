@@ -607,8 +607,9 @@ personne ne resynchronisait.
 **Ce qui change.** Les deux champs quittent le dashboard, les deux contrats
 d’API et le site public. À leur place, une seule donnée saisissable :
 l’**adresse de la fiche Google**, éditée avec l’identité du bien
-(`PATCH /api/admin/property`, `reviewsUrl`). Le dashboard affiche la note en
-lecture seule, avec son origine et un lien vers la fiche. Le site public
+(`PATCH /api/admin/property`, `reviewsUrl`). Le dashboard n’affiche **aucun
+chiffre** : un bloc en lecture seule nomme la source et propose un lien vers la
+fiche, rien de plus. Le site public
 remplace ses étoiles par un lien « Voir nos avis Google », **rendu seulement si
 l’adresse est renseignée** — il cesse ainsi d’afficher une réputation qu’il ne
 peut pas tenir à jour.
@@ -619,7 +620,11 @@ pas des avis. Et, comme pour Google Maps (DEC-022 et la carte du site), le lien
 ne part chez Google **qu’au clic du visiteur, jamais avant** : aucune requête
 tierce au chargement de la page.
 
-**Les colonnes restent en base**, gelées à leur dernière valeur. Les supprimer
-est irréversible et n’apporte rien qu’une colonne muette ne coûte déjà pas ; une
-migration de suppression pourra venir quand plus aucun code ne les nommera
-depuis assez longtemps.
+**Les colonnes ont d’abord été gardées, gelées, puis supprimées le même jour.**
+La première décision valait par prudence : supprimer est irréversible. La
+propriétaire l’a renversée dans la journée, et la raison est plus forte que la
+prudence — ces colonnes ne portaient pas une donnée qu’on pourrait vouloir
+relire, mais **une note recopiée à la main, périmée dès sa saisie**. Les garder
+ne préservait rien, et une colonne muette laisse croire au prochain lecteur
+qu’une note vit encore quelque part. Le produit ne tient donc **aucune copie**
+des avis : ni note, ni décompte, ni cache.

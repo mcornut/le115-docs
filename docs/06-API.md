@@ -469,8 +469,8 @@ c'est le dashboard qui exige un français non vide sur les quatre textes
 foi sur une fiche Google Business, dont l'adresse s'édite via
 `PATCH /api/admin/property` (`reviewsUrl`). Les deux clés sont désormais **hors
 contrat** — les transmettre rend `400 INVALID_REQUEST`, comme toute clé inconnue.
-Les colonnes `rating` et `review_count` restent en base, gelées à leur dernière
-valeur, mais **plus rien ne les écrit ni ne les lit**.
+Les colonnes `rating` et `review_count` ont été **supprimées de la base** le
+2026-08-26 : le produit ne tient plus aucune copie des avis.
 
 ### POST /api/admin/amenities
 

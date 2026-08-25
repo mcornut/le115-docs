@@ -251,11 +251,12 @@ site public retombe alors sur le français. On modifie librement puis on
 **enregistre** ; seuls les champs réellement modifiés sont transmis.
 
 **Les avis ne se configurent pas ici** (2026-08-26). Ils font foi sur la fiche
-**Google Business** de la maison : le dashboard les affiche en lecture seule,
-avec leur origine et un lien vers la fiche, et ne propose aucun champ pour les
-modifier. Ce qui se saisit, c'est l'**adresse de cette fiche**, dans
-« Identité du bien » — voir la section ci-dessous. Tant qu'elle n'est pas
-renseignée, le site public n'affiche aucun lien vers les avis.
+**Google Business** de la maison, et le dashboard n'en tient aucune copie : un
+bloc en lecture seule nomme la source et propose un lien vers la fiche — ni
+note, ni nombre d'avis, ni champ pour les modifier. Ce qui se saisit, c'est
+l'**adresse de cette fiche**, dans « Identité du bien » — voir la section
+ci-dessous. Tant qu'elle n'est pas renseignée, le lien reste inactif et le site
+public n'affiche aucun lien vers les avis.
 
 Les photos ne sont plus une extension de cet écran : elles ont leur propre
 écran et leur propre entrée de menu, décrits dans la section **Photos**
@@ -452,7 +453,7 @@ backend neuf en plus du front (cf. `../le115-backend/docs/DEBTS.md`) :
 | Module | Description |
 |---|---|
 | Clients | Fiche client transverse (historique multi-séjours) |
-| Avis unitaires | Gestion des avis individuels (au-delà de la note/nombre affichés en V1) |
+| Avis unitaires | Gestion des avis individuels — les avis vivent chez Google (DEC-031) |
 | Messages | Messagerie intégrée avec le voyageur |
 | Rapports | Exports et rapports formatés |
 | Multi-bien / Logements | Sélection et gestion de plusieurs biens (V1 = mono-bien, cf. DEC-015) |

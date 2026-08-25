@@ -37,8 +37,6 @@ erDiagram
         int max_guests
         string address
         string reviews_url
-        numeric rating
-        int review_count
         datetime created_at
         datetime updated_at
     }
