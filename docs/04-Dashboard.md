@@ -243,6 +243,16 @@ ou livrées comme des sections de cet écran, en sont sorties pour devenir des
 modules à part entière ; `Maison` se limite désormais, et définitivement, aux
 informations du bien.
 
+Les deux blocs de l'écran — **Informations du bien** et **Identité du bien**
+ci-dessous — sont chacun présentés en carte, avec un état d'enregistrement en
+en-tête : « À jour » tant que rien n'attend, « *N* modifications non
+enregistrées » dès qu'une saisie diffère de ce qui est enregistré, ou « À
+corriger » quand un champ obligatoire manque ou n'est pas lisible (un nom vidé,
+une capacité qui n'est pas un nombre). En pied de carte, une phrase nomme les
+champs qui attendent d'être enregistrés ; pour les textes bilingues, elle
+précise aussi la **langue** concernée (« Sous-titre (FR) »). Les deux blocs
+s'enregistrent **séparément**, chacun avec son propre bouton.
+
 ### Informations du bien
 
 Titre, sous-titre, description et localisation (FR/EN), saisis **côte à
