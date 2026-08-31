@@ -295,6 +295,13 @@ au visiteur. **L’adresse exacte part par email une fois le séjour confirmé.*
 `02-UX.md` laissait le choix au propriétaire (« position approximative ou exacte selon
 décision propriétaire ») ; c’est ce choix qui est tranché ici.
 
+**Mise en œuvre (2026-08-31).** L’email de confirmation porte l’adresse depuis cette
+date ; il en est le **seul** porteur dans tout le produit. Entre la décision et sa mise
+en œuvre, seize jours ont passé pendant lesquels un voyageur confirmé aurait reçu un
+message sans lui dire où se rendre — la saisie de l’adresse ayant été livrée le
+2026-08-21, l’envoi seulement maintenant. Si le champ est vide, l’email part sans le
+paragraphe et le journal d’activité le signale au propriétaire.
+
 **Pourquoi.** Le site publierait sinon, au même endroit, **où** se trouve la maison
 **et quand** elle est inoccupée — le calendrier de disponibilité étant public par
 nature. Le coût pour le visiteur est nul : à ce stade il veut savoir dans quelle
@@ -492,8 +499,12 @@ adresse exacte part par email une fois le séjour confirmé**. Le champ
 secteur et adresse restent deux données distinctes, l’une publiée en
 permanence, l’autre jamais publiée et communiquée au cas par cas. DEC-028 lui
 donne enfin un moyen d’être saisie ; DEC-022 continue de dire ce qu’on en
-fait. L’envoi par email ne la porte pas encore — dette consignée dans
-`../le115-backend/docs/DEBTS.md`.
+fait. **L’envoi par email la porte depuis le 2026-08-31** : `approve` lit
+l’adresse et l’email de confirmation l’affiche, dans les deux langues. Si le
+champ est vide, l’email part sans elle, l’acceptation aboutit quand même, et
+une alerte paraît au journal d’activité — bloquer l’acceptation sur un champ
+vide aurait transformé un oubli de saisie en blocage du flux entier, ce que
+DEC-028 écarte déjà pour la baisse de capacité.
 
 **Écarté.** Refuser la baisse de capacité tant qu’une réservation confirmée la
 dépasse : aurait transformé un geste de gestion légitime en blocage, pour un
