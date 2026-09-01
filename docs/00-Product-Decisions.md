@@ -664,11 +664,36 @@ anglaise et à moitié française le ferait, sur une page dont le seul rôle est
 convaincre un visiteur qui ne lit peut-être pas le français. La différence de
 traitement suit donc la différence de risque, elle ne le contredit pas.
 
-**Reste ouvert, relevé par la propriétaire le 2026-09-01 :** le slug est **commun aux
-deux langues**. La page anglaise est donc servie sous `/en/familles`, un mot français
-dans une URL anglaise — sur des pages dont la raison d'être est le référencement.
-Le rendre localisé demande de revoir l'unicité par langue, la résolution de route, le
-sort d'une page dont une seule langue a un slug, et les redirections. **À trancher
-comme décision produit avant d'être codé** ; le coût reste nul tant que rien n'est
-indexé, c'est-à-dire jusqu'au lancement. Dette consignée dans
+**Le slug commun aux deux langues, relevé par la propriétaire le 2026-09-01, est
+tranché : voir DEC-033.** La page anglaise n'est plus servie sous `/en/familles` — le
+slug d'une page d'audience est désormais un contenu par langue, comme le reste.
+
+## DEC-033 — Chaque langue a ses propres URLs (2026-09-01)
+
+Toute page du site porte désormais une adresse écrite dans sa propre langue. Les trois
+routes fixes du site — contact, informations pratiques, demande de séjour — reçoivent
+leurs slugs anglais : `contact`, `practical-information`, `request`. Le slug d'une page
+d'audience (« Familles », et demain « Cyclistes », « Télétravail »…) cesse d'être une
+adresse commune aux deux langues : il devient un contenu par langue, au même titre que
+le titre ou le chapeau. Publier une langue exige désormais son slug, exactement comme
+elle exige déjà son titre et son chapeau (DEC-032) : sans adresse dans cette langue, le
+reste ne se pose pas. Aucune page ne s'annonce sous l'adresse de l'autre langue — une
+adresse écrite dans la mauvaise langue reste introuvable, elle n'est jamais redirigée
+vers la bonne.
+
+**Pourquoi maintenant, et pourquoi ça compte.** Une URL est un contenu : elle est lue,
+copiée, indexée, partagée, souvent avant même que la page ne s'ouvre. Un mot français
+dans une adresse anglaise coûte au référencement exactement ce que la page gagne à être
+traduite, et trahit en un coup d'œil le soin porté au reste du texte. Sur les cinq pages
+du site anglais, trois portaient jusqu'ici une adresse française — deux des trois
+routes fixes (`informations-pratiques` et `demande` ; `contact` s'écrit à l'identique
+dans les deux langues), et la page « Familles » sous `/en/familles`. Le moment est le
+moins cher possible : rien n'est indexé, la production n'est pas ouverte, seule la
+sandbox sert ces pages. Changer une adresse aujourd'hui ne casse aucun lien entrant ;
+cette fenêtre se referme à la mise en production.
+
+**Ce que ça écarte.** Aucune redirection n'est servie depuis un ancien slug, et aucun
+historique de slug n'est conservé : c'est une dette assumée sciemment, tant que rien
+n'est indexé — à rouvrir avant l'ouverture de la production, où renommer une page
+d'audience casserait alors ses liens entrants. Dette consignée dans
 `../le115-backend/docs/DEBTS.md`.

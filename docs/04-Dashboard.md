@@ -479,6 +479,14 @@ pied de carte est **collant** (à l'image de l'en-tête du site public) et
 porte le bouton Enregistrer et les deux interrupteurs de publication, pour
 rester atteignable sur un écran que le texte peut rendre long.
 
+**Le slug est une paire FR/EN, comme les autres champs bilingues de l'écran**
+(DEC-033) : chaque langue porte sa propre adresse, et non plus une adresse
+commune aux deux. Il entre dans le décompte des champs manquants par langue,
+en tête de liste — sans lui, la langue n'a pas d'adresse, et rien d'autre ne
+compte tant que ça manque. Sur l'écran de liste, l'adresse de chaque langue
+publiée s'affiche sous le titre de la carte, une ligne par langue — la
+seconde absente tant que l'anglais n'a pas de slug.
+
 Un enregistrement (`PUT`) réussit toujours (`204`), même s'il rend une langue
 publiée incomplète — le serveur la dépublie alors de lui-même et journalise
 le geste (`audience_page_unpublished`) plutôt que de refuser l'écriture, qui
@@ -486,9 +494,13 @@ enfermerait le propriétaire dehors. L'écran réinvalide la liste après
 enregistrement : une langue redevenue « incomplète » et son champ manquant
 s'y lisent directement.
 
-Le slug est refusé s'il appartient à une route fixe du site (`contact`,
-`informations-pratiques`, `demande`) : cette page-là ne serait jamais
-atteinte. L'icône vient d'un catalogue **propre aux pages** (dix-sept codes,
+Le slug est refusé s'il appartient à une route fixe du site : cette page-là ne
+serait jamais atteinte. La liste réunit les routes fixes des **deux** langues
+(DEC-033) — `contact`, `informations-pratiques`, `demande`,
+`practical-information`, `request` —, si bien qu'un slug français ne peut pas
+non plus porter l'un des mots anglais, et réciproquement. Une seule liste pour
+les deux langues plutôt qu'une par langue : deux mots perdus comme slugs, contre
+une ambiguïté supprimée. L'icône vient d'un catalogue **propre aux pages** (dix-sept codes,
 `guests` compris) — pas celui des équipements, qui ne l'a pas.
 
 Hors V1 de ce module : l'éditeur de texte riche et le téléversement d'images
