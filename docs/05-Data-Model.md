@@ -93,7 +93,6 @@ erDiagram
     AUDIENCE_PAGE {
         uuid id
         uuid property_id
-        string slug
         string icon
         int sort_order
     }
@@ -107,6 +106,8 @@ erDiagram
     AUDIENCE_PAGE_LOCALE {
         uuid page_id
         string locale
+        uuid property_id
+        string slug
         datetime published_at
     }
 ```
@@ -192,22 +193,28 @@ créables depuis le dashboard (DEC-032) — ce ne sont **pas** des colonnes de
 `Property` : un agrégat à elles, publié langue par langue.
 
 `AudiencePage` :
-- `slug` (unique par bien, minuscules/chiffres/tirets, refusé s'il appartient à
-  la liste des routes fixes du site public) ;
 - `icon` (catalogue fermé propre aux pages, dix-sept codes — distinct de celui
   des équipements, qui n'a pas `guests`) ;
 - `sort_order`.
+
+`AudiencePage` ne porte plus de `slug` : l'adresse d'une page est désormais un
+contenu **par langue** (DEC-033), portée par `AudiencePageLocale`.
 
 `AudiencePageSection` : les paragraphes de la page, une table fille — pas un
 document JSONB par langue, pour rester fidèle à la convention EAV du projet.
 Chaque section a son `sort_order`.
 
-`AudiencePageLocale` : une ligne `(page_id, locale, published_at)` par langue
-publiée — présence = publiée, absence = brouillon. **Aucun repli** : une page
-publiée en français seulement rend un 404 sur son adresse anglaise, jamais le
-texte français (DEC-032). Une langue ne se publie pas tant qu'un champ requis
-— libellé d'onglet, titre, chapeau, ou l'intitulé/le corps d'une section — est
-vide, ni tant que la page n'a aucune section.
+`AudiencePageLocale` : une ligne `(page_id, locale, slug, published_at)` par
+langue — **la ligne ne signifie plus « publiée » mais « la page a une identité
+dans cette langue »**. Le `slug` (unique par bien et par langue, minuscules/
+chiffres/tirets, refusé s'il appartient à la liste des routes fixes du site
+public — dans les deux langues) vit ici, et `published_at`, **nullable**, est
+seul à porter la publication : une langue qui a un slug mais aucun
+`published_at` reste un brouillon. **Aucun repli** : une page publiée en
+français seulement rend un 404 sur son adresse anglaise, jamais le texte
+français (DEC-032). Une langue ne se publie pas tant qu'un champ requis — le
+slug (DEC-033), le libellé d'onglet, le titre, le chapeau, ou l'intitulé/le
+corps d'une section — est vide, ni tant que la page n'a aucune section.
 
 Les textes (`nav_label`, `title`, `intro` de la page ; `heading`, `body` de
 chaque section) vivent dans `LocalizedContent`, comme le reste de l'éditorial

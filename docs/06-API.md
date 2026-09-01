@@ -83,7 +83,8 @@ Response `200` :
     "navLabel": "Cyclistes",
     "title": "La maison à vélo",
     "intro": "Le Vaucluse se traverse à vélo.",
-    "sections": [{ "heading": "Au départ", "body": "Un garage fermé." }]
+    "sections": [{ "heading": "Au départ", "body": "Un garage fermé." }],
+    "alternates": { "fr": "cyclistes", "en": "cyclists" }
   }
 ]
 ```
@@ -91,6 +92,12 @@ Response `200` :
 **Aucun repli de langue** : une page publiée en français seulement est absente du
 tableau reçu pour `en` — le site rend alors un 404 sur son adresse, jamais le texte
 français.
+
+**`alternates`** donne le slug de la page dans chaque langue **publiée**, la langue
+demandée comprise (DEC-033) — c'est ce qui permet au site d'écrire ses `hreflang` et
+son sélecteur de langue sans aller interroger l'autre langue, et de ne jamais annoncer
+une adresse qui rendrait un 404. Toujours un objet, jamais `null` : une page publiée en
+français seulement y rend `{ "fr": "cyclistes" }`.
 
 ### GET /api/public/media/{id}
 
@@ -548,18 +555,25 @@ Réordonne les questions FAQ.
 ### GET /api/admin/audience-pages
 
 Liste les pages d'audience du bien, bilingues, avec leur état de publication
-par langue (`publishedFr`, `publishedEn`).
+par langue (`publishedFr`, `publishedEn`). `slug` y est un objet bilingue
+`{ "fr": "…", "en": "…" }` (DEC-033) — une langue sans identité y a une chaîne
+vide.
 
 ### POST /api/admin/audience-pages
 
-Crée une page d'audience (`slug`, `icon`). Le texte s'écrit ensuite via
-`PUT /api/admin/audience-pages/{id}`.
+Crée une page d'audience (`slug`, `icon`). Ici, et seulement ici, `slug` est
+une **chaîne** : une page se crée en français, et l'anglais s'écrit ensuite
+dans l'éditeur, quand la version anglaise s'écrit. Le texte s'écrit ensuite
+via `PUT /api/admin/audience-pages/{id}`.
 
 Le `slug` doit être au format minuscules/chiffres/tirets (`400 SLUG_INVALID`
 sinon) et ne pas appartenir à la liste des routes fixes du site public —
-`contact`, `informations-pratiques`, `demande` (`409 SLUG_RESERVED` sinon,
-sans quoi la page ne serait jamais atteinte : Next résout les segments fixes
-avant les dynamiques). Un doublon de slug renvoie `409 SLUG_TAKEN`.
+`contact`, `informations-pratiques`, `demande`, `practical-information`,
+`request` (`409 SLUG_RESERVED` sinon, sans quoi la page ne serait jamais
+atteinte : Next résout les segments fixes avant les dynamiques). La liste
+réunit les routes fixes des **deux** langues (DEC-033) : un slug français ne
+peut pas non plus porter l'un des trois mots anglais. Un doublon de slug dans
+la même langue renvoie `409 SLUG_TAKEN`.
 
 L'`icon` doit appartenir au catalogue **propre aux pages d'audience** (dix-sept
 codes, `guests` compris — distinct du catalogue des équipements) : toute autre
@@ -567,18 +581,25 @@ valeur renvoie `400 ICON_INVALID`. La chaîne vide (« aucune ») est acceptée.
 
 ### GET /api/admin/audience-pages/{id}
 
-Lit une page, bilingue, sections comprises.
+Lit une page, bilingue, sections comprises. `slug` y est un objet bilingue,
+comme dans la liste.
 
 ### PUT /api/admin/audience-pages/{id}
 
 Écrit la page **entière**, atomiquement — identité, textes des deux langues,
-et sections dans l'ordre reçu. Chaque section porte un `id` facultatif : le
-serveur met à jour celles qui en ont un, crée celles qui n'en ont pas, et
-**supprime celles qui ne sont plus dans le corps reçu**.
+et sections dans l'ordre reçu. `slug` est ici un objet bilingue
+`{ "fr": "…", "en": "…" }` : effacer le slug d'une langue (chaîne vide) efface
+son identité dans cette langue — refusé (`409 SLUG_REQUIRED_WHILE_PUBLISHED`,
+`details.locale`) si cette langue est encore publiée, il faut la dépublier
+d'abord. Chaque section porte un `id` facultatif : le serveur met à jour
+celles qui en ont un, crée celles qui n'en ont pas, et **supprime celles qui
+ne sont plus dans le corps reçu**.
 
-Mêmes validations que la création pour `slug` et `icon`. Un `id` de section
-appartenant à une autre page, ou répété deux fois dans le corps, renvoie
-`422` (`SECTION_ETRANGERE` / `SECTION_DUPLIQUEE`).
+Mêmes validations que la création pour le format et la réserve du `slug`, et
+pour `icon`. Un doublon de slug dans une langue renvoie `409 SLUG_TAKEN`
+(`details.locale` vaut `fr` ou `en` selon la langue fautive). Un `id` de
+section appartenant à une autre page, ou répété deux fois dans le corps,
+renvoie `422` (`SECTION_ETRANGERE` / `SECTION_DUPLIQUEE`).
 
 **Une langue déjà publiée qui devient incomplète par cette écriture est
 dépubliée automatiquement**, et l'événement journalisé
@@ -595,9 +616,10 @@ Supprime la page, ses sections, ses lignes de publication et son texte
 
 Publie la page dans une langue (`fr` ou `en`).
 
-Refuse **`409 PAGE_INCOMPLETE`** si le libellé d'onglet, le titre, le chapeau,
-ou l'intitulé/le corps d'une section est vide dans cette langue, ou si la page
-n'a aucune section — mieux vaut le silence que le remplissage à moitié (D5).
+Refuse **`409 PAGE_INCOMPLETE`** si le slug (DEC-033), le libellé d'onglet, le
+titre, le chapeau, ou l'intitulé/le corps d'une section est vide dans cette
+langue, ou si la page n'a aucune section — mieux vaut le silence que le
+remplissage à moitié (D5).
 
 ### DELETE /api/admin/audience-pages/{id}/publication/{locale}
 
@@ -732,8 +754,9 @@ Codes métier stables :
 | `DATES_UNAVAILABLE` | 409 | Dates demandées indisponibles |
 | `DUPLICATE_REQUEST` | 409 | `POST /stay-requests`, **deux garde-fous sous un seul code** : une demande identique (même email, mêmes dates) déjà envoyée dans les 24 heures précédentes, **ou** une quatrième demande de la même adresse sur 24 heures, dates confondues (DEC-030). Les distinguer apprendrait à qui sonde l’API lequel des deux l’arrête. Le message renvoyé invite à contacter directement la propriétaire pour corriger une demande déjà partie — il n’existe aujourd’hui aucun autre moyen |
 | `SLUG_INVALID` | 400 | `POST`/`PUT /audience-pages` : le slug n'est pas minuscules/chiffres/tirets |
-| `SLUG_RESERVED` | 409 | `POST`/`PUT /audience-pages` : le slug appartient à une route fixe du site public (`contact`, `informations-pratiques`, `demande`) |
-| `SLUG_TAKEN` | 409 | `POST`/`PUT /audience-pages` : une autre page du bien porte déjà ce slug |
+| `SLUG_RESERVED` | 409 | `POST`/`PUT /audience-pages` : le slug appartient à une route fixe du site public, dans l'une ou l'autre langue (`contact`, `informations-pratiques`, `demande`, `practical-information`, `request`) |
+| `SLUG_TAKEN` | 409 | `POST`/`PUT /audience-pages` : une autre page du bien porte déjà ce slug dans la même langue ; `details.locale` vaut `fr` ou `en` |
+| `SLUG_REQUIRED_WHILE_PUBLISHED` | 409 | `PUT /audience-pages/{id}` : le corps efface le slug d'une langue encore publiée ; `details.locale` vaut `fr` ou `en` — il faut dépublier d'abord |
 | `ICON_INVALID` | 400 | `POST`/`PUT /audience-pages` : l'icône n'appartient pas au catalogue des pages d'audience |
 | `SECTION_ETRANGERE` | 422 | `PUT /audience-pages/{id}` : un `id` de section du corps appartient à une autre page, ou n'existe pas |
 | `SECTION_DUPLIQUEE` | 422 | `PUT /audience-pages/{id}` : le même `id` de section apparaît deux fois dans le corps |
