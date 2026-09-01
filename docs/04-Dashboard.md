@@ -494,9 +494,13 @@ enfermerait le propriétaire dehors. L'écran réinvalide la liste après
 enregistrement : une langue redevenue « incomplète » et son champ manquant
 s'y lisent directement.
 
-Le slug est refusé s'il appartient à une route fixe du site (`contact`,
-`informations-pratiques`, `demande`) : cette page-là ne serait jamais
-atteinte. L'icône vient d'un catalogue **propre aux pages** (dix-sept codes,
+Le slug est refusé s'il appartient à une route fixe du site : cette page-là ne
+serait jamais atteinte. La liste réunit les routes fixes des **deux** langues
+(DEC-033) — `contact`, `informations-pratiques`, `demande`,
+`practical-information`, `request` —, si bien qu'un slug français ne peut pas
+non plus porter l'un des mots anglais, et réciproquement. Une seule liste pour
+les deux langues plutôt qu'une par langue : deux mots perdus comme slugs, contre
+une ambiguïté supprimée. L'icône vient d'un catalogue **propre aux pages** (dix-sept codes,
 `guests` compris) — pas celui des équipements, qui ne l'a pas.
 
 Hors V1 de ce module : l'éditeur de texte riche et le téléversement d'images
