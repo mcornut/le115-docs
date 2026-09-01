@@ -685,11 +685,12 @@ vers la bonne.
 copiée, indexée, partagée, souvent avant même que la page ne s'ouvre. Un mot français
 dans une adresse anglaise coûte au référencement exactement ce que la page gagne à être
 traduite, et trahit en un coup d'œil le soin porté au reste du texte. Sur les cinq pages
-du site anglais, quatre portaient jusqu'ici une adresse française — les trois routes
-fixes, et la page « Familles » sous `/en/familles`. Le moment est le moins cher
-possible : rien n'est indexé, la production n'est pas ouverte, seule la sandbox sert ces
-pages. Changer une adresse aujourd'hui ne casse aucun lien entrant ; cette fenêtre se
-referme à la mise en production.
+du site anglais, trois portaient jusqu'ici une adresse française — deux des trois
+routes fixes (`informations-pratiques` et `demande` ; `contact` s'écrit à l'identique
+dans les deux langues), et la page « Familles » sous `/en/familles`. Le moment est le
+moins cher possible : rien n'est indexé, la production n'est pas ouverte, seule la
+sandbox sert ces pages. Changer une adresse aujourd'hui ne casse aucun lien entrant ;
+cette fenêtre se referme à la mise en production.
 
 **Ce que ça écarte.** Aucune redirection n'est servie depuis un ancien slug, et aucun
 historique de slug n'est conservé : c'est une dette assumée sciemment, tant que rien
