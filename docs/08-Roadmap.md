@@ -31,16 +31,18 @@
 
   Deux fonctionnalités écartées de ce découpage, chacune demandant du backend neuf :
   le **formulaire de contact** (les coordonnées sont affichées, sans formulaire) et
-  l’**exposition publique des règles de séjour**. À quoi s’ajoute, décidé le
-  2026-08-16, l’**édition des pages d’audience depuis le dashboard** (voir V2) —
-  préalable aux quatre pages restantes.
+  l’**exposition publique des règles de séjour**. L’**édition des pages d’audience
+  depuis le dashboard**, décidée le 2026-08-16, est en revanche livrée (DEC-032,
+  chantier du 2026-08-31) : c’était le préalable aux quatre pages restantes (groupe
+  d’amis, tourisme et culture, cyclistes, télétravail), qui restent elles-mêmes à
+  écrire — la capacité de les créer existe, leur contenu non.
 
   La seconde se paie désormais comptant : le calendrier ne peut annoncer ni la durée
   minimale ni les jours d’arrivée autorisés, faute de route publique qui les expose. Le
   visiteur choisit ses dates, puis **découvre la contrainte par le message d’erreur du
   devis**. Assumé au cadrage du sous-projet 2, à traiter dans le plan qui figera le
   contrat d’exposition publique des règles.
-- Dashboard admin (SPA séparée, déploiement même origine que l’API, mono-bien — cf. DEC-014, DEC-015), douze écrans :
+- Dashboard admin (SPA séparée, déploiement même origine que l’API, mono-bien — cf. DEC-014, DEC-015), treize écrans :
   - Tableau de bord (accueil — cf. DEC-018)
   - Calendrier
   - Demandes
@@ -53,6 +55,7 @@
   - Photos (cf. DEC-017)
   - Synchronisations
   - Activité
+  - Pages (pages d’audience du site public — cf. DEC-032)
 - Préparation synchronisation Abritel / iCal
 
 ### Dashboard — modules reportés post-V1
@@ -84,25 +87,13 @@ Envisagés en amont, non retenus dans la nav V1 livrée (détail dans
 - Paiement acompte
 - Import Abritel / iCal opérationnel
 - Page “Découvrir la région”
-- **Pages d’audience éditables depuis le dashboard** — décidé le 2026-08-16, et c’est
-  le préalable aux quatre pages restantes (groupe d’amis, tourisme et culture,
-  cyclistes, télétravail), non l’inverse. En V1 elles sont rédigées dans le dépôt du
-  site, ce qui pose un vrai problème : **leur intérêt est le référencement, donc leur
-  contenu doit être long et concret** — marché, boucles à vélo, distances, ce qu’on
-  fait avec des enfants — et rien de tout cela ne vit dans l’API. La page « Familles »
-  a été écrite en comblant ces trous, et deux de ses affirmations sont depuis
-  consignées comme non corroborées. Rédiger les quatre autres de la même façon
-  multiplierait le problème par quatre ; les faire éditer par la propriétaire le
-  supprime à la racine.
-
-  Chantier sur les **trois dépôts** : modèle et routes côté backend, écran d’édition
-  au dashboard, et le site qui lit l’API au lieu de ses fichiers statiques. **Une
-  décision commande tout le reste et n’est pas tranchée : la liberté de mise en
-  page** — des sections typées (titre, chapeau, blocs « titre + paragraphe », ce que
-  porte déjà le gabarit) ou du texte riche. La première est simple à éditer,
-  impossible à casser et toujours cohérente avec le site ; la seconde est plus libre,
-  mais demande de choisir un format, de le nettoyer à l’entrée, et d’accepter qu’une
-  page puisse devenir laide. À cadrer dans son propre spec.
+- **Éditeur riche et téléversement d’images pour les pages d’audience** — l’édition
+  elle-même (modèle, écran, publication langue par langue) est livrée, cf. DEC-032 et
+  V1 ci-dessus. Ce qui reste : la **liberté de mise en page**, tranchée pour le texte
+  simple des sections mais pas au-delà — un éditeur visuel enregistrant du Markdown
+  (contrainte par la CSP de production : pas d’attribut `style`, images servies par
+  le stockage média, aucun HTML écrit par un humain rendu sans nettoyage côté
+  serveur). À cadrer dans son propre spec.
 - Promotions
 - Export CSV
 

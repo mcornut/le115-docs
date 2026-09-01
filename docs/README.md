@@ -81,7 +81,7 @@ restent dans le dépôt concerné.
 |---|---|
 | `le115-docs` *(ici)* | **Source de vérité produit** : glossaire, décisions, règles métier, UX, modèle de données, roadmap |
 | `le115-backend` | API Go + PostgreSQL : disponibilités, tarifs, règles de séjour, devis, demandes, contenus FR/EN, photos, iCal. Porte aussi `docs/DEBTS.md`, **registre unique des dettes du projet** |
-| `le115-dashboard` | Back-office React (Vite), douze modules — le propriétaire y **saisit** les contenus que le site public affiche |
+| `le115-dashboard` | Back-office React (Vite), treize modules — le propriétaire y **saisit** les contenus que le site public affiche |
 | `le115-frontend` | **Site public visiteur** (Next.js), rendu au serveur, FR/EN — cf. DEC-020 à DEC-022 |
 
 ---

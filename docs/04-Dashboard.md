@@ -19,7 +19,7 @@ un clic depuis la navigation.
 
 ## Navigation admin
 
-Nav V1 réelle, douze entrées, chrome en français uniquement :
+Nav V1 réelle, treize entrées, chrome en français uniquement :
 
 | Entrée | Rôle |
 |---|---|
@@ -35,6 +35,7 @@ Nav V1 réelle, douze entrées, chrome en français uniquement :
 | Photos | Galerie ordonnée, catégories, photo principale, alt FR/EN |
 | Synchronisations | Imports externes, notamment Abritel / iCal |
 | Activité | Journal des actions importantes |
+| Pages | Pages d’audience du site public, éditables et publiables langue par langue (DEC-032) |
 
 `Photos`, `Équipements` et `FAQ` ont chacun leur propre entrée de navigation
 — ce ne sont plus des sections de `Maison` (cf. DEC-016 et DEC-017 dans
@@ -451,6 +452,47 @@ Demande de Camille Fabre approuvée → réservation confirmée (2026-08-08 → 
 Blocage « Entretien de la piscine » créé (2026-10-01 → 2026-10-04) (blocage f7e8d9c0)
 Photo « Extérieur » ajoutée (photo 5c6d7e8f)
 ```
+
+---
+
+## Pages
+
+L'écran **Pages** (`/pages`) édite les pages d'audience du site public — les
+pages « pour qui » (« Familles », « Cyclistes »…) — depuis un module à part
+entière (DEC-032). Leur texte n'a jamais vécu dans ce dashboard avant ce
+chantier : jusque-là il vivait dans le dépôt du site, en fichiers que le
+propriétaire ne pouvait ni lire ni corriger.
+
+**Écran de liste.** Une carte par page, l'état de publication de **chaque
+langue** affiché séparément — deux pastilles, « FR publiée » / « FR
+brouillon », « EN publiée » / « EN brouillon » — jamais une pastille unique
+qui masquerait le cas le plus fréquent, une langue publiée et l'autre pas
+encore écrite (D3). Le pied de carte résume le décompte par langue (« 5
+pages, 5 publiées en français, aucune en anglais. »).
+
+**Écran d'édition, une seule carte.** Slug, icône, libellé d'onglet, titre,
+chapeau, puis les sections dans l'ordre — **une seule carte** plutôt que
+deux (identité / paragraphes), à rebours de la règle de forme du dashboard
+(« un propos, une carte ») : arbitrage assumé du propriétaire, écrire une
+page étant un geste continu que la frontière entre deux cartes couperait. Le
+pied de carte est **collant** (à l'image de l'en-tête du site public) et
+porte le bouton Enregistrer et les deux interrupteurs de publication, pour
+rester atteignable sur un écran que le texte peut rendre long.
+
+Un enregistrement (`PUT`) réussit toujours (`204`), même s'il rend une langue
+publiée incomplète — le serveur la dépublie alors de lui-même et journalise
+le geste (`audience_page_unpublished`) plutôt que de refuser l'écriture, qui
+enfermerait le propriétaire dehors. L'écran réinvalide la liste après
+enregistrement : une langue redevenue « incomplète » et son champ manquant
+s'y lisent directement.
+
+Le slug est refusé s'il appartient à une route fixe du site (`contact`,
+`informations-pratiques`, `demande`) : cette page-là ne serait jamais
+atteinte. L'icône vient d'un catalogue **propre aux pages** (dix-sept codes,
+`guests` compris) — pas celui des équipements, qui ne l'a pas.
+
+Hors V1 de ce module : l'éditeur de texte riche et le téléversement d'images
+(texte simple pour l'instant), et le réordonnancement des sections.
 
 ---
 

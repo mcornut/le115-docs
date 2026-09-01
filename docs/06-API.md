@@ -64,6 +64,34 @@ Response `200` :
 
 **Rupture de compatibilité** : l'endpoint ne retourne plus `name` ni `baseline` (remplacés par `title` et `subtitle` localisés).
 
+### GET /api/public/audience-pages
+
+Retourne **toutes** les pages d'audience publiées dans une langue, **contenu compris**
+(DEC-032) — un seul point d'entrée sert à la fois la rangée d'onglets, présente sur
+toutes les pages du site, et le contenu de la page demandée.
+
+Query :
+- `locale` : `fr` ou `en` ; toute autre valeur (ou son absence) retombe sur `fr`.
+
+Response `200` :
+
+```json
+[
+  {
+    "slug": "cyclistes",
+    "icon": "bike",
+    "navLabel": "Cyclistes",
+    "title": "La maison à vélo",
+    "intro": "Le Vaucluse se traverse à vélo.",
+    "sections": [{ "heading": "Au départ", "body": "Un garage fermé." }]
+  }
+]
+```
+
+**Aucun repli de langue** : une page publiée en français seulement est absente du
+tableau reçu pour `en` — le site rend alors un 404 sur son adresse, jamais le texte
+français.
+
 ### GET /api/public/media/{id}
 
 Sert le binaire d'une photo ou sa variante responsive.
@@ -517,6 +545,65 @@ Supprime une question FAQ.
 
 Réordonne les questions FAQ.
 
+### GET /api/admin/audience-pages
+
+Liste les pages d'audience du bien, bilingues, avec leur état de publication
+par langue (`publishedFr`, `publishedEn`).
+
+### POST /api/admin/audience-pages
+
+Crée une page d'audience (`slug`, `icon`). Le texte s'écrit ensuite via
+`PUT /api/admin/audience-pages/{id}`.
+
+Le `slug` doit être au format minuscules/chiffres/tirets (`400 SLUG_INVALID`
+sinon) et ne pas appartenir à la liste des routes fixes du site public —
+`contact`, `informations-pratiques`, `demande` (`409 SLUG_RESERVED` sinon,
+sans quoi la page ne serait jamais atteinte : Next résout les segments fixes
+avant les dynamiques). Un doublon de slug renvoie `409 SLUG_TAKEN`.
+
+L'`icon` doit appartenir au catalogue **propre aux pages d'audience** (dix-sept
+codes, `guests` compris — distinct du catalogue des équipements) : toute autre
+valeur renvoie `400 ICON_INVALID`. La chaîne vide (« aucune ») est acceptée.
+
+### GET /api/admin/audience-pages/{id}
+
+Lit une page, bilingue, sections comprises.
+
+### PUT /api/admin/audience-pages/{id}
+
+Écrit la page **entière**, atomiquement — identité, textes des deux langues,
+et sections dans l'ordre reçu. Chaque section porte un `id` facultatif : le
+serveur met à jour celles qui en ont un, crée celles qui n'en ont pas, et
+**supprime celles qui ne sont plus dans le corps reçu**.
+
+Mêmes validations que la création pour `slug` et `icon`. Un `id` de section
+appartenant à une autre page, ou répété deux fois dans le corps, renvoie
+`422` (`SECTION_ETRANGERE` / `SECTION_DUPLIQUEE`).
+
+**Une langue déjà publiée qui devient incomplète par cette écriture est
+dépubliée automatiquement**, et l'événement journalisé
+(`audience_page_unpublished`) : l'écriture réussit toujours (`204`), le
+contrat n'est pas renégocié — un refus enfermerait le propriétaire dehors, il
+ne pourrait plus jamais commencer la refonte d'une page en ligne.
+
+### DELETE /api/admin/audience-pages/{id}
+
+Supprime la page, ses sections, ses lignes de publication et son texte
+(`localized_content`, polymorphe et sans cascade).
+
+### PUT /api/admin/audience-pages/{id}/publication/{locale}
+
+Publie la page dans une langue (`fr` ou `en`).
+
+Refuse **`409 PAGE_INCOMPLETE`** si le libellé d'onglet, le titre, le chapeau,
+ou l'intitulé/le corps d'une section est vide dans cette langue, ou si la page
+n'a aucune section — mieux vaut le silence que le remplissage à moitié (D5).
+
+### DELETE /api/admin/audience-pages/{id}/publication/{locale}
+
+Dépublie la page dans une langue. Ne vérifie **aucune** complétude : c'est le
+geste qui répare une page publiée par erreur.
+
 ### GET /api/admin/photos
 
 Liste toutes les photos du bien.
@@ -644,6 +731,13 @@ Codes métier stables :
 | `CONFLICT` | 409 | Conflit d'intégrité : chevauchement de périodes tarifaires (même priorité), code de frais dupliqué, code d'équipement dupliqué, etc. |
 | `DATES_UNAVAILABLE` | 409 | Dates demandées indisponibles |
 | `DUPLICATE_REQUEST` | 409 | `POST /stay-requests`, **deux garde-fous sous un seul code** : une demande identique (même email, mêmes dates) déjà envoyée dans les 24 heures précédentes, **ou** une quatrième demande de la même adresse sur 24 heures, dates confondues (DEC-030). Les distinguer apprendrait à qui sonde l’API lequel des deux l’arrête. Le message renvoyé invite à contacter directement la propriétaire pour corriger une demande déjà partie — il n’existe aujourd’hui aucun autre moyen |
+| `SLUG_INVALID` | 400 | `POST`/`PUT /audience-pages` : le slug n'est pas minuscules/chiffres/tirets |
+| `SLUG_RESERVED` | 409 | `POST`/`PUT /audience-pages` : le slug appartient à une route fixe du site public (`contact`, `informations-pratiques`, `demande`) |
+| `SLUG_TAKEN` | 409 | `POST`/`PUT /audience-pages` : une autre page du bien porte déjà ce slug |
+| `ICON_INVALID` | 400 | `POST`/`PUT /audience-pages` : l'icône n'appartient pas au catalogue des pages d'audience |
+| `SECTION_ETRANGERE` | 422 | `PUT /audience-pages/{id}` : un `id` de section du corps appartient à une autre page, ou n'existe pas |
+| `SECTION_DUPLIQUEE` | 422 | `PUT /audience-pages/{id}` : le même `id` de section apparaît deux fois dans le corps |
+| `PAGE_INCOMPLETE` | 409 | `PUT /audience-pages/{id}/publication/{locale}` : la langue visée n'a pas tout son texte (D5) |
 | `INTERNAL` | 500 | Erreur interne |
 
 Codes de règle (portés par `errors[]` d'un devis et par `details` d'un `VALIDATION`) :

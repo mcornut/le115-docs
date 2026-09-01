@@ -115,11 +115,13 @@ Structure du dépôt :
 ```text
 le115-frontend/
 ├── src/
-│   ├── app/            # routes (App Router), segment de langue [locale]
+│   ├── app/            # routes (App Router) : [locale], et [audience] pour
+│   │                   #   les pages d’audience, dynamique
 │   ├── components/     # sections de la landing et chrome
-│   ├── content/        # pages d’audience, contenu statique FR/EN
-│   ├── i18n/           # libellés d’interface, un fichier par langue
-│   └── lib/            # api (seule frontière réseau), photos, métadonnées
+│   ├── i18n/           # libellés d’interface seuls, un fichier par langue —
+│   │                   #   les pages d’audience n’y sont plus (DEC-032)
+│   └── lib/            # api (property, audience-pages, media), photos,
+│                       #   métadonnées
 └── public/             # carte statique du secteur (seul fichier ; le favicon,
                         #   lui, vit dans src/app/, convention App Router)
 ```

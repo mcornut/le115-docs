@@ -23,6 +23,9 @@ erDiagram
     PROPERTY ||--o{ STAY_RULE : has
     PROPERTY ||--o{ STAY_REQUEST : receives
     PROPERTY ||--o{ RESERVATION : has
+    PROPERTY ||--o{ AUDIENCE_PAGE : has
+    AUDIENCE_PAGE ||--o{ AUDIENCE_PAGE_SECTION : has
+    AUDIENCE_PAGE ||--o{ AUDIENCE_PAGE_LOCALE : publishes
     STAY_REQUEST ||--o| RESERVATION : becomes
     EXTERNAL_CALENDAR_SOURCE ||--o{ EXTERNAL_CALENDAR_EVENT : contains
 
@@ -86,6 +89,26 @@ erDiagram
         string status
         int total_cents
     }
+
+    AUDIENCE_PAGE {
+        uuid id
+        uuid property_id
+        string slug
+        string icon
+        int sort_order
+    }
+
+    AUDIENCE_PAGE_SECTION {
+        uuid id
+        uuid page_id
+        int sort_order
+    }
+
+    AUDIENCE_PAGE_LOCALE {
+        uuid page_id
+        string locale
+        datetime published_at
+    }
 ```
 
 ---
@@ -123,6 +146,11 @@ Champs par entité :
 | `photo` | `alt` | « Vue de la piscine » |
 | `additional_fee` | `label` | « Ménage » / « Cleaning » |
 | `stay_rule` | `derogation_note` | « Hors samedi : nous contacter. » / « Outside Saturdays: please contact us. » |
+| `audience_page` | `nav_label` | « Familles » / « Families » |
+| `audience_page` | `title` | « La maison en famille » |
+| `audience_page` | `intro` | « Une cour close, une piscine... » |
+| `audience_page_section` | `heading` | « Pour les enfants » |
+| `audience_page_section` | `body` | « La cour est close et sans vis-à-vis. » |
 
 Cette approche évite de créer des colonnes comme `title_fr` et `title_en` sur chaque table métier.
 
@@ -156,6 +184,36 @@ Exemples :
 Question / réponse affichée sur la landing.
 
 Chaque question est traduisible.
+
+### AudiencePage / AudiencePageSection / AudiencePageLocale
+
+Pages « pour qui » du site public (« Familles », « Cyclistes »…), éditables et
+créables depuis le dashboard (DEC-032) — ce ne sont **pas** des colonnes de
+`Property` : un agrégat à elles, publié langue par langue.
+
+`AudiencePage` :
+- `slug` (unique par bien, minuscules/chiffres/tirets, refusé s'il appartient à
+  la liste des routes fixes du site public) ;
+- `icon` (catalogue fermé propre aux pages, dix-sept codes — distinct de celui
+  des équipements, qui n'a pas `guests`) ;
+- `sort_order`.
+
+`AudiencePageSection` : les paragraphes de la page, une table fille — pas un
+document JSONB par langue, pour rester fidèle à la convention EAV du projet.
+Chaque section a son `sort_order`.
+
+`AudiencePageLocale` : une ligne `(page_id, locale, published_at)` par langue
+publiée — présence = publiée, absence = brouillon. **Aucun repli** : une page
+publiée en français seulement rend un 404 sur son adresse anglaise, jamais le
+texte français (DEC-032). Une langue ne se publie pas tant qu'un champ requis
+— libellé d'onglet, titre, chapeau, ou l'intitulé/le corps d'une section — est
+vide, ni tant que la page n'a aucune section.
+
+Les textes (`nav_label`, `title`, `intro` de la page ; `heading`, `body` de
+chaque section) vivent dans `LocalizedContent`, comme le reste de l'éditorial
+— voir la table ci-dessus. La suppression d'une page cascade ses sections et
+ses lignes de publication ; les lignes `LocalizedContent`, polymorphes et sans
+clé étrangère, sont supprimées par l'application dans la même transaction.
 
 ### PricingPeriod
 
