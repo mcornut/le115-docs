@@ -639,3 +639,27 @@ relire, mais **une note recopiée à la main, périmée dès sa saisie**. Les ga
 ne préservait rien, et une colonne muette laisse croire au prochain lecteur
 qu’une note vit encore quelque part. Le produit ne tient donc **aucune copie**
 des avis : ni note, ni décompte, ni cache.
+
+## DEC-032 — Les pages d’audience appartiennent à la propriétaire (2026-08-31)
+
+Les **pages d’audience** — les pages « pour qui » du site public (« Familles », et
+demain « Cyclistes », « Télétravail »…) — étaient jusqu’ici du texte figé dans le dépôt
+du site public, que la propriétaire ne pouvait ni lire ni corriger. Elles s’écrivent et
+se créent désormais depuis le dashboard, comme le reste du contenu éditorial du bien.
+
+**Elles se publient langue par langue, sans repli.** Une page écrite en français
+seulement est publiée en français ; son adresse anglaise rend un **404** plutôt que du
+français. Une langue ne se publie pas tant que son texte — titre, chapeau, et
+l’intitulé comme le corps de chaque section — est incomplet : mieux vaut son absence
+que son remplissage à moitié.
+
+**La nuance à connaître, et elle est réelle : le contenu existant du bien, lui, retombe
+sur le français.** La description, les équipements et la FAQ affichent déjà du français
+quand l’anglais manque. Ce n’est pas une incohérence, ce sont deux situations
+différentes. Sur une page anglaise par ailleurs complète, un champ resté vide ferait un
+**trou visible** au milieu d’un texte autrement fini — le français comble ce trou mieux
+qu’il ne le laisserait béant. Une page d’audience entière et non publiée, elle, n’a pas
+ce problème : son absence totale **ne ment à personne**, alors qu’une page à moitié
+anglaise et à moitié française le ferait, sur une page dont le seul rôle est de
+convaincre un visiteur qui ne lit peut-être pas le français. La différence de
+traitement suit donc la différence de risque, elle ne le contredit pas.
