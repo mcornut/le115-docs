@@ -649,9 +649,9 @@ se créent désormais depuis le dashboard, comme le reste du contenu éditorial 
 
 **Elles se publient langue par langue, sans repli.** Une page écrite en français
 seulement est publiée en français ; son adresse anglaise rend un **404** plutôt que du
-français. Une langue ne se publie pas tant que son texte — titre, chapeau, et
-l’intitulé comme le corps de chaque section — est incomplet : mieux vaut son absence
-que son remplissage à moitié.
+français. Une langue ne se publie pas tant que son texte — libellé d’onglet, titre,
+chapeau, et l’intitulé comme le corps de chaque section — est incomplet, ni tant que la
+page n’a **aucune section** : mieux vaut son absence que son remplissage à moitié.
 
 **La nuance à connaître, et elle est réelle : le contenu existant du bien, lui, retombe
 sur le français.** La description, les équipements et la FAQ affichent déjà du français
