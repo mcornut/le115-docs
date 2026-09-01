@@ -663,3 +663,12 @@ ce problème : son absence totale **ne ment à personne**, alors qu’une page �
 anglaise et à moitié française le ferait, sur une page dont le seul rôle est de
 convaincre un visiteur qui ne lit peut-être pas le français. La différence de
 traitement suit donc la différence de risque, elle ne le contredit pas.
+
+**Reste ouvert, relevé par la propriétaire le 2026-09-01 :** le slug est **commun aux
+deux langues**. La page anglaise est donc servie sous `/en/familles`, un mot français
+dans une URL anglaise — sur des pages dont la raison d'être est le référencement.
+Le rendre localisé demande de revoir l'unicité par langue, la résolution de route, le
+sort d'une page dont une seule langue a un slug, et les redirections. **À trancher
+comme décision produit avant d'être codé** ; le coût reste nul tant que rien n'est
+indexé, c'est-à-dire jusqu'au lancement. Dette consignée dans
+`../le115-backend/docs/DEBTS.md`.
