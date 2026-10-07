@@ -76,9 +76,21 @@ Raison :
 
 ## DEC-008 — Documentation exploitable par IA
 
-Le dossier `docs/` décrit le produit.
+> **Amendée le 2026-10-07 : `docs/` est désormais la seule source.** Les dossiers
+> `specs/`, `prompts/` et `tasks/` ont été retirés. Écrits au lancement du projet, ils
+> n'avaient pas suivi les décisions suivantes et les contredisaient (site sur une seule
+> page et CTA « Estimer mon séjour », renversés par DEC-023 et DEC-026 ; dashboard à
+> huit modules au lieu de treize). Une seconde description du produit, moins tenue à
+> jour que la première, égarait précisément l'assistant qu'elle devait guider. Ils
+> restent consultables dans l'historique git.
 
-Le dossier `specs/` décrit les comportements attendus de manière plus directe, afin de pouvoir servir de contexte à Claude Code ou un autre assistant de développement.
+Le dossier `docs/` décrit le produit, et c'est lui que lit un assistant de
+développement (Claude Code ou autre) : les dépôts de code renvoient à `../le115-docs`
+pour toute exigence produit ou règle métier.
+
+Ce qui survit de la version d'origine : la documentation est écrite pour être lue par
+un humain **et** par une IA — d'où les décisions numérotées, les codes d'erreur
+stables et les règles énoncées sans ambiguïté.
 
 ## DEC-009 — Vidéo hero souhaitée
 

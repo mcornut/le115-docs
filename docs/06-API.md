@@ -253,7 +253,41 @@ Protégé.
 
 ### GET /api/admin/calendar
 
-Retourne les réservations, demandes et blocages.
+Calendrier agrégé sur une fenêtre. Paramètres **obligatoires** `from` et `to`
+(dates ISO `YYYY-MM-DD`, `to` ≥ `from`) ; absents ou mal formés → `400 INVALID_REQUEST`.
+
+Renvoie, triées par date de début, les occupations qui chevauchent la fenêtre :
+chaque élément porte `type`, `id`, `from`, `to` (plage demi-ouverte `[from, to)`),
+`label` et `status`.
+
+| `type` | Source | `label` | `status` |
+|---|---|---|---|
+| `reservation` | réservation **confirmée** | nom du voyageur | `confirmed` |
+| `block` | blocage manuel | motif | `""` |
+| `external` | événement d'une source externe **activée** | résumé de l'événement | `""` |
+
+Les demandes en attente n'y figurent pas : elles ne bloquent pas la disponibilité
+(cf. `04-Dashboard.md`, « États du calendrier »).
+
+### POST /api/admin/blocks
+
+Bloque une période. Body `{ "from", "to", "reason" }` (dates ISO, plage demi-ouverte
+`[from, to)` — c'est le dashboard qui convertit sa saisie inclusive « du / au »).
+Succès → `201` + `{ "id" }`. Dates mal formées ou plage vide → `400 INVALID_REQUEST`.
+L'action est journalisée.
+
+### DELETE /api/admin/blocks/{id}
+
+Supprime un blocage. Succès → `204`. `{id}` inexistant → `404 NOT_FOUND` (aucune entrée n'est
+journalisée pour un blocage qui n'a jamais existé). `{id}` n'est pas un identifiant valide →
+`400 INVALID_REQUEST`, comme tout paramètre de route admin nommé `id`.
+
+### GET /api/admin/activity-log
+
+Journal d'activité, le plus récent d'abord. Paramètre optionnel `limit` : 100 par
+défaut, plafonné à 500 (une valeur absente, nulle, négative ou au-delà de 500 vaut
+100). Chaque entrée porte `type` (ex. `block_created`, `reservation_cancelled`),
+`message` (phrase lisible, en français) et `createdAt`.
 
 ### GET /api/admin/stay-requests
 
@@ -270,58 +304,101 @@ le propriétaire de toute sa liste.
 
 ### GET /api/admin/stay-requests/{id}
 
-Détail d'une demande.
+Détail d'une demande : les champs de la ligne de liste, plus `message` (laissé par
+le voyageur), `internalNote` et `quoteSnapshot` (devis figé). `{id}` inconnu →
+`404 NOT_FOUND`.
 
 ### POST /api/admin/stay-requests/{id}/approve
 
-Accepte une demande et crée une réservation.
+Accepte une demande et crée la réservation correspondante, dans une seule transaction.
+
+1. **Synchronisation d'abord** (DEC-013) : les sources externes activées sont
+   synchronisées ; si l'une échoue → `409 SYNC_REQUIRED`, rien n'est créé.
+2. La disponibilité est revérifiée ; dates prises entre-temps → `409 DATES_UNAVAILABLE`.
+3. La demande passe à `approved`, la réservation est créée `confirmed`, l'action est
+   journalisée, et le voyageur reçoit l'email d'approbation, qui porte l'**adresse
+   exacte** du bien (DEC-022).
+
+Succès → `200` + `{ "reservationId", "conflictingPendingRequestIds" }` : la seconde
+clé liste les **autres demandes en attente** qui chevauchent les dates désormais
+réservées (tableau vide s'il n'y en a pas) — elles ne sont pas refusées
+automatiquement, c'est au propriétaire de les traiter.
+
+Demande qui n'est plus en attente → `409 CONFLICT`. `{id}` inconnu → `404 NOT_FOUND`.
 
 ### POST /api/admin/stay-requests/{id}/reject
 
-Refuse une demande.
+Refuse une demande : elle passe à `rejected`, le voyageur reçoit l'email de refus.
+Succès → `204`. Demande qui n'est plus en attente → `409 CONFLICT`.
+
+### PATCH /api/admin/stay-requests/{id}/note
+
+Remplace la note interne de la demande (jamais montrée au voyageur). Body
+`{ "note" }` — une chaîne vide efface la note. Succès → `204`.
 
 ### GET /api/admin/reservations
 
-Liste les réservations.
+Liste les réservations. Chaque élément porte `id`, `status` (`confirmed` |
+`cancelled`), `guestName`, `email`, `source`, `arrival`, `departure`, `totalCents`,
+`createdAt`.
 
 ### GET /api/admin/reservations/{id}
 
 Détail d'une réservation (mêmes champs que la ligne de liste + `internalNote`
 et `quoteSnapshot` figé). `{id}` inconnu → `404 NOT_FOUND`.
 
-### POST /api/admin/calendar-blocks
+### POST /api/admin/reservations/{id}/cancel
 
-Bloque une période.
+Annule une réservation confirmée : elle passe à `cancelled` et **libère ses dates**.
+L'action est journalisée ; **aucun email n'est envoyé au voyageur** en V1 (cf.
+`04-Dashboard.md`). Succès → `204`. Réservation déjà annulée → `409 CONFLICT`.
 
-### DELETE /api/admin/calendar-blocks/{id}
+### POST /api/admin/reservations/{id}/adjust-price
 
-Supprime un blocage. Succès → `204`. `{id}` inexistant → `404 NOT_FOUND` (aucune entrée n'est
-journalisée pour un blocage qui n'a jamais existé). `{id}` n'est pas un identifiant valide →
-`400 INVALID_REQUEST`, comme tout paramètre de route admin nommé `id`.
+Ajoute une ligne d'ajustement au devis figé d'une réservation confirmée (DEC-012).
+Body `{ "label", "amountCents" }` : montant **signé**, négatif pour une remise.
+
+- `label` vide ou `amountCents` nul → `422 VALIDATION` ;
+- remise qui ferait passer le total sous zéro → `422 DISCOUNT_EXCEEDS_TOTAL`, avec
+  `details.maxDiscountCents` (cf. `03-Business-Rules.md`, « Ajustements ») ;
+- réservation non confirmée → `409 CONFLICT`.
+
+Succès → `200` + `{ "reservationId", "totalCents" }` (nouveau total). Le devis figé est
+régénéré, son détail d'origine conservé, et l'action journalisée.
+
+### PATCH /api/admin/reservations/{id}/note
+
+Remplace la note interne de la réservation. Body `{ "note" }`. Succès → `204`.
 
 ### GET /api/admin/sync-sources
 
-Liste les sources de synchronisation externes configurées.
+Liste les sources de synchronisation externes configurées (ex. Abritel via URL iCal).
+Chaque source porte `id`, `provider`, `name`, `enabled`, et l'état de son **dernier
+import** : `lastSyncAt` (ISO 8601 UTC), `lastSyncStatus`, `lastError` — tous trois
+`null` pour une source jamais synchronisée. L'URL iCal n'est jamais renvoyée.
 
-Exemple : Abritel via URL iCal.
+Il n'existe pas d'historique des imports : seul le dernier est exposé.
 
 ### POST /api/admin/sync-sources
 
-Ajoute une source de synchronisation externe.
+Ajoute une source de synchronisation externe. Body `{ "provider", "name", "icalUrl" }`.
+Succès → `201` + `{ "id" }`. Une seule source par fournisseur et par bien.
 
-Body :
-- `provider` : `abritel` ou `ical` ;
-- `name` ;
-- `icalUrl` ;
-- `enabled`.
+En pratique, les sources sont **provisionnées au démarrage** depuis la configuration
+du serveur, et l'écran Synchronisations n'en crée pas (cf. `04-Dashboard.md`) :
+modifier, désactiver ou supprimer une source n'a pas de route en V1.
 
 ### POST /api/admin/sync-sources/{id}/run
 
-Déclenche manuellement une synchronisation.
+Déclenche manuellement une synchronisation. Succès → `200` + `{ "status",
+"eventsImported" }`. Échec de l'import → `503 SYNC_FAILED`, l'erreur étant consignée
+sur la source (`lastError`).
 
-### GET /api/admin/sync-runs
+Toutes les routes de synchronisation renvoient `503 SYNC_DISABLED` si la
+synchronisation est désactivée sur le serveur.
 
-Liste les derniers imports, leur statut et les erreurs éventuelles.
+Aucun import n'est planifié en V1 : une source ne se synchronise qu'à la main, ou
+au moment d'une approbation.
 
 ### GET /api/admin/pricing-periods
 
@@ -749,9 +826,13 @@ Codes métier stables :
 | `CSRF_INVALID` | 403 | En-tête `X-CSRF-Token` absent ou ne correspondant pas au jeton de la session courante, sur une écriture admin |
 | `PROPERTY_NOT_FOUND` | 404 | Bien introuvable |
 | `NOT_FOUND` | 404 | Ressource admin introuvable (blocage, photo, tarif, règle de séjour…), y compris un paramètre de route `{id}` syntaxiquement valide mais ne correspondant à rien |
-| `VALIDATION` | 422 | Demande non soumissible ; `details` liste les codes de règle enfreints |
-| `CONFLICT` | 409 | Conflit d'intégrité : chevauchement de périodes tarifaires (même priorité), code de frais dupliqué, code d'équipement dupliqué, etc. |
+| `VALIDATION` | 422 | Demande non soumissible ; `details` liste les codes de règle enfreints. Côté admin : ajustement de prix sans libellé ou de montant nul |
+| `DISCOUNT_EXCEEDS_TOTAL` | 422 | `POST /reservations/{id}/adjust-price` : la remise ferait passer le total sous zéro ; `details.maxDiscountCents` donne la remise maximale applicable |
+| `CONFLICT` | 409 | Conflit d'intégrité : chevauchement de périodes tarifaires (même priorité), code de frais dupliqué, code d'équipement dupliqué, etc. Aussi : approuver ou refuser une demande qui n'est plus en attente, annuler ou ajuster une réservation qui n'est plus confirmée |
 | `DATES_UNAVAILABLE` | 409 | Dates demandées indisponibles |
+| `SYNC_REQUIRED` | 409 | `POST /stay-requests/{id}/approve` : la synchronisation préalable d'une source externe a échoué, l'approbation est bloquée (DEC-013) |
+| `SYNC_FAILED` | 503 | `POST /sync-sources/{id}/run` : l'import a échoué ; l'erreur est consignée sur la source |
+| `SYNC_DISABLED` | 503 | Routes `/sync-sources` : la synchronisation est désactivée sur le serveur |
 | `DUPLICATE_REQUEST` | 409 | `POST /stay-requests`, **deux garde-fous sous un seul code** : une demande identique (même email, mêmes dates) déjà envoyée dans les 24 heures précédentes, **ou** une quatrième demande de la même adresse sur 24 heures, dates confondues (DEC-030). Les distinguer apprendrait à qui sonde l’API lequel des deux l’arrête. Le message renvoyé invite à contacter directement la propriétaire pour corriger une demande déjà partie — il n’existe aujourd’hui aucun autre moyen |
 | `SLUG_INVALID` | 400 | `POST`/`PUT /audience-pages` : le slug n'est pas minuscules/chiffres/tirets |
 | `SLUG_RESERVED` | 409 | `POST`/`PUT /audience-pages` : le slug appartient à une route fixe du site public, dans l'une ou l'autre langue (`contact`, `informations-pratiques`, `demande`, `practical-information`, `request`) |
@@ -784,7 +865,7 @@ route à l’autre :
 
 | Portée | Limite | Pourquoi |
 |---|---|---|
-| Lectures JSON publiques — `GET /property`, `GET /availability`, `POST /quote` | 60 / minute | plafond général de l’API publique |
+| Lectures JSON publiques — `GET /property`, `GET /availability`, `GET /audience-pages`, `POST /quote` | 60 / minute | plafond général de l’API publique |
 | `POST /stay-requests` | 10 / heure | bien plus strict que les lectures ci-dessus : chaque appel déclenche **deux** envois SMTP, dont un vers une adresse **fournie par l’appelant**. Le domaine expéditeur porte un DMARC en rejet strict — un abus ne ferait donc pas que du bruit, il ferait mettre le domaine expéditeur en liste noire, après quoi le site cesse de notifier quoi que ce soit, silencieusement. Dix plutôt que cinq laisse de la place à un foyer, un bureau, ou un NAT d’opérateur mobile partageant une IP entre de nombreux abonnés, sans changer la donne côté abus |
 | `GET /media/{id}` | 600 / minute **et** 20 / seconde — les deux fenêtres se cumulent | la fenêtre minute borne le débit soutenu ; la fenêtre seconde borne la rafale que la minute seule laisse passer à son ouverture (un audit de sécurité avait mesuré 75 requêtes rapides sans un seul refus) |
 | `POST /api/admin/login` | 10 / minute | anti-force-brute sur l’unique compte propriétaire |
@@ -798,5 +879,10 @@ routes admin hors upload, 20 MiB sur l’upload de photo.
 - [x] Définir les codes d'erreur (enveloppe + catalogue ci-dessus).
 - [x] Ajouter l'auth admin (session cookie HttpOnly, login/logout/me).
 - [x] Ajouter rate limiting sur les endpoints publics (+ login admin).
-- [ ] Endpoints admin de cycle de vie (approve/reject/cancel, ajustement de prix, calendrier agrégé) — noms définis ci-dessus, implémentation à venir.
-- [ ] Contenus/photos/tarifs (CRUD admin) et import iCal — à venir.
+- [x] Endpoints admin de cycle de vie : approuver, refuser, annuler, ajuster le prix,
+      notes internes, calendrier agrégé, journal d'activité.
+- [x] CRUD admin des contenus, photos, tarifs, règles de séjour et pages d'audience ;
+      import iCal déclenché à la main ou à l'approbation.
+- [ ] Exposer publiquement les règles de séjour (cf. `08-Roadmap.md`).
+- [ ] Synchronisation planifiée, et gestion des sources (modifier, désactiver,
+      supprimer).
