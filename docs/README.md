@@ -63,10 +63,7 @@ flowchart LR
 
 ```text
 le115-docs/
-├── docs/       Documentation produit et technique
-├── specs/      Spécifications détaillées pour développement / IA
-├── prompts/    Prompts prêts pour Claude Code
-└── tasks/      Plan de développement par tâches
+└── docs/       Documentation produit et technique — seule source (DEC-008)
 ```
 
 ---
