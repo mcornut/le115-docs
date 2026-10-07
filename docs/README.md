@@ -4,22 +4,9 @@
 
 ![Maquette de référence](assets/landing-reference.png)
 
-> Direction retenue — [assets/landing-hybride.html](assets/landing-hybride.html) *(à ouvrir dans un navigateur)*
-
-C’est la **direction validée** pour le site public visiteur (cf. DEC-020). Elle
-reprend la mise en page de `landing-reference.png` — deux niveaux d’en-tête, logo
-en arche, accent terracotta, dégradé latéral, note et avis en en-tête, bandeau
-d’atouts chevauchant le visuel — et en corrige trois points :
-
-- le bouton principal dit **« Réserver »** (DEC-026, qui a renversé DEC-003), et la
-  page qu’il ouvre détrompe aussitôt : rien ne se réserve en ligne (DEC-004) ;
-- la navigation porte les **ancres réelles** du produit, pas des libellés qui
-  mènent à des contenus inexistants ;
-- les **onglets d’audience mènent à des pages** de contenu, pas à un filtre de la
-  galerie.
-
-Le rendu utilise la photo réelle de la maison (`assets/photo-cour.jpg`) et
-s’ouvre sans backend.
+> Direction retenue — la maquette Figma du graphiste, fichier « Le 115 »
+> (DEC-034). Elle remplace l’hybride `assets/landing-hybride.html` (DEC-020),
+> conservé pour l’historique.
 
 > Suggestion front v1 
 
