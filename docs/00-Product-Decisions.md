@@ -248,7 +248,11 @@ source de vérité.
 **Conséquence.** Si les chevauchements se révèlent illisibles à l’usage, la réponse sera un
 endpoint de résolution côté serveur — pas un calcul côté interface.
 
-## DEC-020 — Direction graphique du site public : l’hybride des deux maquettes (2026-08-15)
+## DEC-020 — Direction graphique du site public : l’hybride des deux maquettes (2026-08-15) — ⚠️ REMPLACÉE par [DEC-034](#dec-034--la-maquette-figma-devient-la-direction-graphique-2026-10-07)
+
+> **La direction retenue ici n’est plus celle du site.** Depuis le 2026-10-07, la
+> maquette Figma du graphiste fait référence (DEC-034). La fiche reste pour
+> l’historique.
 
 **Décision.** Le site public visiteur retient la **mise en page de
 `landing-reference.png`** — deux niveaux d’en-tête, logo en arche, accent terracotta,
@@ -465,6 +469,16 @@ consentement ne s’impose.
 qui les aurait éloignées des teintes du logo ; s’en tenir aux deux seules
 couleurs conformes (Ardoise, Olive profond), ce qui aurait réduit le site à une
 palette bicolore sans rapport avec la charte transmise.
+
+> **Amendée le 2026-10-07 (DEC-034) : les teintes pures du Figma, aussi sur le
+> texte.** La maquette Figma pose la Terre cuite pure (`#d97859`) sous le texte
+> blanc des boutons et sur les surtitres, et `#b26046` sur les liens de carte.
+> La propriétaire a choisi de la suivre à l’identique, contrastes mesurés à
+> l’appui : 3,10:1 pour le blanc sur bouton et pour les surtitres, 4,22:1 pour
+> les liens de carte — sous le seuil AA de 4,5:1. Le menu actif (4,51:1) et le
+> texte courant, désormais noir (21:1), le tiennent. Ce qui ne change pas :
+> l’interface hors habillage — calendrier de disponibilité, champs du
+> formulaire de demande — garde les variantes assombries.
 
 ## DEC-028 — La capacité gouverne les demandes à venir, pas les engagements pris (2026-08-21)
 
@@ -709,3 +723,28 @@ historique de slug n'est conservé : c'est une dette assumée sciemment, tant qu
 n'est indexé — à rouvrir avant l'ouverture de la production, où renommer une page
 d'audience casserait alors ses liens entrants. Dette consignée dans
 `../le115-backend/docs/DEBTS.md`.
+
+## DEC-034 — La maquette Figma devient la direction graphique (2026-10-07)
+
+**Décision.** La maquette Figma du graphiste (fichier « Le 115 », neuf écrans
+en 1920 px) remplace l’hybride de DEC-020 comme référence du site public. Elle
+est adoptée en deux temps : d’abord l’**habillage** — composition, typographie,
+couleurs, composants — sur la structure de pages actuelle ; ensuite
+l’**architecture** — les pages qu’elle ajoute (Le 115, Commodités, Les environs,
+contact avec formulaire), chacune dans sa propre spec.
+
+**Pourquoi en deux temps.** L’habillage ne demande aucune décision produit
+nouvelle et rapproche tout de suite le site de la maquette. L’architecture en
+demande plusieurs — formulaire de contact (backend neuf), carte et adresse
+exacte (DEC-021, DEC-022), pages légales, sort de la page « Familles » face aux
+quatre audiences de la maquette — que la propriétaire doit trancher.
+
+**Pendant l’habillage.** Le menu du Figma est branché sur l’existant : « Le 115 »,
+« Commodités » et « Les environs » mènent aux sections de l’accueil ; Galerie et
+FAQ quittent le menu et restent sur l’accueil ; Informations pratiques passe au
+pied de page. Le pied de page affiche le secteur, jamais l’adresse exacte.
+Les pages d’audience ne reçoivent aucune image empruntée à la galerie.
+
+**Conséquence.** DEC-027 est amendée (teintes pures sur le texte, voir sa note).
+La maquette ne contient aucun écran mobile : la déclinaison sous 1024 px est
+celle du site.
