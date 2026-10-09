@@ -1086,7 +1086,7 @@ Codes de règle (portés par `errors[]` d'un devis et par `details` d'un `VALIDA
 | `INVALID_DATES` | Arrivée ≥ départ |
 | `DATES_IN_PAST` | Arrivée dans le passé (« aujourd'hui » Europe/Paris) |
 | `GUESTS_EXCEED_MAX` | Nombre de voyageurs supérieur à la capacité réelle du bien |
-| `ADULTS_EXCEED_MAX` | Nombre d'adultes supérieur à `maxAdults` (DEC-037). Évalué **après** `GUESTS_EXCEED_MAX` : un groupe de 14 adultes pour 12 places porte les deux, dans cet ordre. Sans objet quand `maxAdults` est `null`. Porté par `errors[]` du devis (`submittable: false`) et par les `details` du `422 VALIDATION` de `POST /stay-requests` ; aucun âge n'est précisé |
+| `ADULTS_EXCEED_MAX` | Nombre d'adultes supérieur à `maxAdults` (DEC-037). Évalué **après** `GUESTS_EXCEED_MAX` : un groupe de 14 adultes pour 12 places porte les deux, dans cet ordre. Sans objet quand `maxAdults` est `null`, et non émis quand le groupe est déjà refusé en `GUESTS_INVALID`. Porté par `errors[]` du devis (`submittable: false`) et par les `details` du `422 VALIDATION` de `POST /stay-requests` ; aucun âge n'est précisé |
 | `STAY_TOO_LONG` | Durée du séjour supérieure à la borne technique de 365 nuits — au-delà, le calcul énumérerait une date par nuit ; sans lien avec les durées commerciales des règles de séjour |
 | `GUESTS_INVALID` | Nombre de voyageurs négatif ou hors bornes techniques (garde anti-débordement de l’addition adultes + enfants) — distinct de `GUESTS_EXCEED_MAX`, qui refuse un effectif réel supérieur à la capacité du bien |
 

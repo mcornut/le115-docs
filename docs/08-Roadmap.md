@@ -67,8 +67,8 @@
   B2b est livré le **2026-10-09** (DEC-037) : la propriétaire compose elle-même le bandeau
   d’atouts de l’accueil (six au plus, nés des six atouts de la maquette), quatre icônes
   rejoignent le catalogue (« Commerces » et trois règles de la maison), et une limite
-  d’adultes facultative gouverne le devis et la demande, sans âge précisé. Le backend se
-  déploie avant le site. B2c reste à faire.
+  d’adultes facultative gouverne le devis et la demande, sans âge précisé. Le déploiement
+  suit l’ordre backend, dashboard, site. B2c reste à faire.
 - Dashboard admin (SPA séparée, déploiement même origine que l’API, mono-bien — cf. DEC-014, DEC-015), treize écrans :
   - Tableau de bord (accueil — cf. DEC-018)
   - Calendrier

@@ -914,5 +914,7 @@ Non remplie par la migration : la propriétaire saisit sa valeur.
 **Sur le site.** « 12 personnes au plus, dont 10 adultes » ; « dont N adultes » est **omis** quand
 N égale la capacité, puisqu’il n’apprendrait rien ; les formes du singulier sont respectées.
 
-**Mise en ligne.** Le **backend se déploie avant le site** : le site lit `highlights` et
-`maxAdults` dans l’API publique, que l’ancien backend ne sert pas.
+**Mise en ligne.** L’ordre est **backend, puis dashboard, puis site**. Le site lit
+`highlights` et `maxAdults` dans l’API publique, que l’ancien backend ne sert pas ; le
+formulaire Maison et la section des atouts du dashboard ont, eux aussi, besoin du backend
+B2b (champ `maxAdults`, route des atouts).
