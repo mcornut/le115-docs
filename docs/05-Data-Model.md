@@ -260,6 +260,11 @@ Elles naissent d'un déclencheur `AFTER INSERT` sur `property` : un bien créé 
 non publiés. Aucune migration ne crée la ligne `property`, d'où le déclencheur plutôt
 qu'une insertion ponctuelle.
 
+Le texte des brouillons vit dans une fonction SQL (`legal_page_drafts`, migration 00024).
+La migration 00025 la remplace pour ajouter, au marqueur « Adresse » des mentions légales,
+une mise en garde (l'adresse de l'éditeur peut être un domicile) ; elle ne corrige les pages
+existantes que si leur texte est encore exactement le brouillon d'origine.
+
 `LegalPageSection` : les paragraphes de la page, une table fille ordonnée par
 `sort_order`, supprimée en cascade avec sa page.
 

@@ -823,6 +823,10 @@ celles qui n’en ont pas, et **supprime celles qui ne sont plus dans le corps r
 mal formé rend `400 INVALID_REQUEST` ; un `id` appartenant à une autre page, ou répété, rend
 `422` (`SECTION_ETRANGERE` / `SECTION_DUPLIQUEE`). Réponse `204`.
 
+**`sections` est obligatoire** : un corps sans ce champ, ou avec `null`, rend
+`400 INVALID_REQUEST` et n’écrit rien — il effacerait sinon toutes les sections. Un tableau
+vide explicite (`[]`) reste permis.
+
 **Le corps peut aller jusqu’à 256 KiB** (les autres routes admin hors upload : 16 KiB) : trois
 textes juridiques bilingues dépassent aisément 16 KiB.
 

@@ -122,8 +122,9 @@ le115-frontend/
 │   │                   #   les pages d’audience n’y sont plus (DEC-032)
 │   └── lib/            # api (property, audience-pages, media), photos,
 │                       #   métadonnées
-└── public/             # carte statique du secteur (seul fichier ; le favicon,
-                        #   lui, vit dans src/app/, convention App Router)
+└── public/             # carte statique (seul fichier ; image du secteur, puis
+                        #   cadrée sur la rue avec son repère une fois fournie ;
+                        #   le favicon, lui, vit dans src/app/, convention App Router)
 ```
 
 Le détail des choix techniques (segment de langue, routage, neutralisation de

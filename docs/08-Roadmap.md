@@ -15,7 +15,7 @@
   |---|---|---|---|
   | 1. Socle et contenus | Coquille, navigation, FR/EN, accueil, FAQ, contact, localisation, une page d’audience | Un site qu’on peut montrer | **livré** |
   | 2. Parcours de demande | **Calendrier de disponibilité**, devis, formulaire, confirmation, erreurs métier | Un site qui convertit | **livré** |
-  | 3. Mise en ligne | `sitemap.xml`, `robots.txt`, `CSP`/`HSTS`, CDN des médias, domaine ; mentions légales et confidentialité publiées dans les deux langues, conditions de location relues puis publiées (DEC-035) | Un site accessible au public | à venir |
+  | 3. Mise en ligne | `sitemap.xml`, `robots.txt`, `CSP`/`HSTS`, CDN des médias, domaine ; mentions légales et confidentialité publiées dans les deux langues, conditions de location relues puis publiées (DEC-035) ; vrais téléphone et email du site (aujourd’hui fictifs dans `le115-frontend/src/lib/contact.ts`) | Un site accessible au public | à venir |
 
   Le sous-projet 2 est livré le **2026-08-18** (cf. DEC-023 à DEC-025). Le visiteur a
   désormais une page dédiée, `/[langue]/demande`, où le seul appel à l’action du site le

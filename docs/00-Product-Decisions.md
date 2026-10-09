@@ -801,6 +801,13 @@ langues : elle est bilingue et traduit elle-même (prolongement de DEC-032).
 - **Le téléphone et l’email du site restent dans sa configuration**, par exception à la
   règle ci-dessus : la page d’erreur les affiche quand l’API est en panne.
 
+**Conséquence.** La mise en ligne (sous-projet 3) attend, en plus des pages légales
+publiées : les **vrais téléphone et email du site**, aujourd’hui fictifs dans
+`le115-frontend/src/lib/contact.ts`. Le brouillon des mentions légales prévient aussi, au
+marqueur « Adresse », que pour une propriétaire particulière l’adresse de l’éditeur peut
+être un domicile, que le site ne publie pas par ailleurs (DEC-022) : le relecteur
+professionnel confirme ce qui doit l’être.
+
 **Arbitrages rendus pour la suite.**
 
 - *B2* : les chiffres des arches (capacité, salles de bain) sont éditables. La capacité est
