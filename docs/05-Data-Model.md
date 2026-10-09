@@ -26,6 +26,9 @@ erDiagram
     PROPERTY ||--o{ AUDIENCE_PAGE : has
     AUDIENCE_PAGE ||--o{ AUDIENCE_PAGE_SECTION : has
     AUDIENCE_PAGE ||--o{ AUDIENCE_PAGE_LOCALE : publishes
+    PROPERTY ||--o{ LEGAL_PAGE : has
+    LEGAL_PAGE ||--o{ LEGAL_PAGE_SECTION : has
+    LEGAL_PAGE ||--o{ LEGAL_PAGE_LOCALE : publishes
     STAY_REQUEST ||--o| RESERVATION : becomes
     EXTERNAL_CALENDAR_SOURCE ||--o{ EXTERNAL_CALENDAR_EVENT : contains
 
@@ -40,6 +43,9 @@ erDiagram
         int max_guests
         string address
         string reviews_url
+        string public_address
+        string facebook_url
+        string instagram_url
         datetime created_at
         datetime updated_at
     }
@@ -122,12 +128,21 @@ Représente la maison.
 
 Même si une seule maison existe en V1, cette entité évite de disperser les paramètres globaux.
 
+Colonnes non traduites ajoutées par B1 (DEC-035), toutes `text NOT NULL DEFAULT ''` —
+la chaîne vide dit « non renseigné », comme pour `reviews_url` :
+- `public_address` : l'**adresse affichée** sur le site, sans numéro de rue (DEC-022
+  amendée), 200 caractères au plus. Jamais déduite de `address`, l'adresse exacte, qui
+  n'est exposée par aucune route publique. Vide : le site affiche le secteur ;
+- `facebook_url`, `instagram_url` : vides, ou une URL `https` sur `facebook.com` /
+  `instagram.com` (règle tenue par l'application, pas par une contrainte de base).
+
 ### LocalizedContent
 
 Contenus éditoriaux traduits (modèle EAV).
 
 Champs :
-- `entity_type` : type d'entité (`property`, `amenity`, `faq_item`)
+- `entity_type` : type d'entité (`property`, `amenity`, `faq_item`, `photo`, `additional_fee`,
+  `stay_rule`, `audience_page`, `audience_page_section`, `legal_page`, `legal_page_section`)
 - `entity_id` : UUID de l'entité
 - `locale` : `fr` ou `en`
 - `field` : clé du champ (voir ci-dessous)
@@ -152,6 +167,9 @@ Champs par entité :
 | `audience_page` | `intro` | « Une cour close, une piscine... » |
 | `audience_page_section` | `heading` | « Pour les enfants » |
 | `audience_page_section` | `body` | « La cour est close et sans vis-à-vis. » |
+| `legal_page` | `title` | « Mentions légales » / « Legal notice » |
+| `legal_page_section` | `heading` | « Éditeur du site » |
+| `legal_page_section` | `body` | Le texte de la section ; une ligne vide sépare deux paragraphes |
 
 Cette approche évite de créer des colonnes comme `title_fr` et `title_en` sur chaque table métier.
 
@@ -221,6 +239,45 @@ chaque section) vivent dans `LocalizedContent`, comme le reste de l'éditorial
 — voir la table ci-dessus. La suppression d'une page cascade ses sections et
 ses lignes de publication ; les lignes `LocalizedContent`, polymorphes et sans
 clé étrangère, sont supprimées par l'application dans la même transaction.
+
+### LegalPage / LegalPageSection / LegalPageLocale
+
+Les trois pages légales du site (DEC-035) : mentions légales, confidentialité et
+cookies, conditions de location. Un agrégat **propre**, sur le patron des pages
+d'audience sans en être une variante : une page légale n'a ni slug, ni icône, ni
+libellé d'onglet, ni place dans le menu, et ne se crée ni ne se supprime.
+
+`LegalPage` :
+- `kind` : `legal-notice`, `privacy` ou `rental-terms` — liste **fermée** (contrainte
+  `CHECK`), unique par bien. Le `kind` désigne la page dans l'API ; il n'y a pas d'`id`
+  côté contrat ;
+- `updated_at` : avance à chaque écriture du **contenu**, et seulement à celle-là (publier
+  ne change pas le texte) ; le site l'affiche (« Mis à jour le … »).
+
+**Trois lignes par bien, créées par migration** — ni création ni suppression par l'API.
+Elles naissent d'un déclencheur `AFTER INSERT` sur `property` : un bien créé plus tard
+(base neuve, environnement de test) reçoit lui aussi ses trois pages et leurs brouillons,
+non publiés. Aucune migration ne crée la ligne `property`, d'où le déclencheur plutôt
+qu'une insertion ponctuelle.
+
+`LegalPageSection` : les paragraphes de la page, une table fille ordonnée par
+`sort_order`, supprimée en cascade avec sa page.
+
+`LegalPageLocale` : une ligne `(page_id, locale, published_at)` par langue, présente dès
+la création de la page. `published_at`, **nullable**, est **seul** porteur de la
+publication, avec la même sémantique que `AudiencePageLocale`. **Aucun repli** de langue.
+
+Les textes (`title` de la page ; `heading`, `body` de chaque section) vivent dans
+`LocalizedContent`. Règles de complétude et d'écriture (DEC-035) :
+- une langue est **complète** quand elle a un titre, au moins une section, et l'intitulé
+  comme le corps de chaque section ;
+- elle ne se publie pas tant qu'elle est incomplète (`PAGE_INCOMPLETE`) ni tant qu'un
+  texte contient le marqueur des brouillons **« À COMPLÉTER »** (`PLACEHOLDER_REMAINING`) —
+  reconnu sans égard à la casse ni aux accents, avec des frontières de mot ;
+- une écriture qui rendrait ainsi **impubliable une langue publiée** est **refusée** et
+  n'écrit rien, au lieu de la dépublier comme le fait une page d'audience ;
+- les six adresses publiques sont réservées aux pages d'audience (`SLUG_RESERVED`), et la
+  migration refuse de s'appliquer si une page d'audience en occupe déjà une.
 
 ### PricingPeriod
 
