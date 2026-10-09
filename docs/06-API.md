@@ -91,11 +91,14 @@ Response `200` :
     "navLabel": "Cyclistes",
     "title": "La maison à vélo",
     "intro": "Le Vaucluse se traverse à vélo.",
-    "sections": [{ "heading": "Au départ", "body": "Un garage fermé." }],
+    "sections": [{ "heading": "Au départ", "body": "Un garage **fermé**." }],
     "alternates": { "fr": "cyclistes", "en": "cyclists" }
   }
 ]
 ```
+
+Le `body` de chaque section est du **Markdown restreint** (DEC-036) : gras, italique, liens,
+listes sur un niveau ; `heading`, `title` et `intro` restent du texte simple.
 
 **Aucun repli de langue** : une page publiée en français seulement est absente du
 tableau reçu pour `en` — le site rend alors un 404 sur son adresse, jamais le texte
@@ -139,6 +142,9 @@ change pas. Dans un `body`, une ligne vide sépare deux paragraphes ; un saut de
 est un retour à la ligne. Contrairement aux pages d’audience, il n’y a pas d'`alternates` : le
 site interroge l’autre langue pour savoir si la page y est publiée. Les adresses publiques des
 trois pages sont fixes et vivent côté site (DEC-033).
+
+Le `body` de chaque section est du **Markdown restreint** (DEC-036) : gras, italique, liens,
+listes sur un niveau ; `title` et `heading` restent du texte simple.
 
 ### POST /api/public/contact-messages
 
@@ -759,6 +765,12 @@ d'abord. Chaque section porte un `id` facultatif : le serveur met à jour
 celles qui en ont un, crée celles qui n'en ont pas, et **supprime celles qui
 ne sont plus dans le corps reçu**.
 
+**Chaque `body` de section est validé** (DEC-036), français puis anglais, dans l'ordre des
+sections : un corps hors du format rend `422 RICH_TEXT_INVALID` avec
+`details: { "locale": "fr" | "en", "section": <rang à partir de 0>, "reason": "…" }`, et
+**rien n'est écrit**. La complétude d'une langue se juge sur le texte extrait, jamais sur le
+Markdown brut.
+
 Mêmes validations que la création pour le format et la réserve du `slug`, et
 pour `icon`. Un doublon de slug dans une langue renvoie `409 SLUG_TAKEN`
 (`details.locale` vaut `fr` ou `en` selon la langue fautive). Un `id` de
@@ -783,7 +795,9 @@ Publie la page dans une langue (`fr` ou `en`).
 Refuse **`409 PAGE_INCOMPLETE`** si le slug (DEC-033), le libellé d'onglet, le
 titre, le chapeau, ou l'intitulé/le corps d'une section est vide dans cette
 langue, ou si la page n'a aucune section — mieux vaut le silence que le
-remplissage à moitié (D5).
+remplissage à moitié (D5). Un corps est « vide » selon son **texte extrait**, jamais selon
+le Markdown brut (DEC-036) : un lien sans texte ou des puces vides ne remplissent pas une
+section.
 
 ### DELETE /api/admin/audience-pages/{id}/publication/{locale}
 
@@ -823,6 +837,12 @@ celles qui n’en ont pas, et **supprime celles qui ne sont plus dans le corps r
 mal formé rend `400 INVALID_REQUEST` ; un `id` appartenant à une autre page, ou répété, rend
 `422` (`SECTION_ETRANGERE` / `SECTION_DUPLIQUEE`). Réponse `204`.
 
+**Chaque `body` de section est validé** (DEC-036), comme pour les pages d'audience : un corps
+hors du format rend `422 RICH_TEXT_INVALID` avec
+`details: { "locale": "fr" | "en", "section": <rang à partir de 0>, "reason": "…" }`, et
+**rien n'est écrit**. La complétude et le marqueur « À COMPLÉTER » se jugent sur le texte
+extrait, jamais sur le Markdown brut.
+
 **`sections` est obligatoire** : un corps sans ce champ, ou avec `null`, rend
 `400 INVALID_REQUEST` et n’écrit rien — il effacerait sinon toutes les sections. Un tableau
 vide explicite (`[]`) reste permis.
@@ -843,7 +863,8 @@ non publiée s’enregistre dans n’importe quel état.
 Publie la page dans une langue (`fr` ou `en` ; autre valeur : `400 INVALID_REQUEST`). Réponse
 `204`. Refuse :
 - **`409 PAGE_INCOMPLETE`** si la langue n’a pas tout son texte — un titre, au moins une
-  section, l’intitulé et le corps de chaque section ;
+  section, l’intitulé et le corps de chaque section — un corps « vide » se juge sur son
+  **texte extrait**, jamais sur le Markdown brut (DEC-036) ;
 - **`409 PLACEHOLDER_REMAINING`** si un texte de cette langue contient encore le marqueur des
   brouillons « À COMPLÉTER ». Le marqueur est reconnu sans égard à la casse ni aux accents,
   avec des frontières de mot : un texte légitime qui contiendrait « à compléter » bloque donc
@@ -995,6 +1016,7 @@ Codes métier stables :
 | `ICON_INVALID` | 400 | `POST`/`PUT /audience-pages` : l'icône n'appartient pas au catalogue des pages d'audience |
 | `SECTION_ETRANGERE` | 422 | `PUT /audience-pages/{id}` : un `id` de section du corps appartient à une autre page, ou n'existe pas |
 | `SECTION_DUPLIQUEE` | 422 | `PUT /audience-pages/{id}` : le même `id` de section apparaît deux fois dans le corps |
+| `RICH_TEXT_INVALID` | 422 | `PUT /audience-pages/{id}` et `PUT /legal-pages/{kind}` (DEC-036) : le `body` d'une section sort du Markdown restreint ; `details` porte `locale` (`fr` ou `en`), `section` (rang à partir de 0) et `reason`, l'une des neuf raisons : `titre non autorisé`, `image non autorisée`, `HTML non autorisé`, `code non autorisé`, `citation non autorisée`, `tableau non autorisé`, `liste imbriquée non autorisée`, `règle horizontale non autorisée`, `lien non autorisé : seules les adresses https, internes ou mailto sont acceptées`. Rien n'est écrit |
 | `PAGE_INCOMPLETE` | 409 | `PUT /audience-pages/{id}/publication/{locale}` : la langue visée n’a pas tout son texte (D5). Aussi sur les routes `legal-pages` (DEC-035) : `PUT …/publication/{locale}`, et `PUT /legal-pages/{kind}` qui rendrait incomplète une langue publiée — l’écriture est alors refusée ; `details.locale` vaut `fr` ou `en` |
 | `PLACEHOLDER_REMAINING` | 409 | Routes `legal-pages` (DEC-035) : `PUT …/publication/{locale}`, ou `PUT /legal-pages/{kind}` sur une langue publiée, alors qu’un texte de la langue contient encore « À COMPLÉTER » ; `details.locale` vaut `fr` ou `en` |
 | `CONTACT_UNAVAILABLE` | 503 | `POST /contact-messages` : l’envoi de l’email a échoué ou dépassé 15 secondes (DEC-035) ; le message n’est stocké nulle part |

@@ -526,8 +526,25 @@ les deux langues plutôt qu'une par langue : deux mots perdus comme slugs, contr
 une ambiguïté supprimée. L'icône vient d'un catalogue **propre aux pages** (dix-sept codes,
 `guests` compris) — pas celui des équipements, qui ne l'a pas.
 
-Hors V1 de ce module : l'éditeur de texte riche et le téléversement d'images
-(texte simple pour l'instant), et le réordonnancement des sections.
+**Le corps de chaque section est un éditeur de texte riche** (DEC-036), le même pour les
+pages d'audience et les pages légales, une fois par langue. Cinq boutons : **Gras**,
+**Italique**, **Lien**, **Liste à puces**, **Liste numérotée** ; les raccourcis ⌘B et ⌘I ; Entrée
+ouvre un nouveau paragraphe, **Maj+Entrée** un simple retour à la ligne. La propriétaire ne voit
+jamais la syntaxe. Le bouton Lien demande une adresse, qui doit être `https://…`, interne
+(`/fr/…`, `/en/…`) ou `mailto:…`, sans espace ; une autre est refusée dans le champ, avec
+l'explication. Les listes n'ont qu'un niveau. Ce qu'elle tape reste du texte : `- x` ou `2*3`
+n'est pas transformé en mise en forme. Un **collage** depuis Word ou une page web est nettoyé :
+l'éditeur garde ce qu'il sait faire (gras, italique, liens autorisés, listes) et abandonne le
+reste, si bien qu'il ne produit jamais un texte que le serveur refuserait. Limites connues :
+une liste imbriquée collée devient des listes qui se suivent, et les puces de Word se collent
+en paragraphes commençant par « · ».
+
+Si le serveur refuse tout de même un corps (**422 RICH_TEXT_INVALID**, par exemple après une
+écriture venue d'un autre client), l'écran affiche une phrase qui nomme la section et la
+langue et reprend la raison du serveur, puis garde la saisie.
+
+Hors V1 de ce module : le téléversement d'images et les images dans le texte, et le
+réordonnancement des sections.
 
 ### Pages légales
 
@@ -567,9 +584,9 @@ une page en ligne, il faut d'abord dépublier la langue — le geste de dépubli
 vérifie rien. Après un enregistrement réussi, le formulaire adopte la page relue : les
 sections créées reçoivent leur identifiant.
 
-Dans le corps d'une section, une ligne vide ouvre un nouveau paragraphe et un simple
-saut de ligne reste un retour à la ligne sur le site, de sorte qu'un bloc d'adresse écrit
-ligne par ligne ne se recolle pas.
+Le corps d'une section s'édite avec l'éditeur de texte riche décrit plus haut (DEC-036).
+Une ligne vide ouvre un nouveau paragraphe et un simple saut de ligne reste un retour à la
+ligne sur le site, de sorte qu'un bloc d'adresse écrit ligne par ligne ne se recolle pas.
 
 ---
 

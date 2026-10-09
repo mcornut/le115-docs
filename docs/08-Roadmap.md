@@ -47,7 +47,10 @@
   | Sous-projet | Contenu | État |
   |---|---|---|
   | B1 | Formulaire de contact, pages légales, pied de page | **livré** |
-  | B2 | Pages « Le 115 » et « Commodités » | à cadrer |
+  | B2 | Pages « Le 115 » et « Commodités » (DEC-036) | en trois temps, ci-dessous |
+  | — B2a | Le texte riche des corps de section | **livré** |
+  | — B2b | Le bien : liste d’atouts, icônes de règles, adultes au plus | à venir |
+  | — B2c | Les pages éditoriales « Le 115 » et « Commodités » | à venir |
   | B3 | « Les environs » et le détail d’un lieu | à cadrer |
 
   B1 est livré le **2026-10-08** : un formulaire « Nous écrire » qui envoie un simple email
@@ -56,6 +59,11 @@
   la propriétaire doit combler —, l’adresse affichée, Facebook et Instagram saisis dans
   Maison, et le pied de page à trois colonnes de la maquette. Reste, avant la mise en
   ligne, à compléter et publier ces pages (voir la ligne « 3. Mise en ligne » ci-dessus).
+
+  B2a est livré le **2026-10-09** (DEC-036) : les corps de section des pages légales et des
+  pages d’audience acceptent le gras, l’italique, les liens et les listes, édités
+  visuellement au dashboard et rendus par le site sans HTML interprété. B2b et B2c restent à
+  faire.
 - Dashboard admin (SPA séparée, déploiement même origine que l’API, mono-bien — cf. DEC-014, DEC-015), treize écrans :
   - Tableau de bord (accueil — cf. DEC-018)
   - Calendrier
@@ -101,13 +109,12 @@ Envisagés en amont, non retenus dans la nav V1 livrée (détail dans
 - Paiement acompte
 - Import Abritel / iCal opérationnel
 - Page “Découvrir la région”
-- **Éditeur riche et téléversement d’images pour les pages d’audience** — l’édition
-  elle-même (modèle, écran, publication langue par langue) est livrée, cf. DEC-032 et
-  V1 ci-dessus. Ce qui reste : la **liberté de mise en page**, tranchée pour le texte
-  simple des sections mais pas au-delà — un éditeur visuel enregistrant du Markdown
-  (contrainte par la CSP de production : pas d’attribut `style`, images servies par
-  le stockage média, aucun HTML écrit par un humain rendu sans nettoyage côté
-  serveur). À cadrer dans son propre spec.
+- **Images dans le texte et téléversement d’images** — le **texte riche est livré** (B2a,
+  DEC-036) : gras, italique, liens et listes dans les corps de section, édités visuellement
+  et stockés en Markdown restreint, sans jamais interpréter de HTML. L’édition des pages
+  d’audience elle-même est livrée aussi (DEC-032). Ce qui reste : les **images dans le
+  texte** et leur téléversement (images servies par le stockage média, sous la CSP de
+  production). À cadrer dans son propre spec.
 - Promotions
 - Export CSV
 
