@@ -585,9 +585,8 @@ vérifie rien. Après un enregistrement réussi, le formulaire adopte la page re
 sections créées reçoivent leur identifiant.
 
 Le corps d'une section s'édite avec l'éditeur de texte riche décrit plus haut (DEC-036).
-Une ligne vide ouvre un nouveau paragraphe et un simple
-saut de ligne reste un retour à la ligne sur le site, de sorte qu'un bloc d'adresse écrit
-ligne par ligne ne se recolle pas.
+Une ligne vide ouvre un nouveau paragraphe et un simple saut de ligne reste un retour à la
+ligne sur le site, de sorte qu'un bloc d'adresse écrit ligne par ligne ne se recolle pas.
 
 ---
 

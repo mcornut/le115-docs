@@ -143,6 +143,9 @@ est un retour à la ligne. Contrairement aux pages d’audience, il n’y a pas 
 site interroge l’autre langue pour savoir si la page y est publiée. Les adresses publiques des
 trois pages sont fixes et vivent côté site (DEC-033).
 
+Le `body` de chaque section est du **Markdown restreint** (DEC-036) : gras, italique, liens,
+listes sur un niveau ; `title` et `heading` restent du texte simple.
+
 ### POST /api/public/contact-messages
 
 Envoie un message du formulaire « Nous écrire » à la propriétaire (DEC-035). **Rien n’est
@@ -792,7 +795,9 @@ Publie la page dans une langue (`fr` ou `en`).
 Refuse **`409 PAGE_INCOMPLETE`** si le slug (DEC-033), le libellé d'onglet, le
 titre, le chapeau, ou l'intitulé/le corps d'une section est vide dans cette
 langue, ou si la page n'a aucune section — mieux vaut le silence que le
-remplissage à moitié (D5).
+remplissage à moitié (D5). Un corps est « vide » selon son **texte extrait**, jamais selon
+le Markdown brut (DEC-036) : un lien sans texte ou des puces vides ne remplissent pas une
+section.
 
 ### DELETE /api/admin/audience-pages/{id}/publication/{locale}
 
@@ -858,7 +863,8 @@ non publiée s’enregistre dans n’importe quel état.
 Publie la page dans une langue (`fr` ou `en` ; autre valeur : `400 INVALID_REQUEST`). Réponse
 `204`. Refuse :
 - **`409 PAGE_INCOMPLETE`** si la langue n’a pas tout son texte — un titre, au moins une
-  section, l’intitulé et le corps de chaque section ;
+  section, l’intitulé et le corps de chaque section — un corps « vide » se juge sur son
+  **texte extrait**, jamais sur le Markdown brut (DEC-036) ;
 - **`409 PLACEHOLDER_REMAINING`** si un texte de cette langue contient encore le marqueur des
   brouillons « À COMPLÉTER ». Le marqueur est reconnu sans égard à la casse ni aux accents,
   avec des frontières de mot : un texte légitime qui contiendrait « à compléter » bloque donc
