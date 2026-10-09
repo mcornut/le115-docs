@@ -23,6 +23,7 @@ Response `200` :
 {
   "slug": "le-115",
   "maxGuests": 12,
+  "maxAdults": 10,
   "currency": "EUR",
   "baseNightlyPriceCents": 45000,
   "title": "La Provençale",
@@ -33,6 +34,9 @@ Response `200` :
   "publicAddress": "Cour de la République, 84210 Pernes-les-Fontaines",
   "facebookUrl": "https://www.facebook.com/le115",
   "instagramUrl": "https://www.instagram.com/le115",
+  "highlights": [
+    { "icon": "garden", "label": "Cour intérieure" }
+  ],
   "amenities": [
     { "code": "wifi", "icon": "wifi", "label": "Wifi haute vitesse" }
   ],
@@ -71,6 +75,12 @@ Response `200` :
 elles ne sont pas renseignées, jamais `null`. `publicAddress` est l'**adresse affichée** : la
 rue, jamais le numéro (DEC-022 amendée). L’adresse exacte (`address`) n’est **jamais** exposée
 par l’API publique, et rien ici n’en est déduit.
+
+**`maxAdults`** (DEC-037) est un entier, ou `null` quand aucune limite d'adultes n'est
+posée. **`highlights`** est le bandeau d'atouts de l'accueil : six au plus, **dans l'ordre de
+la propriétaire**, `label` localisé (anglais vide : repli sur le français). C'est toujours un
+tableau, vide quand la propriétaire a vidé la liste — le site n'affiche alors aucun bandeau.
+Ni `id` ni `sortOrder` : comme `amenities[]`, la liste n'en porte pas.
 
 ### GET /api/public/audience-pages
 
@@ -255,7 +265,7 @@ Response `200` :
 - `locale` : optionnel (défaut `fr`), détermine la langue des libellés des frais (fallback `fr` si locale non disponible).
 - `fees[].label` : libellé du frais résolu dans la locale demandée, à titre informatif (le calcul du montant est inchangé).
 
-- `submittable` : `false` si le devis viole une règle (durée min, jour d'arrivée/départ, dates dans le passé, voyageurs > max). Le devis reste **affichable** mais non soumissible ; `errors[]` porte alors les codes concernés (voir *Erreurs*).
+- `submittable` : `false` si le devis viole une règle (durée min, jour d'arrivée/départ, dates dans le passé, voyageurs > max, adultes > adultes au plus). Le devis reste **affichable** mais non soumissible ; `errors[]` porte alors les codes concernés (voir *Erreurs*).
 - `POST /quote` ne vérifie **pas** la disponibilité (prix pur) ; celle-ci est contrôlée à la soumission.
 - Champs de date au format ISO `AAAA-MM-JJ`. « Aujourd'hui » est évalué en Europe/Paris.
 
@@ -604,11 +614,11 @@ Erreurs :
 
 ### GET /api/admin/property
 
-Retourne la fiche du bien : `slug`, `name`, `baseline`, `address`, `maxGuests`, `baseNightlyPriceCents`, `currency`, `reviewsUrl`, `publicAddress`, `facebookUrl`, `instagramUrl` (DEC-035).
+Retourne la fiche du bien : `slug`, `name`, `baseline`, `address`, `maxGuests`, `baseNightlyPriceCents`, `currency`, `reviewsUrl`, `publicAddress`, `facebookUrl`, `instagramUrl` (DEC-035), `maxAdults` (DEC-037 : entier, ou `null` sans limite).
 
 ### PATCH /api/admin/property
 
-Met à jour tout ou partie de `name`, `baseline`, `address`, `maxGuests`, `baseNightlyPriceCents`, `reviewsUrl`, `publicAddress`, `facebookUrl`, `instagramUrl` — les neuf colonnes non traduites éditables de `property`. `slug` et `currency` sont en **lecture seule** : ils ne figurent pas dans le contrat de la requête, et les transmettre est refusé.
+Met à jour tout ou partie de `name`, `baseline`, `address`, `maxGuests`, `baseNightlyPriceCents`, `reviewsUrl`, `publicAddress`, `facebookUrl`, `instagramUrl`, `maxAdults` — les dix colonnes non traduites éditables de `property`. `slug` et `currency` sont en **lecture seule** : ils ne figurent pas dans le contrat de la requête, et les transmettre est refusé.
 
 **Partiel** : seuls les champs présents dans le corps de la requête sont mis à jour ; les champs omis restent inchangés.
 
@@ -616,14 +626,15 @@ Body (tous optionnels) :
 - `name` : chaîne, rognée puis exigée non vide ;
 - `baseline`, `address` : chaînes, rognées ; une valeur vide transmise est bel et bien enregistrée vide, ce n’est pas une absence ;
 - `maxGuests` : entier ≥ 1 ;
+- `maxAdults` (DEC-037) : **adultes au plus**, entier compris entre 1 et `maxGuests`, ou `null` pour effacer la limite. Trois états : clé absente, inchangé ; `null`, effacée ; entier, posée. La borne haute se juge **après patch** : abaisser `maxGuests` sous un `maxAdults` existant est refusé, sans rien écrire. Un `maxAdults` qui n'est pas un entier est refusé en `400 INVALID_REQUEST` ;
 - `baseNightlyPriceCents` : entier > 0 ;
 - `reviewsUrl` : adresse de la fiche **Google Business** du bien, rognée. Vide ou URL **absolue en `https`** — `http` est refusé (l'adresse est affichée dans une page servie en HTTPS sous CSP stricte). Aucune restriction de domaine : Google sert ces fiches sous plusieurs hôtes, et la liste bouge. La **chaîne vide est une valeur**, pas une absence : c’est ainsi qu’on efface une fiche saisie par erreur.
 - `publicAddress` (DEC-035) : l'**adresse affichée** sur le site, texte libre rogné, **200 caractères au plus** (en caractères, pas en octets), **sans numéro de rue** — c’est à la propriétaire d’y veiller : le serveur ne déduit jamais cette adresse de `address`. Vide, le site affiche le secteur ;
 - `facebookUrl`, `instagramUrl` (DEC-035) : rognées ; vides, ou URL absolue en `https` **sur le domaine du réseau** — `facebook.com`, `instagram.com`, sous-domaines compris (`www.`) —, sans identifiants ni port. Contrairement à `reviewsUrl`, le domaine est contrôlé : une faute de frappe ne doit envoyer le visiteur nulle part ailleurs. La chaîne vide efface.
 
 Erreurs :
-- `422 VALIDATION` : nom (rogné) vide, `maxGuests` < 1, `baseNightlyPriceCents` ≤ 0, `reviewsUrl` non vide qui n’est pas une URL absolue en `https`, `publicAddress` de plus de 200 caractères, ou `facebookUrl` / `instagramUrl` non vide hors de `https` sur le bon domaine. Le refus d’un de ces **trois** champs porte `details: { "field": "publicAddress" | "facebookUrl" | "instagramUrl" }`, pour que le dashboard place le message sous le bon champ ; ceux des champs existants restent sans `details`.
-- `400 INVALID_REQUEST` : corps portant une clé hors contrat, notamment `slug` ou `currency`.
+- `422 VALIDATION` : nom (rogné) vide, `maxGuests` < 1, `maxAdults` < 1 ou supérieur à `maxGuests` après patch (`details: { "field": "maxAdults" }`), `baseNightlyPriceCents` ≤ 0, `reviewsUrl` non vide qui n’est pas une URL absolue en `https`, `publicAddress` de plus de 200 caractères, ou `facebookUrl` / `instagramUrl` non vide hors de `https` sur le bon domaine. Le refus d’un de ces **trois** champs porte `details: { "field": "publicAddress" | "facebookUrl" | "instagramUrl" }`, pour que le dashboard place le message sous le bon champ ; ceux des champs existants restent sans `details`.
+- `400 INVALID_REQUEST` : corps portant une clé hors contrat, notamment `slug` ou `currency` ; `maxAdults` non entier.
 - `404 NOT_FOUND` : bien introuvable.
 
 Response `200` :
@@ -636,6 +647,7 @@ Response `200` :
     "baseline": "Maison premium en Provence",
     "address": "…",
     "maxGuests": 8,
+    "maxAdults": null,
     "baseNightlyPriceCents": 15000,
     "currency": "EUR",
     "reviewsUrl": "https://g.page/le-115",
@@ -654,6 +666,14 @@ Response `200` :
 ```
 
 Ce signalement est **aveugle aux réservations saisies à la main** : sans demande d’origine (`stay_request_id` nul), elles n’ont pas d’effectif connu et ne sont jamais comptées.
+
+Il en va de même de `maxAdults` (DEC-037) : le poser, ou l'abaisser, sous le nombre d'adultes de la demande d'origine d'une réservation confirmée et non terminée est **accepté**, avec l'avertissement
+
+```json
+{ "code": "ADULTS_BELOW_EXISTING_RESERVATIONS", "count": 1 }
+```
+
+`warnings` peut porter les deux avertissements à la fois.
 
 ### GET /api/admin/content
 
@@ -677,6 +697,36 @@ contrat** — les transmettre rend `400 INVALID_REQUEST`, comme toute clé incon
 Les colonnes `rating` et `review_count` ont été **supprimées de la base** le
 2026-08-26 : le produit ne tient plus aucune copie des avis.
 
+### GET /api/admin/highlights
+
+Retourne le **bandeau d'atouts** de l'accueil (DEC-037), dans l'ordre de la propriétaire :
+
+```json
+[
+  { "id": "…", "icon": "garden", "label": { "fr": "Cour intérieure", "en": "Inner courtyard" } }
+]
+```
+
+Toujours un tableau, jamais `null` ; vide si la propriétaire a vidé la liste.
+
+### PUT /api/admin/highlights
+
+Remplace le bandeau, **en entier** : la liste reçue devient la liste en base, dans l'ordre reçu.
+
+Body : `{ "highlights": [ { "id"?, "icon", "label": { "fr", "en" } } ] }`. `id` est facultatif : absent ou vide, l'atout est créé ; présent, il désigne un atout existant du bien. Un atout absent du corps est supprimé, libellés compris. Six atouts au plus. `icon` est un code du catalogue des atouts (celui des équipements, plus `guests`), jamais vide. `label.fr` est requis (rogné, non vide) ; `label.en` est facultatif, et vide, le public retombe sur le français.
+
+Response `204`, sans corps.
+
+Erreurs :
+- `400 INVALID_REQUEST` : clé `highlights` **absente ou `null`** — l'écriture étant entière, un corps sans la liste effacerait tout par mégarde ; une liste vide explicite (`[]`) est, elle, permise ; ou `id` qui n'est pas un UUID (`details: { "index" }`) ;
+- `422 HIGHLIGHTS_TOO_MANY` : plus de six atouts ;
+- `400 ICON_INVALID` : icône hors catalogue, ou vide (`details: { "index" }`) ;
+- `422 VALIDATION` : libellé français vide (`details: { "field": "label", "index" }`) ;
+- `422 HIGHLIGHT_ETRANGER` : un `id` du corps n'existe pas, ou appartient à un autre bien (`details: { "index" }`) ;
+- `422 HIGHLIGHT_DUPLIQUE` : le même `id` apparaît deux fois (`details: { "index" }`).
+
+`index` compte à partir de 0, dans le corps reçu.
+
 ### POST /api/admin/amenities
 
 Crée un équipement (libellé bilingue).
@@ -684,7 +734,7 @@ Crée un équipement (libellé bilingue).
 Le `code` est unique par bien : un doublon renvoie **409 CONFLICT**. Il est
 enregistré débarrassé de ses espaces de bord.
 
-L'`icon` doit appartenir au **catalogue fermé** (cf. `04-Dashboard.md`) : toute
+L'`icon` doit appartenir au **catalogue fermé** (cf. `04-Dashboard.md`, qui compte depuis B2b `shop`, `no-smoking`, `no-pets` et `no-party` ; `guests` n'en fait pas partie, il est réservé aux atouts) : toute
 autre valeur renvoie **422 VALIDATION**. La chaîne vide (« aucune ») est
 acceptée.
 
@@ -1019,6 +1069,10 @@ Codes métier stables :
 | `RICH_TEXT_INVALID` | 422 | `PUT /audience-pages/{id}` et `PUT /legal-pages/{kind}` (DEC-036) : le `body` d'une section sort du Markdown restreint ; `details` porte `locale` (`fr` ou `en`), `section` (rang à partir de 0) et `reason`, l'une des neuf raisons : `titre non autorisé`, `image non autorisée`, `HTML non autorisé`, `code non autorisé`, `citation non autorisée`, `tableau non autorisé`, `liste imbriquée non autorisée`, `règle horizontale non autorisée`, `lien non autorisé : seules les adresses https, internes ou mailto sont acceptées`. Rien n'est écrit |
 | `PAGE_INCOMPLETE` | 409 | `PUT /audience-pages/{id}/publication/{locale}` : la langue visée n’a pas tout son texte (D5). Aussi sur les routes `legal-pages` (DEC-035) : `PUT …/publication/{locale}`, et `PUT /legal-pages/{kind}` qui rendrait incomplète une langue publiée — l’écriture est alors refusée ; `details.locale` vaut `fr` ou `en` |
 | `PLACEHOLDER_REMAINING` | 409 | Routes `legal-pages` (DEC-035) : `PUT …/publication/{locale}`, ou `PUT /legal-pages/{kind}` sur une langue publiée, alors qu’un texte de la langue contient encore « À COMPLÉTER » ; `details.locale` vaut `fr` ou `en` |
+| `HIGHLIGHTS_TOO_MANY` | 422 | `PUT /api/admin/highlights` : plus de six atouts (DEC-037) |
+| `ICON_INVALID` | 400 | `PUT /api/admin/highlights` : icône hors catalogue ou vide ; `details.index` désigne l'atout (DEC-037) |
+| `HIGHLIGHT_ETRANGER` | 422 | `PUT /api/admin/highlights` : un `id` du corps n'existe pas ou appartient à un autre bien ; `details.index` (DEC-037) |
+| `HIGHLIGHT_DUPLIQUE` | 422 | `PUT /api/admin/highlights` : le même `id` deux fois dans le corps ; `details.index` (DEC-037) |
 | `CONTACT_UNAVAILABLE` | 503 | `POST /contact-messages` : l’envoi de l’email a échoué ou dépassé 15 secondes (DEC-035) ; le message n’est stocké nulle part |
 | `INTERNAL` | 500 | Erreur interne |
 
@@ -1032,6 +1086,7 @@ Codes de règle (portés par `errors[]` d'un devis et par `details` d'un `VALIDA
 | `INVALID_DATES` | Arrivée ≥ départ |
 | `DATES_IN_PAST` | Arrivée dans le passé (« aujourd'hui » Europe/Paris) |
 | `GUESTS_EXCEED_MAX` | Nombre de voyageurs supérieur à la capacité réelle du bien |
+| `ADULTS_EXCEED_MAX` | Nombre d'adultes supérieur à `maxAdults` (DEC-037). Évalué **après** `GUESTS_EXCEED_MAX` : un groupe de 14 adultes pour 12 places porte les deux, dans cet ordre. Sans objet quand `maxAdults` est `null`. Porté par `errors[]` du devis (`submittable: false`) et par les `details` du `422 VALIDATION` de `POST /stay-requests` ; aucun âge n'est précisé |
 | `STAY_TOO_LONG` | Durée du séjour supérieure à la borne technique de 365 nuits — au-delà, le calcul énumérerait une date par nuit ; sans lien avec les durées commerciales des règles de séjour |
 | `GUESTS_INVALID` | Nombre de voyageurs négatif ou hors bornes techniques (garde anti-débordement de l’addition adultes + enfants) — distinct de `GUESTS_EXCEED_MAX`, qui refuse un effectif réel supérieur à la capacité du bien |
 

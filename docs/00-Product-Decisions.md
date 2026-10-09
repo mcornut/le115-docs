@@ -879,3 +879,40 @@ validation et gardent leur marqueur.
 **Limites connues.** `**b.**c` peut se relire avec des astérisques littéraux ; une liste
 imbriquée collée devient des listes qui se suivent ; les listes à puces de Word se collent en
 paragraphes commençant par « · ».
+
+---
+
+## DEC-037 — Le bandeau d’atouts appartient à la propriétaire, et la maison fixe ses adultes (2026-10-09)
+
+**Décision.** Le bandeau d’arches de l’accueil — et demain celui de Commodités (B2c) — n’est plus
+calculé : la propriétaire compose **six atouts au plus**, chacun une arche et un libellé, en tête
+de l’écran Équipements. La liste naît remplie des six atouts de la maquette (Cour intérieure,
+Piscine, 12 couchages, Chambres climatisées, Commerces de qualité, 4 salles de bain) ; elle les
+corrige. Un libellé anglais vide retombe sur le français, comme les équipements. Une liste
+**vidée** fait disparaître le bandeau, sans casser l’accueil, et n’est jamais re-remplie.
+
+**Pourquoi six.** Le bandeau de la maquette est dessiné pour six arches sur une ligne. Une liste
+libre dont seuls les six premiers s’affichent cacherait un septième atout sans que la
+propriétaire comprenne pourquoi ; le serveur refuse donc le septième. Les six s’affichent aussi
+sur téléphone, en grille de deux colonnes : l’ancienne limite à trois n’a plus lieu d’être.
+
+**Les règles de la maison.** Le catalogue d’icônes gagne « Commerces » (`shop`), « Non-fumeur »
+(`no-smoking`), « Animaux interdits » (`no-pets`) et « Fête interdite » (`no-party`) : les règles
+se saisissent comme des lignes de la liste d’équipements, fidèle à la maquette, sans modèle à
+part. Le catalogue des équipements ne change pas autrement. L’icône `guests` (« 12 couchages »)
+est **réservée aux atouts** : elle n’est pas un équipement.
+
+**Adultes au plus.** Un champ facultatif du bien, à côté de la capacité. Au-delà, le devis n’est
+plus soumissible et la demande est refusée, comme pour la capacité ; le refus de capacité passe
+d’abord (un groupe de 14 adultes voit celui-là), celui des adultes ensuite. **Aucun âge n’est
+précisé** : le visiteur se compte comme il l’entend, la propriétaire tranche à la réception de la
+demande. Comme la capacité (DEC-028), la limite gouverne les demandes à venir, pas les
+réservations confirmées : l’abaisser sous l’une d’elles est accepté, avec un avertissement. Elle
+ne peut en revanche jamais dépasser la capacité, et abaisser la capacité sous elle est refusé.
+Non remplie par la migration : la propriétaire saisit sa valeur.
+
+**Sur le site.** « 12 personnes au plus, dont 10 adultes » ; « dont N adultes » est **omis** quand
+N égale la capacité, puisqu’il n’apprendrait rien ; les formes du singulier sont respectées.
+
+**Mise en ligne.** Le **backend se déploie avant le site** : le site lit `highlights` et
+`maxAdults` dans l’API publique, que l’ancien backend ne sert pas.

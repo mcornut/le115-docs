@@ -49,7 +49,7 @@
   | B1 | Formulaire de contact, pages légales, pied de page | **livré** |
   | B2 | Pages « Le 115 » et « Commodités » (DEC-036) | en trois temps, ci-dessous |
   | — B2a | Le texte riche des corps de section | **livré** |
-  | — B2b | Le bien : liste d’atouts, icônes de règles, adultes au plus | à venir |
+  | — B2b | Le bien : liste d’atouts, icônes de règles, adultes au plus | **livré** |
   | — B2c | Les pages éditoriales « Le 115 » et « Commodités » | à venir |
   | B3 | « Les environs » et le détail d’un lieu | à cadrer |
 
@@ -62,8 +62,13 @@
 
   B2a est livré le **2026-10-09** (DEC-036) : les corps de section des pages légales et des
   pages d’audience acceptent le gras, l’italique, les liens et les listes, édités
-  visuellement au dashboard et rendus par le site sans HTML interprété. B2b et B2c restent à
-  faire.
+  visuellement au dashboard et rendus par le site sans HTML interprété.
+
+  B2b est livré le **2026-10-09** (DEC-037) : la propriétaire compose elle-même le bandeau
+  d’atouts de l’accueil (six au plus, nés des six atouts de la maquette), quatre icônes
+  rejoignent le catalogue (« Commerces » et trois règles de la maison), et une limite
+  d’adultes facultative gouverne le devis et la demande, sans âge précisé. Le backend se
+  déploie avant le site. B2c reste à faire.
 - Dashboard admin (SPA séparée, déploiement même origine que l’API, mono-bien — cf. DEC-014, DEC-015), treize écrans :
   - Tableau de bord (accueil — cf. DEC-018)
   - Calendrier

@@ -318,6 +318,19 @@ alimentent le pied de page et la page Contact du site :
 Le refus d’un de ces trois champs nomme le champ fautif (`details.field` côté API), et
 l’écran affiche le message sous le bon champ.
 
+Depuis le 2026-10-09 (DEC-037), la section porte un champ de plus, à côté de la capacité :
+**Adultes au plus** (`max_adults`). Vide, il ne limite rien — c’est l’état de départ, la
+migration ne le remplit pas. Rempli, c’est un entier **entre 1 et la capacité** ; hors de
+ces bornes, l’enregistrement est refusé (**422 VALIDATION**, `details.field` vaut
+`maxAdults`, et l’écran place le message sous le champ) — y compris quand c’est
+l’**abaissement de la capacité** qui la fait passer sous la limite. Un texte qui n’est pas
+un entier est refusé en **400 INVALID_REQUEST**. Comme pour la capacité (DEC-028), abaisser
+la limite sous l’effectif de la demande d’origine d’une réservation déjà confirmée et non
+terminée est **accepté**, avec un avertissement (`ADULTS_BELOW_EXISTING_RESERVATIONS`, le
+nombre de séjours concernés) qui ne bloque pas l’enregistrement ; il est aveugle, lui
+aussi, aux réservations saisies à la main. Aucun âge n’est précisé : la limite compte les
+adultes que le visiteur déclare.
+
 La **page Google Business** est l’adresse de la fiche Google de la maison :
 c’est elle qui fait foi pour les avis (DEC-031). Vide, ou une URL absolue en
 `https` — `http` est refusé (**422 VALIDATION**). La vider est permis, et
@@ -341,10 +354,34 @@ et un **libellé FR/EN**.
 Catalogue d'icônes V1 (vocabulaire que le site public doit savoir dessiner),
 dans l'ordre du sélecteur : « aucune » (valeur vide), puis `pool`, `wifi`,
 `parking`, `ac`, `heating`, `kitchen`, `dishwasher`, `washer`, `tv`, `bbq`,
-`garden`, `bike`, `pets`, `baby`, `bathtub`, `cleaning`.
+`garden`, `bike`, `pets`, `baby`, `bathtub`, `cleaning`, puis, depuis B2b (DEC-037),
+`shop` (« Commerces »), `no-smoking` (« Non-fumeur »), `no-pets` (« Animaux interdits »)
+et `no-party` (« Fête interdite ») — les trois dernières servent à saisir les **règles de
+la maison** comme des lignes de la liste.
 
 Le catalogue est **fermé côté serveur** : une icône qui n'y figure pas est
 refusée en `422 VALIDATION`, pas seulement grisée dans le dashboard.
+
+### Bandeau d’atouts
+
+Une section **« Bandeau d’atouts »** ouvre l’écran, au-dessus de la liste des
+équipements : c’est ce que l’accueil du site affiche sous sa photo (DEC-037). Six atouts
+au plus, chacun une **icône** (obligatoire), un **libellé français** (obligatoire) et un
+libellé anglais facultatif — vide, le site retombe sur le français. L’ordre est celui du
+site, réglé par des flèches monter / descendre ; on ajoute et on supprime librement, et le
+bouton d’ajout s’efface à six. Un **compteur** dit où l’on en est. La liste vide est
+permise : le bandeau disparaît du site, et l’écran le dit.
+
+Le catalogue d’icônes des atouts est celui des équipements, **sans** la valeur « aucune »,
+plus `guests`, l’arche de « 12 couchages » — réservée aux atouts, elle n’est pas proposée
+aux équipements.
+
+**L’enregistrement est entier.** Un seul bouton envoie la liste telle qu’elle est à
+l’écran, dans l’ordre de l’écran : un atout réordonné puis supprimé laisse un seul
+enregistrement, et ses libellés partent avec lui. Le serveur peut refuser : un septième
+atout, une icône hors catalogue, un libellé français vide, un atout qui n’appartient pas
+au bien ou qui apparaît deux fois. Chaque refus qui désigne une ligne la nomme (« Atout 3 :
+… », à partir de 1) ; un refus périmé s’efface dès que la propriétaire modifie la liste.
 
 ---
 
