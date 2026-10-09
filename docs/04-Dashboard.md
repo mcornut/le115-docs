@@ -294,8 +294,29 @@ pris — et la réponse **signale** le nombre de séjours concernés sans bloque
 l’enregistrement ; ce signalement est **aveugle aux réservations saisies à la
 main**, qui n’ont pas de demande d’origine et donc pas d’effectif connu
 (DEC-028). L’adresse exacte n’est **jamais affichée au visiteur** : le site
-public situe la maison par son secteur (champ **Localisation** ci-dessus) et
-l’adresse complète part par email une fois le séjour confirmé (DEC-022).
+public montre l’**adresse affichée** (ci-dessous) — ou, quand elle est vide, le
+secteur (champ **Localisation** ci-dessus) — et l’adresse complète part par email
+une fois le séjour confirmé (DEC-022 amendée par DEC-035).
+
+Depuis le 2026-10-08 (DEC-035), la section porte **trois champs de plus**, qui
+alimentent le pied de page et la page Contact du site :
+
+- **Adresse affichée sur le site** (`public_address`) : texte libre, **200 caractères
+  au plus** (comptés en caractères, pas en octets), **sans numéro de rue** — la rue,
+  le code postal et le village, par exemple « Cour de la République, 84210
+  Pernes-les-Fontaines ». Elle n’est **jamais déduite** de l’adresse exacte : un
+  découpage automatique raté publierait le numéro que DEC-022 protège. Vide, le site
+  affiche le secteur à la place.
+- **Page Facebook** (`facebook_url`) et **Compte Instagram** (`instagram_url`) : vides,
+  ou une URL absolue en `https` sur le bon domaine (`facebook.com`, `instagram.com`,
+  sous-domaines compris) ; sans identifiants ni port. Hors du bon domaine, la saisie
+  est refusée (**422 VALIDATION**) : une faute de frappe ne doit envoyer le visiteur
+  nulle part ailleurs. Vides, l’icône correspondante disparaît du pied de page, et la
+  colonne « Nous suivre » avec elle si les deux le sont. Comme pour la page Google
+  Business, vider un champ l’efface.
+
+Le refus d’un de ces trois champs nomme le champ fautif (`details.field` côté API), et
+l’écran affiche le message sous le bon champ.
 
 La **page Google Business** est l’adresse de la fiche Google de la maison :
 c’est elle qui fait foi pour les avis (DEC-031). Vide, ou une URL absolue en
@@ -497,7 +518,9 @@ s'y lisent directement.
 Le slug est refusé s'il appartient à une route fixe du site : cette page-là ne
 serait jamais atteinte. La liste réunit les routes fixes des **deux** langues
 (DEC-033) — `contact`, `informations-pratiques`, `demande`,
-`practical-information`, `request` —, si bien qu'un slug français ne peut pas
+`practical-information`, `request`, et depuis DEC-035 les six adresses des pages légales
+(`mentions-legales`, `legal-notice`, `confidentialite`, `privacy`,
+`conditions-de-location`, `rental-terms`) —, si bien qu'un slug français ne peut pas
 non plus porter l'un des mots anglais, et réciproquement. Une seule liste pour
 les deux langues plutôt qu'une par langue : deux mots perdus comme slugs, contre
 une ambiguïté supprimée. L'icône vient d'un catalogue **propre aux pages** (dix-sept codes,
@@ -505,6 +528,48 @@ une ambiguïté supprimée. L'icône vient d'un catalogue **propre aux pages** (
 
 Hors V1 de ce module : l'éditeur de texte riche et le téléversement d'images
 (texte simple pour l'instant), et le réordonnancement des sections.
+
+### Pages légales
+
+Sous les pages d'audience, l'écran **Pages** porte un second groupe, **Pages légales**
+(DEC-035) : les **trois** pages que le pied de page du site relie — Mentions légales,
+Confidentialité et cookies, Conditions de location, toujours dans cet ordre. Elles sont
+**fixes** : ni « Créer » ni « Supprimer », les trois existent dès la migration, et tout
+bien créé plus tard les reçoit aussi. Chaque ligne affiche le nom de la page, ses deux
+adresses publiques et, **par langue**, son état — publiée ou brouillon, jamais une
+pastille unique.
+
+**L'éditeur** reprend celui des pages d'audience, moins le slug, l'icône, le libellé
+d'onglet et le chapeau : une seule carte — titre bilingue, puis les sections —, un pied
+collant avec « Enregistrer » et les deux interrupteurs de publication. L'**adresse fixe**
+de chaque langue s'affiche en lecture seule en tête : la propriétaire écrit le texte,
+jamais l'adresse (DEC-033).
+
+**Livrées en brouillons.** Chaque page arrive avec un texte en français et en anglais qui
+dit ce que le produit fait réellement, et dont chaque trou est marqué « À COMPLÉTER » ;
+**aucune n'est publiée**. Ce ne sont pas des avis juridiques : la propriétaire les
+complète, et les conditions de location sont relues par un professionnel avant la
+production.
+
+**La publication est refusée tant qu'un texte contient « À COMPLÉTER »** (**409
+PLACEHOLDER_REMAINING**, avec la langue en cause), comme tant qu'une langue est
+incomplète — un titre, au moins une section, l'intitulé et le corps de chacune
+(**409 PAGE_INCOMPLETE**). Le marqueur se reconnaît sans égard à la casse ni aux accents,
+avec des frontières de mot : un texte légitime qui contiendrait « à compléter » bloque
+donc aussi la publication.
+
+**L'écriture est refusée si elle abîme une langue publiée.** Là où une page d'audience
+rendue incomplète se dépublie d'elle-même, une page légale **refuse l'enregistrement**
+(les mêmes `409`) et **n'écrit rien** : dépublier des mentions légales sur une fausse
+manœuvre serait pire que d'obliger à compléter. L'écran prévient **avant** l'envoi, nomme
+la langue, et garde la saisie à l'écran si le refus tombe quand même. Pour retravailler
+une page en ligne, il faut d'abord dépublier la langue — le geste de dépublication ne
+vérifie rien. Après un enregistrement réussi, le formulaire adopte la page relue : les
+sections créées reçoivent leur identifiant.
+
+Dans le corps d'une section, une ligne vide ouvre un nouveau paragraphe et un simple
+saut de ligne reste un retour à la ligne sur le site, de sorte qu'un bloc d'adresse écrit
+ligne par ligne ne se recolle pas.
 
 ---
 

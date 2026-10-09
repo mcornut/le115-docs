@@ -30,6 +30,9 @@ Response `200` :
   "description": "Au cœur de la Provence...",
   "location": "Luberon",
   "reviewsUrl": "https://g.page/le-115",
+  "publicAddress": "Cour de la République, 84210 Pernes-les-Fontaines",
+  "facebookUrl": "https://www.facebook.com/le115",
+  "instagramUrl": "https://www.instagram.com/le115",
   "amenities": [
     { "code": "wifi", "icon": "wifi", "label": "Wifi haute vitesse" }
   ],
@@ -62,7 +65,12 @@ Response `200` :
 > `originalWidth` / `originalHeight` **n’existent pas** dans la réponse.
 > Le site public (`../le115-frontend`, `src/lib/api/types.ts`) est typé sur l’API réelle.
 
-**Rupture de compatibilité** : l'endpoint ne retourne plus `name` ni `baseline` (remplacés par `title` et `subtitle` localisés).
+**Rupture de compatibilité** : l’endpoint ne retourne plus `name` ni `baseline` (remplacés par `title` et `subtitle` localisés).
+
+**`publicAddress`, `facebookUrl`, `instagramUrl`** (DEC-035) sont des chaînes, **vides** quand
+elles ne sont pas renseignées, jamais `null`. `publicAddress` est l'**adresse affichée** : la
+rue, jamais le numéro (DEC-022 amendée). L’adresse exacte (`address`) n’est **jamais** exposée
+par l’API publique, et rien ici n’en est déduit.
 
 ### GET /api/public/audience-pages
 
@@ -98,6 +106,80 @@ demandée comprise (DEC-033) — c'est ce qui permet au site d'écrire ses `href
 son sélecteur de langue sans aller interroger l'autre langue, et de ne jamais annoncer
 une adresse qui rendrait un 404. Toujours un objet, jamais `null` : une page publiée en
 français seulement y rend `{ "fr": "cyclistes" }`.
+
+### GET /api/public/legal-pages
+
+Retourne les pages légales **publiées** dans une langue, **contenu compris** (DEC-035) — un
+seul point d’entrée sert à la fois le pied de page, présent sur toutes les pages du site, et
+le contenu de chaque page légale.
+
+Query :
+- `locale` : `fr` ou `en` ; toute autre valeur (ou son absence) retombe sur `fr`.
+
+Response `200`, dans l’ordre fixe `legal-notice`, `privacy`, `rental-terms` :
+
+```json
+[
+  {
+    "kind": "legal-notice",
+    "title": "Mentions légales",
+    "updatedAt": "2026-10-08T09:30:00Z",
+    "sections": [{ "heading": "Éditeur du site", "body": "Première ligne.\nSeconde ligne.\n\nUn autre paragraphe." }]
+  }
+]
+```
+
+**Aucun repli de langue** : une page publiée en français seulement est absente du tableau reçu
+pour `en` — le site rend alors un 404 sur son adresse, jamais le texte français. Au premier
+déploiement rien n’est publié : la réponse est `[]`, ce n’est pas une erreur. Les tableaux
+sont toujours des tableaux, jamais `null`.
+
+`updatedAt` (RFC 3339, UTC) est la date de la dernière écriture du **texte** ; publier ne la
+change pas. Dans un `body`, une ligne vide sépare deux paragraphes ; un saut de ligne simple
+est un retour à la ligne. Contrairement aux pages d’audience, il n’y a pas d'`alternates` : le
+site interroge l’autre langue pour savoir si la page y est publiée. Les adresses publiques des
+trois pages sont fixes et vivent côté site (DEC-033).
+
+### POST /api/public/contact-messages
+
+Envoie un message du formulaire « Nous écrire » à la propriétaire (DEC-035). **Rien n’est
+stocké** : ni table, ni journal d’activité, ni contenu dans les logs. L’email part à la
+propriétaire avec un `Reply-To` sur le visiteur ; le HTML saisi y est échappé. Il n’y a pas
+d’accusé de réception au visiteur.
+
+Body :
+- `name` : obligatoire, rogné, **120 caractères au plus**, sans caractère de contrôle (saut de
+  ligne, tabulation…) ;
+- `email` : obligatoire, adresse **nue** valide (« Nom <a@b.fr> » est refusé), 254 caractères
+  au plus ;
+- `phone` : facultatif, rogné, **40 caractères au plus**, sans caractère de contrôle ;
+- `message` : obligatoire, rogné, **5 000 caractères au plus** (sauts de ligne permis) ;
+- `consent` : doit valoir `true` ;
+- `locale` : `fr` ou `en` ;
+- `website` : le **champ piège**, que le formulaire laisse vide ;
+- `renderedAt` : l’instant du rendu du formulaire, en millisecondes depuis l’époque Unix,
+  fourni par le serveur du site.
+
+Les longueurs sont comptées en **caractères** (runes), pas en octets, après rognage.
+
+**Garde anti-robot, sans tiers** (DEC-021). Un envoi dont `website` n’est pas vide, ou dont
+`renderedAt` est absent, illisible, nul ou négatif, situé dans le futur, ou antérieur de moins
+de **3 secondes** à l’arrivée, est pris pour un robot. Il reçoit **`204` comme un succès, sans
+que rien ne parte** : lui dire ce qui l’a trahi l’aiderait. Un `renderedAt` du mauvais type
+n’est pas une erreur `400`, c’est le même cas. La garde est une barrière contre les robots
+naïfs : `renderedAt` vient du client et se falsifie.
+
+Réponses :
+- `204` : message envoyé — **ou** robot écarté ;
+- `422 VALIDATION` : `details: { "fields": ["name", "email", …] }`, **tous** les champs
+  fautifs à la fois, sous leur nom JSON et dans l’ordre du formulaire (`name`, `email`,
+  `phone`, `message`, `consent`, `locale`) ;
+- `429` : plus de 10 envois dans l’heure pour cette IP (voir « Rate limiting ») ;
+- `503 CONTACT_UNAVAILABLE` : l’envoi a échoué. L’envoi est **synchrone** et **borné à
+  15 secondes**, détaché de l’annulation de la requête — un visiteur qui ferme l’onglet
+  n’annule pas un message accepté. Un doublon est possible si le visiteur renvoie, ce qui est
+  préféré à un message perdu. Le message d’erreur renvoie vers un contact direct ;
+- `400 INVALID_REQUEST` : corps illisible ou trop gros (64 KiB).
 
 ### GET /api/public/media/{id}
 
@@ -516,11 +598,11 @@ Erreurs :
 
 ### GET /api/admin/property
 
-Retourne la fiche du bien : `slug`, `name`, `baseline`, `address`, `maxGuests`, `baseNightlyPriceCents`, `currency`, `reviewsUrl`.
+Retourne la fiche du bien : `slug`, `name`, `baseline`, `address`, `maxGuests`, `baseNightlyPriceCents`, `currency`, `reviewsUrl`, `publicAddress`, `facebookUrl`, `instagramUrl` (DEC-035).
 
 ### PATCH /api/admin/property
 
-Met à jour tout ou partie de `name`, `baseline`, `address`, `maxGuests`, `baseNightlyPriceCents`, `reviewsUrl` — les six colonnes non traduites éditables de `property`. `slug` et `currency` sont en **lecture seule** : ils ne figurent pas dans le contrat de la requête, et les transmettre est refusé.
+Met à jour tout ou partie de `name`, `baseline`, `address`, `maxGuests`, `baseNightlyPriceCents`, `reviewsUrl`, `publicAddress`, `facebookUrl`, `instagramUrl` — les neuf colonnes non traduites éditables de `property`. `slug` et `currency` sont en **lecture seule** : ils ne figurent pas dans le contrat de la requête, et les transmettre est refusé.
 
 **Partiel** : seuls les champs présents dans le corps de la requête sont mis à jour ; les champs omis restent inchangés.
 
@@ -529,10 +611,12 @@ Body (tous optionnels) :
 - `baseline`, `address` : chaînes, rognées ; une valeur vide transmise est bel et bien enregistrée vide, ce n’est pas une absence ;
 - `maxGuests` : entier ≥ 1 ;
 - `baseNightlyPriceCents` : entier > 0 ;
-- `reviewsUrl` : adresse de la fiche **Google Business** du bien, rognée. Vide ou URL **absolue en `https`** — `http` est refusé (l'adresse est affichée dans une page servie en HTTPS sous CSP stricte). Aucune restriction de domaine : Google sert ces fiches sous plusieurs hôtes, et la liste bouge. La **chaîne vide est une valeur**, pas une absence : c'est ainsi qu'on efface une fiche saisie par erreur.
+- `reviewsUrl` : adresse de la fiche **Google Business** du bien, rognée. Vide ou URL **absolue en `https`** — `http` est refusé (l'adresse est affichée dans une page servie en HTTPS sous CSP stricte). Aucune restriction de domaine : Google sert ces fiches sous plusieurs hôtes, et la liste bouge. La **chaîne vide est une valeur**, pas une absence : c’est ainsi qu’on efface une fiche saisie par erreur.
+- `publicAddress` (DEC-035) : l'**adresse affichée** sur le site, texte libre rogné, **200 caractères au plus** (en caractères, pas en octets), **sans numéro de rue** — c’est à la propriétaire d’y veiller : le serveur ne déduit jamais cette adresse de `address`. Vide, le site affiche le secteur ;
+- `facebookUrl`, `instagramUrl` (DEC-035) : rognées ; vides, ou URL absolue en `https` **sur le domaine du réseau** — `facebook.com`, `instagram.com`, sous-domaines compris (`www.`) —, sans identifiants ni port. Contrairement à `reviewsUrl`, le domaine est contrôlé : une faute de frappe ne doit envoyer le visiteur nulle part ailleurs. La chaîne vide efface.
 
 Erreurs :
-- `422 VALIDATION` : nom (rogné) vide, `maxGuests` < 1, `baseNightlyPriceCents` ≤ 0, ou `reviewsUrl` non vide qui n'est pas une URL absolue en `https`.
+- `422 VALIDATION` : nom (rogné) vide, `maxGuests` < 1, `baseNightlyPriceCents` ≤ 0, `reviewsUrl` non vide qui n’est pas une URL absolue en `https`, `publicAddress` de plus de 200 caractères, ou `facebookUrl` / `instagramUrl` non vide hors de `https` sur le bon domaine. Le refus d’un de ces **trois** champs porte `details: { "field": "publicAddress" | "facebookUrl" | "instagramUrl" }`, pour que le dashboard place le message sous le bon champ ; ceux des champs existants restent sans `details`.
 - `400 INVALID_REQUEST` : corps portant une clé hors contrat, notamment `slug` ou `currency`.
 - `404 NOT_FOUND` : bien introuvable.
 
@@ -548,7 +632,10 @@ Response `200` :
     "maxGuests": 8,
     "baseNightlyPriceCents": 15000,
     "currency": "EUR",
-    "reviewsUrl": "https://g.page/le-115"
+    "reviewsUrl": "https://g.page/le-115",
+    "publicAddress": "Cour de la République, 84210 Pernes-les-Fontaines",
+    "facebookUrl": "https://www.facebook.com/le115",
+    "instagramUrl": ""
   },
   "warnings": []
 }
@@ -703,6 +790,73 @@ remplissage à moitié (D5).
 Dépublie la page dans une langue. Ne vérifie **aucune** complétude : c'est le
 geste qui répare une page publiée par erreur.
 
+### GET /api/admin/legal-pages
+
+Liste les trois pages légales du bien (DEC-035), dans l’ordre fixe `legal-notice`, `privacy`,
+`rental-terms` — toujours trois, une page légale ne se crée ni ne se supprime. Une page se
+désigne par son **`kind`**, non par un `id` ; un `kind` inconnu rend `404 NOT_FOUND`.
+
+```json
+[
+  {
+    "kind": "legal-notice",
+    "title": { "fr": "Mentions légales", "en": "Legal notice" },
+    "sections": [
+      { "id": "…", "heading": { "fr": "Éditeur du site", "en": "Publisher" }, "body": { "fr": "…", "en": "…" } }
+    ],
+    "publishedFr": false,
+    "publishedEn": false,
+    "updatedAt": "2026-10-08T09:30:00Z"
+  }
+]
+```
+
+### GET /api/admin/legal-pages/{kind}
+
+Lit une page, bilingue, sections comprises ; même forme qu’un élément de la liste.
+
+### PUT /api/admin/legal-pages/{kind}
+
+Écrit la page **entière**, atomiquement : `{ "title": {fr,en}, "sections": [{ "id"?, "heading": {fr,en}, "body": {fr,en} }] }`.
+Chaque section porte un `id` facultatif : le serveur met à jour celles qui en ont un, crée
+celles qui n’en ont pas, et **supprime celles qui ne sont plus dans le corps reçu**. Un `id`
+mal formé rend `400 INVALID_REQUEST` ; un `id` appartenant à une autre page, ou répété, rend
+`422` (`SECTION_ETRANGERE` / `SECTION_DUPLIQUEE`). Réponse `204`.
+
+**`sections` est obligatoire** : un corps sans ce champ, ou avec `null`, rend
+`400 INVALID_REQUEST` et n’écrit rien — il effacerait sinon toutes les sections. Un tableau
+vide explicite (`[]`) reste permis.
+
+**Le corps peut aller jusqu’à 256 KiB** (les autres routes admin hors upload : 16 KiB) : trois
+textes juridiques bilingues dépassent aisément 16 KiB.
+
+**Une écriture qui abîmerait une langue publiée est refusée, jamais appliquée** (DEC-035). Si
+une langue encore publiée devenait incomplète, ou contiendrait « À COMPLÉTER », la réponse est
+`409 PAGE_INCOMPLETE` ou `409 PLACEHOLDER_REMAINING` avec `details: { "locale": "fr" | "en" }`,
+et **rien n’est écrit** : ni texte, ni `updatedAt`. Là où une page d’audience se dépublie
+d’elle-même, une page légale ne se retire jamais du site sur une fausse manœuvre ; pour la
+retravailler, on dépublie d’abord la langue (`DELETE …/publication/{locale}`). Une langue
+non publiée s’enregistre dans n’importe quel état.
+
+### PUT /api/admin/legal-pages/{kind}/publication/{locale}
+
+Publie la page dans une langue (`fr` ou `en` ; autre valeur : `400 INVALID_REQUEST`). Réponse
+`204`. Refuse :
+- **`409 PAGE_INCOMPLETE`** si la langue n’a pas tout son texte — un titre, au moins une
+  section, l’intitulé et le corps de chaque section ;
+- **`409 PLACEHOLDER_REMAINING`** si un texte de cette langue contient encore le marqueur des
+  brouillons « À COMPLÉTER ». Le marqueur est reconnu sans égard à la casse ni aux accents,
+  avec des frontières de mot : un texte légitime qui contiendrait « à compléter » bloque donc
+  aussi la publication.
+
+Les deux refus portent `details: { "locale": "fr" | "en" }`. Les pages sont livrées en
+brouillons, **aucune n’est publiée**.
+
+### DELETE /api/admin/legal-pages/{kind}/publication/{locale}
+
+Dépublie la page dans une langue. Ne vérifie **aucune** complétude : c’est le geste qui
+répare, et qui permet de retravailler une page en ligne.
+
 ### GET /api/admin/photos
 
 Liste toutes les photos du bien.
@@ -826,7 +980,7 @@ Codes métier stables :
 | `CSRF_INVALID` | 403 | En-tête `X-CSRF-Token` absent ou ne correspondant pas au jeton de la session courante, sur une écriture admin |
 | `PROPERTY_NOT_FOUND` | 404 | Bien introuvable |
 | `NOT_FOUND` | 404 | Ressource admin introuvable (blocage, photo, tarif, règle de séjour…), y compris un paramètre de route `{id}` syntaxiquement valide mais ne correspondant à rien |
-| `VALIDATION` | 422 | Demande non soumissible ; `details` liste les codes de règle enfreints. Côté admin : ajustement de prix sans libellé ou de montant nul |
+| `VALIDATION` | 422 | Demande non soumissible ; `details` liste les codes de règle enfreints. Côté admin : ajustement de prix sans libellé ou de montant nul ; `PATCH /property` refusant `publicAddress`, `facebookUrl` ou `instagramUrl` (`details.field` nomme le champ). `POST /contact-messages` : `details.fields` liste les champs fautifs (DEC-035) |
 | `DISCOUNT_EXCEEDS_TOTAL` | 422 | `POST /reservations/{id}/adjust-price` : la remise ferait passer le total sous zéro ; `details.maxDiscountCents` donne la remise maximale applicable |
 | `CONFLICT` | 409 | Conflit d'intégrité : chevauchement de périodes tarifaires (même priorité), code de frais dupliqué, code d'équipement dupliqué, etc. Aussi : approuver ou refuser une demande qui n'est plus en attente, annuler ou ajuster une réservation qui n'est plus confirmée |
 | `DATES_UNAVAILABLE` | 409 | Dates demandées indisponibles |
@@ -835,13 +989,15 @@ Codes métier stables :
 | `SYNC_DISABLED` | 503 | Routes `/sync-sources` : la synchronisation est désactivée sur le serveur |
 | `DUPLICATE_REQUEST` | 409 | `POST /stay-requests`, **deux garde-fous sous un seul code** : une demande identique (même email, mêmes dates) déjà envoyée dans les 24 heures précédentes, **ou** une quatrième demande de la même adresse sur 24 heures, dates confondues (DEC-030). Les distinguer apprendrait à qui sonde l’API lequel des deux l’arrête. Le message renvoyé invite à contacter directement la propriétaire pour corriger une demande déjà partie — il n’existe aujourd’hui aucun autre moyen |
 | `SLUG_INVALID` | 400 | `POST`/`PUT /audience-pages` : le slug n'est pas minuscules/chiffres/tirets |
-| `SLUG_RESERVED` | 409 | `POST`/`PUT /audience-pages` : le slug appartient à une route fixe du site public, dans l'une ou l'autre langue (`contact`, `informations-pratiques`, `demande`, `practical-information`, `request`) |
+| `SLUG_RESERVED` | 409 | `POST`/`PUT /audience-pages` : le slug appartient à une route fixe du site public, dans l'une ou l'autre langue (`contact`, `informations-pratiques`, `demande`, `practical-information`, `request`, ainsi que, depuis DEC-035, les six adresses des pages légales : `mentions-legales`, `legal-notice`, `confidentialite`, `privacy`, `conditions-de-location`, `rental-terms`) |
 | `SLUG_TAKEN` | 409 | `POST`/`PUT /audience-pages` : une autre page du bien porte déjà ce slug dans la même langue ; `details.locale` vaut `fr` ou `en` |
 | `SLUG_REQUIRED_WHILE_PUBLISHED` | 409 | `PUT /audience-pages/{id}` : le corps efface le slug d'une langue encore publiée ; `details.locale` vaut `fr` ou `en` — il faut dépublier d'abord |
 | `ICON_INVALID` | 400 | `POST`/`PUT /audience-pages` : l'icône n'appartient pas au catalogue des pages d'audience |
 | `SECTION_ETRANGERE` | 422 | `PUT /audience-pages/{id}` : un `id` de section du corps appartient à une autre page, ou n'existe pas |
 | `SECTION_DUPLIQUEE` | 422 | `PUT /audience-pages/{id}` : le même `id` de section apparaît deux fois dans le corps |
-| `PAGE_INCOMPLETE` | 409 | `PUT /audience-pages/{id}/publication/{locale}` : la langue visée n'a pas tout son texte (D5) |
+| `PAGE_INCOMPLETE` | 409 | `PUT /audience-pages/{id}/publication/{locale}` : la langue visée n’a pas tout son texte (D5). Aussi sur les routes `legal-pages` (DEC-035) : `PUT …/publication/{locale}`, et `PUT /legal-pages/{kind}` qui rendrait incomplète une langue publiée — l’écriture est alors refusée ; `details.locale` vaut `fr` ou `en` |
+| `PLACEHOLDER_REMAINING` | 409 | Routes `legal-pages` (DEC-035) : `PUT …/publication/{locale}`, ou `PUT /legal-pages/{kind}` sur une langue publiée, alors qu’un texte de la langue contient encore « À COMPLÉTER » ; `details.locale` vaut `fr` ou `en` |
+| `CONTACT_UNAVAILABLE` | 503 | `POST /contact-messages` : l’envoi de l’email a échoué ou dépassé 15 secondes (DEC-035) ; le message n’est stocké nulle part |
 | `INTERNAL` | 500 | Erreur interne |
 
 Codes de règle (portés par `errors[]` d'un devis et par `details` d'un `VALIDATION`) :
@@ -865,13 +1021,15 @@ route à l’autre :
 
 | Portée | Limite | Pourquoi |
 |---|---|---|
-| Lectures JSON publiques — `GET /property`, `GET /availability`, `GET /audience-pages`, `POST /quote` | 60 / minute | plafond général de l’API publique |
+| Lectures JSON publiques — `GET /property`, `GET /availability`, `GET /audience-pages`, `GET /legal-pages`, `POST /quote` | 60 / minute | plafond général de l’API publique |
 | `POST /stay-requests` | 10 / heure | bien plus strict que les lectures ci-dessus : chaque appel déclenche **deux** envois SMTP, dont un vers une adresse **fournie par l’appelant**. Le domaine expéditeur porte un DMARC en rejet strict — un abus ne ferait donc pas que du bruit, il ferait mettre le domaine expéditeur en liste noire, après quoi le site cesse de notifier quoi que ce soit, silencieusement. Dix plutôt que cinq laisse de la place à un foyer, un bureau, ou un NAT d’opérateur mobile partageant une IP entre de nombreux abonnés, sans changer la donne côté abus |
+| `POST /contact-messages` | 10 / heure | même raison que les demandes de séjour : chaque appel déclenche un envoi SMTP, et un abus ferait mettre le domaine expéditeur en liste noire. Un limiteur **à part**, donc un **compteur propre** : dix demandes de séjour n’épuisent pas le formulaire de contact, ni l’inverse (DEC-035) |
 | `GET /media/{id}` | 600 / minute **et** 20 / seconde — les deux fenêtres se cumulent | la fenêtre minute borne le débit soutenu ; la fenêtre seconde borne la rafale que la minute seule laisse passer à son ouverture (un audit de sécurité avait mesuré 75 requêtes rapides sans un seul refus) |
 | `POST /api/admin/login` | 10 / minute | anti-force-brute sur l’unique compte propriétaire |
 
 Le corps des requêtes est par ailleurs borné : 64 KiB sur l’API publique, 16 KiB sur les
-routes admin hors upload, 20 MiB sur l’upload de photo.
+routes admin hors upload, **256 KiB sur `PUT /api/admin/legal-pages/{kind}`** (DEC-035), 20 MiB
+sur l’upload de photo.
 
 ## TODO
 

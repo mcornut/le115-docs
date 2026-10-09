@@ -304,6 +304,15 @@ décision : ce n’est pas un réglage, c’est un chantier.
 
 ## DEC-022 — Adresse approximative avant confirmation du séjour (2026-08-15)
 
+> **Amendée le 2026-10-08 (DEC-035) : la rue s’affiche, le numéro jamais.** Le site
+> montre désormais l'**adresse affichée** que la propriétaire saisit au dashboard — la
+> rue, le code postal et le village, par exemple « Cour de la République, 84210
+> Pernes-les-Fontaines » —, et la carte porte un repère sur la rue. Elle n’est jamais
+> déduite de l’adresse exacte : un découpage raté publierait le numéro. L’email de
+> confirmation reste le **seul** porteur de l’adresse complète. Ce qui survit de la
+> décision : le site ne désigne pas le portail d’une maison dont il publie aussi les
+> périodes d’inoccupation. Une rue en compte plusieurs dizaines.
+
 **Décision.** Le site public situe la maison par son **secteur**, jamais par son
 portail : la carte montre la zone, le texte situe sans localiser, et une mention le dit
 au visiteur. **L’adresse exacte part par email une fois le séjour confirmé.**
@@ -747,4 +756,74 @@ Les pages d’audience ne reçoivent aucune image empruntée à la galerie.
 
 **Conséquence.** DEC-027 est amendée (teintes pures sur le texte, voir sa note).
 La maquette ne contient aucun écran mobile : la déclinaison sous 1024 px est
-celle du site.
+celle du site. Son second temps est découpé et cadré par
+DEC-035.
+
+## DEC-035 — L’architecture de la maquette : trois sous-projets, et la propriétaire écrit tout (2026-10-08)
+
+**Décision.** Les pages que la maquette Figma ajoute (DEC-034, second temps) sont livrées en
+trois sous-projets, chacun avec sa spec : **B1** — formulaire de contact, pages légales, pied
+de page ; **B2** — pages « Le 115 » et « Commodités » ; **B3** — « Les environs » et le
+détail d’un lieu. **Tout leur texte s’écrit au dashboard**, par la propriétaire, dans les deux
+langues : elle est bilingue et traduit elle-même (prolongement de DEC-032).
+
+**Ce que B1 a tranché, et livré.**
+
+- **Contact : un simple email.** Le message part à la propriétaire, Reply-To sur le
+  visiteur, et n’est stocké nulle part. Faute d’autre trace, l’envoi est synchrone : s’il
+  échoue, le visiteur le voit et garde sa saisie. L’envoi est borné à quinze secondes et
+  détaché de l’annulation de la requête : un visiteur qui ferme l’onglet n’annule pas un
+  message accepté, et un doublon possible est préféré à un message perdu. Pas d’accusé de
+  réception : il ferait partir un email vers une adresse fournie par n’importe qui.
+- **Anti-spam sans tiers** (DEC-021) : un champ piège, un délai minimal de trois secondes
+  (un instant de rendu absent, illisible ou négatif vaut un robot), dix envois par heure et
+  par IP avec un compteur propre. Un robot repéré reçoit un succès sans que rien parte.
+- **Trois pages légales** — mentions légales, confidentialité et cookies, conditions de
+  location —, fermées (ni création ni suppression), publiées langue par langue sans repli
+  comme les pages d’audience. Livrées en brouillons non publiés ; personne dans l’équipe ne
+  sait les rédiger, les trous y sont marqués « À COMPLÉTER » et **une langue qui en contient
+  encore ne se publie pas**. Le marqueur se reconnaît sans égard à la casse ni aux accents,
+  avec des frontières de mot : un texte légitime qui contiendrait « à compléter » bloque donc
+  aussi la publication, et c’est voulu — mieux vaut un refus qu’un trou publié. Les
+  conditions de location sont relues par un professionnel avant la production.
+- **Une page légale publiée ne se dépublie pas par accident.** Là où une page d’audience
+  rendue incomplète se dépublie, une page légale refuse l’écriture (`409`) et **n’écrit
+  rien** : retirer les mentions légales du site sur une fausse manœuvre serait pire que
+  d’obliger à compléter.
+- **« Gestion des cookies » devient « Confidentialité et cookies ».** Le site ne pose aucun
+  cookie (DEC-021) : une page dédiée n’aurait rien d’autre à dire.
+- **L’adresse affichée** : DEC-022 est amendée — la rue, jamais le numéro.
+- **La carte reste une image statique**, servie par le site, qui porte désormais un repère
+  sur la rue. DEC-021 tient : aucune carte intégrée, aucun fournisseur de tuiles. Google Maps
+  n’intervient que par un lien sortant vers l’adresse affichée, qui ne part qu’au clic.
+- **Facebook et Instagram** se saisissent dans Maison ; une colonne vide disparaît du pied
+  de page.
+- **Le téléphone et l’email du site restent dans sa configuration**, par exception à la
+  règle ci-dessus : la page d’erreur les affiche quand l’API est en panne.
+
+**Conséquence.** La mise en ligne (sous-projet 3) attend, en plus des pages légales
+publiées : les **vrais téléphone et email du site**, aujourd’hui fictifs dans
+`le115-frontend/src/lib/contact.ts`. Le brouillon des mentions légales prévient aussi, au
+marqueur « Adresse », que pour une propriétaire particulière l’adresse de l’éditeur peut
+être un domicile, que le site ne publie pas par ailleurs (DEC-022) : le relecteur
+professionnel confirme ce qui doit l’être.
+
+**Arbitrages rendus pour la suite.**
+
+- *B2* : les chiffres des arches (capacité, salles de bain) sont éditables. La capacité est
+  de douze personnes **dont dix adultes au plus** — règle nouvelle, à préciser dans B2
+  (affichée seulement, ou refusée à la demande). Le regroupement des équipements par
+  catégorie, et les règles de la maison que la maquette mêle à leur liste, restent à
+  discuter.
+- *B3* : les environs sont éditables et en nombre libre ; une seule liste, au ton
+  touristique, sans filtre par audience — les arguments professionnels vont dans la page
+  « Travailleurs ». Photos : celles de la propriétaire d’abord, puis de l’office de
+  tourisme, puis sous licence libre, avec un crédit par lieu.
+- *Audiences* : « Familles », absente de la maquette, est retirée — la propriétaire la
+  dépublie, aucun code.
+- *Accueil* : ce qu’il garde une fois les pages créées se décidera plus tard, idéalement
+  comme la maquette.
+
+**Conséquence.** La mise en ligne (sous-projet 3) exige les mentions légales et la
+confidentialité publiées dans les deux langues, et les conditions de location relues puis
+publiées.
