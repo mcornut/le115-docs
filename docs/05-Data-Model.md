@@ -41,6 +41,7 @@ erDiagram
         string name
         string baseline
         int max_guests
+        int max_adults
         string address
         string reviews_url
         string public_address
@@ -136,13 +137,22 @@ la chaîne vide dit « non renseigné », comme pour `reviews_url` :
 - `facebook_url`, `instagram_url` : vides, ou une URL `https` sur `facebook.com` /
   `instagram.com` (règle tenue par l'application, pas par une contrainte de base).
 
+Colonne ajoutée par B2b (DEC-037) :
+- `max_adults` : `int NULL`, **adultes au plus**. `NULL` : aucune limite (le comportement
+  d'avant B2b) ; la migration ne la remplit pas. Contrainte de base
+  `property_max_adults_check` : `NULL`, ou entre 1 et `max_guests` — elle double la
+  validation de l'application (qui rend un `422` nommé) pour qu'aucun chemin (psql, seed,
+  écriture concurrente) ne laisse une limite qu'aucun devis ne pourrait satisfaire. Aucun
+  âge n'y est attaché : elle borne les adultes que le visiteur déclare.
+
 ### LocalizedContent
 
 Contenus éditoriaux traduits (modèle EAV).
 
 Champs :
 - `entity_type` : type d'entité (`property`, `amenity`, `faq_item`, `photo`, `additional_fee`,
-  `stay_rule`, `audience_page`, `audience_page_section`, `legal_page`, `legal_page_section`)
+  `stay_rule`, `audience_page`, `audience_page_section`, `legal_page`, `legal_page_section`,
+  `highlight`)
 - `entity_id` : UUID de l'entité
 - `locale` : `fr` ou `en`
 - `field` : clé du champ (voir ci-dessous)
@@ -157,6 +167,7 @@ Champs par entité :
 | `property` | `description` | « Au cœur de la Provence... » |
 | `property` | `location` | « Luberon » |
 | `amenity` | `label` | « Wifi haute vitesse » |
+| `highlight` | `label` | « Cour intérieure » / « Inner courtyard » |
 | `faq_item` | `question` | « Puis-je amener un animal ? » |
 | `faq_item` | `answer` | « Oui, chiens et chats bienvenus. » |
 | `photo` | `alt` | « Vue de la piscine » |
@@ -197,6 +208,28 @@ Exemples :
 - Parking
 - Garage vélo
 - Climatisation
+
+### Highlight
+
+Atout du **bandeau** de l'accueil (DEC-037) : une arche et un libellé, composés par la
+propriétaire.
+
+Colonnes : `id`, `property_id` (`ON DELETE CASCADE`), `icon` (`text NOT NULL`, jamais
+vide — un code du catalogue d'icônes, qui comprend `guests`, réservé aux atouts),
+`sort_order` (ordre d'affichage). Index `highlight_property_idx (property_id, sort_order)`.
+Le libellé vit dans `localized_content` (`entity_type='highlight'`, `field='label'`), comme
+celui d'un équipement ; l'anglais vide retombe sur le français à la lecture.
+
+- **Six au plus par bien**, règle tenue par l'application (et éprouvée par un test), pas
+  par une contrainte de base.
+- **Naissance par déclencheur.** Un bien reçoit ses six atouts de la maquette (Cour
+  intérieure, Piscine, 12 couchages, Chambres climatisées, Commerces de qualité, 4 salles de
+  bain) à son insertion — `AFTER INSERT` sur `property`, même patron que les pages légales
+  — et, une fois, au passage de la migration pour les biens déjà là. La pose est
+  idempotente : un bien qui a déjà au moins un atout n'en reçoit pas, et une liste que la
+  propriétaire a vidée n'est jamais re-remplie.
+- **Écriture entière** : la liste reçue remplace l'existante, dans l'ordre reçu ; un atout
+  absent du corps est supprimé avec ses libellés.
 
 ### FAQItem
 
