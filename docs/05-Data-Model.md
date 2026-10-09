@@ -166,10 +166,10 @@ Champs par entité :
 | `audience_page` | `title` | « La maison en famille » |
 | `audience_page` | `intro` | « Une cour close, une piscine... » |
 | `audience_page_section` | `heading` | « Pour les enfants » |
-| `audience_page_section` | `body` | « La cour est close et sans vis-à-vis. » |
+| `audience_page_section` | `body` | « La cour est close et **sans vis-à-vis**. » — Markdown restreint (DEC-036) |
 | `legal_page` | `title` | « Mentions légales » / « Legal notice » |
 | `legal_page_section` | `heading` | « Éditeur du site » |
-| `legal_page_section` | `body` | Le texte de la section ; une ligne vide sépare deux paragraphes |
+| `legal_page_section` | `body` | Le texte de la section, en Markdown restreint (DEC-036) ; une ligne vide sépare deux paragraphes |
 
 Cette approche évite de créer des colonnes comme `title_fr` et `title_en` sur chaque table métier.
 
@@ -240,6 +240,11 @@ chaque section) vivent dans `LocalizedContent`, comme le reste de l'éditorial
 ses lignes de publication ; les lignes `LocalizedContent`, polymorphes et sans
 clé étrangère, sont supprimées par l'application dans la même transaction.
 
+Le `body` d'une section est du **Markdown restreint** (DEC-036) : gras, italique, liens
+(`https://`, `/fr/`, `/en/`, `mailto:`), listes à puces ou numérotées sur un niveau. Il est
+validé à l'écriture ; tout le reste est refusé (`422 RICH_TEXT_INVALID`). Les autres champs
+(`nav_label`, `title`, `intro`, `heading`) restent du texte simple.
+
 ### LegalPage / LegalPageSection / LegalPageLocale
 
 Les trois pages légales du site (DEC-035) : mentions légales, confidentialité et
@@ -273,9 +278,12 @@ la création de la page. `published_at`, **nullable**, est **seul** porteur de l
 publication, avec la même sémantique que `AudiencePageLocale`. **Aucun repli** de langue.
 
 Les textes (`title` de la page ; `heading`, `body` de chaque section) vivent dans
-`LocalizedContent`. Règles de complétude et d'écriture (DEC-035) :
+`LocalizedContent`. Le `body` est du **Markdown restreint**, validé à l'écriture
+(DEC-036, voir les pages d'audience) ; `title` et `heading` restent du texte simple.
+Règles de complétude et d'écriture (DEC-035) :
 - une langue est **complète** quand elle a un titre, au moins une section, et l'intitulé
-  comme le corps de chaque section ;
+  comme le corps de chaque section — le corps se juge sur son **texte extrait**, pas sur le
+  Markdown brut (DEC-036) ;
 - elle ne se publie pas tant qu'elle est incomplète (`PAGE_INCOMPLETE`) ni tant qu'un
   texte contient le marqueur des brouillons **« À COMPLÉTER »** (`PLACEHOLDER_REMAINING`) —
   reconnu sans égard à la casse ni aux accents, avec des frontières de mot ;

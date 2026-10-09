@@ -827,3 +827,55 @@ professionnel confirme ce qui doit l’être.
 **Conséquence.** La mise en ligne (sous-projet 3) exige les mentions légales et la
 confidentialité publiées dans les deux langues, et les conditions de location relues puis
 publiées.
+
+## DEC-036 — B2 en trois temps, et le texte riche avant les pages (2026-10-09)
+
+**Décision.** Les pages « Le 115 » et « Commodités » de la maquette (B2, second volet de
+DEC-035) sont livrées en trois sous-projets : **B2a** — le texte riche ; **B2b** — le bien
+(liste d’atouts, icônes de règles, adultes au plus) ; **B2c** — les pages éditoriales. B2a est
+livré.
+
+**Arbitrages rendus pour B2.**
+
+- Les deux pages reposent sur un **modèle de page éditoriale à blocs typés** (grand visuel,
+  image + texte, citation, bandeau d’atouts, liste des équipements), fixes et publiées langue
+  par langue ; il servira aussi l’accueil.
+- Le **bandeau d’atouts** est une liste composée par la propriétaire (arche + libellé libre),
+  partagée par l’accueil et Commodités ; la capacité des devis reste un champ distinct.
+- La **liste des équipements** reste unique, ordonnée, sans catégories ; les règles de la maison
+  peuvent y figurer, avec trois icônes nouvelles.
+- **« 12 personnes dont 10 adultes au plus »** devient une règle appliquée au devis et à la
+  demande.
+
+**Le texte riche, livré par B2a.** Les corps de section — pages légales, pages d’audience, et
+demain blocs éditoriaux — acceptent le gras, l’italique, les liens et les listes à puces ou
+numérotées, sur un niveau. Un lien mène à une adresse `https://`, interne au site (`/fr/…`,
+`/en/…`) ou `mailto:`, sans espace ni caractère de contrôle, même encodé. Un retour à la ligne
+simple est un vrai retour (`\r\n` est ramené à `\n`) ; une ligne vide, un nouveau paragraphe.
+Tout le reste est refusé à l’enregistrement, pour l’une de **neuf raisons** : titre, image,
+HTML, code, citation, tableau, liste imbriquée, règle horizontale (une ligne `** **` seule en
+est une), ou lien dont l’adresse n’est pas de l’une des trois formes. La propriétaire édite
+visuellement ; elle ne voit jamais la syntaxe.
+
+**Pourquoi du Markdown restreint, et pas du HTML nettoyé.** Le texte est stocké en Markdown et
+rendu par le site en éléments qu’il produit lui-même : aucun HTML écrit par un humain n’est
+jamais interprété, la CSP du site (`style-src` sans `unsafe-inline`) reste intacte, et le texte
+reste lisible en base. Un HTML nettoyé aurait demandé de faire confiance à un nettoyeur, à chaque
+évolution de sa liste blanche. Un HTML tapé dans un corps s’affiche donc **tel quel, en texte
+littéral**, jamais interprété.
+
+**Les outils.** Un outil par dépôt, chacun au plus près de son travail : **TipTap** dans le
+dashboard (l’éditeur visuel, au schéma restreint aux seuls éléments du format), **goldmark**
+sur le serveur (la validation à l’écriture), **react-markdown** sur le site (le rendu en
+éléments React, sans HTML brut interprété). Un tableau de cas partagé, lu par les trois,
+verrouille qu’ils comprennent le format de la même façon.
+
+**Ce qui ne change pas.** Titres, intitulés, chapeaux et libellés restent du texte simple. La
+complétude d’une langue et le marqueur « À COMPLÉTER » (DEC-035) se jugent sur le texte extrait,
+jamais sur le Markdown brut : un lien sans texte ou des puces vides ne remplissent pas une
+section, et `À **COMPLÉTER**` reste détecté. Les brouillons légaux déjà en base passent la
+validation et gardent leur marqueur.
+
+**Limites connues.** `**b.**c` peut se relire avec des astérisques littéraux ; une liste
+imbriquée collée devient des listes qui se suivent ; les listes à puces de Word se collent en
+paragraphes commençant par « · ».
