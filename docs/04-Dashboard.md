@@ -625,6 +625,53 @@ Le corps d'une section s'édite avec l'éditeur de texte riche décrit plus haut
 Une ligne vide ouvre un nouveau paragraphe et un simple saut de ligne reste un retour à la
 ligne sur le site, de sorte qu'un bloc d'adresse écrit ligne par ligne ne se recolle pas.
 
+### Pages du site
+
+Après les pages légales, l’écran **Pages** porte un troisième groupe, **Pages du site**
+(DEC-038) : les deux pages éditoriales « Le 115 » et « Commodités », dans cet ordre. Comme les
+pages légales, elles sont **fixes** — ni « Créer » ni « Supprimer » — et naissent de la
+migration avec le texte de la maquette, **non publiées** et sans photo. Chaque ligne affiche le
+nom de la page, ses deux adresses publiques et, **par langue**, son état.
+
+**L’éditeur** est une seule carte, au pied collant : « Enregistrer » et un interrupteur de
+publication par langue. Les adresses fixes s’affichent en lecture seule. De haut en bas :
+
+- le **grand visuel** : photo facultative, titre et chapeau, en français et en anglais ;
+- les **blocs**, dans l’ordre : chacun porte les flèches « Monter » / « Descendre » et
+  « Retirer », et se numérote à partir de 1 (« Bloc 1 ») ; « Ajouter un bloc » propose les
+  quatre types.
+
+| Bloc | Champs |
+|---|---|
+| Image et texte | Photo (facultative), côté de l’image (gauche ou droite), surtitre (facultatif), titre, corps — l’éditeur de texte riche de DEC-036 |
+| Citation | Un texte bilingue |
+| Bandeau d’atouts | Aucun champ : il affiche les atouts réglés dans Équipements (DEC-037) |
+| Liste des équipements | Aucun champ : elle affiche les équipements du bien |
+
+**Le sélecteur de photo** ouvre la galerie du bien et propose toujours « Aucune photo » : une
+photo est facultative, un bloc sans photo s’affiche en colonne de texte. Il vaut pour le grand
+visuel comme pour chaque bloc d’image et texte.
+
+**Un seul bandeau, une seule liste.** Le bouton « Ajouter un bloc » d’un type déjà présent est
+désactivé. Si un second arrive tout de même, le serveur le refuse (**422 BLOCK_DUPLICATED**) et
+l’écran nomme le bloc en cause ; ce refus couvre aussi deux enregistrements simultanés.
+
+**Publication.** Une langue est complète quand elle a le titre du grand visuel, au moins un
+bloc, le titre et le corps de chaque bloc image et texte, le texte de chaque citation — les
+photos, le surtitre et le chapeau restent facultatifs. L’interrupteur d’une langue incomplète
+est inactif et dit ce qui manque. **La publication est verrouillée tant que le formulaire a des
+modifications non enregistrées** (« Enregistrez d’abord vos modifications ») : on publie ce qui
+est enregistré. Publier et dépublier sont inscrits à l’**Activité** (catégorie « contenu »).
+
+**L’écriture est refusée si elle abîme une langue publiée** (**409 PAGE_INCOMPLETE**), comme
+pour une page légale : rien n’est écrit, l’écran garde la saisie, nomme la langue et donne les
+deux issues — compléter le texte, ou dépublier d’abord la langue. Les autres refus gardent
+aussi la saisie et numérotent le bloc fautif à partir de 1 : corps hors format
+(**422 RICH_TEXT_INVALID**, avec la raison du serveur), photo disparue de la galerie entre-temps
+(**422 PHOTO_INVALID**, « Choisissez-en une autre »), bloc étranger ou répété (**422
+SECTION_ETRANGERE** / **SECTION_DUPLIQUEE**, « Rechargez la page »). Après un enregistrement
+réussi, le formulaire adopte la page relue : les blocs créés reçoivent leur identifiant.
+
 ---
 
 ## Modules reportés post-V1

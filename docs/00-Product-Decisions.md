@@ -918,3 +918,48 @@ N égale la capacité, puisqu’il n’apprendrait rien ; les formes du singulie
 `highlights` et `maxAdults` dans l’API publique, que l’ancien backend ne sert pas ; le
 formulaire Maison et la section des atouts du dashboard ont, eux aussi, besoin du backend
 B2b (champ `maxAdults`, route des atouts).
+
+## DEC-038 — Les pages « Le 115 » et « Commodités » se composent en blocs (2026-10-09)
+
+**Décision.** Les deux pages que la maquette ajoute au menu sont des **pages éditoriales** :
+un grand visuel (photo, titre, chapeau), puis des blocs que la propriétaire ajoute, ordonne et
+retire — image et texte, citation, bandeau d’atouts, liste des équipements. Elles sont fixes
+(ni créées ni supprimées), publiées langue par langue sans repli (DEC-032), et leurs adresses
+sont traduites (DEC-033) : `/fr/le-115` · `/en/the-house`, `/fr/commodites` · `/en/amenities`.
+Le modèle servira l’accueil le jour où il sera repensé.
+
+**Naissance.** Elles naissent avec le texte de la maquette, non publiées et sans photo ; la
+propriétaire relit, choisit ses photos, puis publie. Le faux surtitre de la maquette est
+remplacé par « Au fil des pièces », à relire. L’anglais est proposé, à relire aussi.
+
+**Le menu ne mène jamais à une page vide.** « Le 115 » et « Commodités » visent la page dès
+qu’elle est publiée dans la langue, et l’ancre de l’accueil (`#la-maison`, `#equipements`)
+sinon — y compris quand la lecture des pages échoue.
+
+**Ce qui est assumé.** Les photos sont facultatives — un bloc sans photo s’affiche en colonne
+de texte centrée (environ 580 px), sans cadre vide — pour que la propriétaire puisse publier
+avant d’avoir tout choisi. Une photo supprimée de la galerie laisse le bloc ou le grand visuel
+sans photo (`ON DELETE SET NULL`) : elle ne bloque jamais la suppression et ne casse pas la
+page. Comme les pages légales (DEC-035), une écriture qui rendrait incomplète une langue déjà
+publiée est refusée, jamais dépubliée. Le bandeau d’atouts et la liste des équipements ne
+portent aucun texte : ils affichent ce qui se règle dans l’écran Équipements (DEC-037), et
+n’apparaissent qu’une fois chacun par page. Les 37 équipements de la maquette ne sont pas
+ajoutés d’office : la liste appartient à la propriétaire.
+
+**Publication.** Publier et dépublier une langue sont inscrits au journal d’activité
+(`site_page_published` / `site_page_unpublished`, catégorie « contenu »). Au dashboard, la
+publication d’une langue est **verrouillée tant que le formulaire a des modifications non
+enregistrées** : on publie ce qui est enregistré, pas ce qui est à l’écran. Au sens de la
+complétude, la photo d’un bloc n’entre pas en compte ; sont exigés : le titre du grand
+visuel, au moins un bloc, le titre et le corps (texte extrait non vide, DEC-036) de chaque bloc
+image et texte, le texte de chaque citation.
+
+**Dette.** L’illustration « soleil » de la citation est un **substitut dessiné à la main** :
+l’export Figma a échoué (jeton expiré). À remplacer par l’original dans
+`public/illustrations/soleil.svg` du site.
+
+**Mise en ligne.** L’ordre est **backend, puis dashboard, puis site**. La migration 00027
+**refuse de s’appliquer** si une page d’audience occupe déjà l’une des adresses désormais
+réservées (`le-115`, `the-house`, `commodites`, `amenities`) : vérifier avant de déployer, et
+renommer la page d’audience en cause le cas échéant. Le filet des slugs réservés du site lit
+le backend frère : il ne passe au vert qu’après la fusion du backend.
