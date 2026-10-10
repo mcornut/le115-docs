@@ -981,7 +981,7 @@ répare, et qui permet de retravailler une page en ligne.
 
 Liste les deux pages éditoriales du bien (DEC-038), dans l’ordre fixe `house`, `amenities` —
 toujours deux, une page du site ne se crée ni ne se supprime. Une page se désigne par son
-**`kind`** ; un `kind` inconnu rend `404 NOT_FOUND`.
+**`kind`** dans les routes `/{kind}` ci-dessous.
 
 ```json
 [
@@ -1011,7 +1011,11 @@ toujours deux, une page du site ne se crée ni ne se supprime. Une page se dési
 
 ### GET /api/admin/site-pages/{kind}
 
-Lit une page, bilingue, blocs compris ; même forme qu’un élément de la liste.
+Lit une page, bilingue, blocs compris ; même forme qu’un élément de la liste. Sur cette route et
+toutes les routes `/api/admin/site-pages/{kind}…`, un `kind` inconnu rend `404 NOT_FOUND`.
+
+La liste comme le détail se lisent dans **un seul instantané** (transaction en lecture seule,
+`REPEATABLE READ`, sans verrou) : un enregistrement simultané n’y mêle jamais deux états.
 
 ### PUT /api/admin/site-pages/{kind}
 
@@ -1030,12 +1034,17 @@ visuel :
 - un `type` inconnu ;
 - un `id` de bloc ou de photo qui n’est pas un UUID ;
 - une clé étrangère au type du bloc (une `photoId` sur une citation, un `text` sur un `media`…) ;
-- un `imageSide` absent ou autre que `left` / `right` sur un `media`.
+- un `imageSide` absent ou autre que `left` / `right` sur un `media` ;
+- **plus de 50 blocs** (sans `details`) — le dashboard éteint « Ajouter un bloc » à 50.
 
 **Les refus métier** portent le même `details.index` quand ils visent un bloc :
 - **`422 BLOCK_DUPLICATED`** `{ index }` : un second `highlights` ou un second `amenities` — le
-  bloc fautif est le second. Il couvre aussi l’**index d’unicité de la base** : deux
-  enregistrements simultanés rendent le même code, jamais un `500` ;
+  bloc fautif est le second. Il couvre aussi l’**index d’unicité de la base** (`23505`), dont le
+  seul cas réel est un corps qui **ajoute** un nouveau bandeau d’atouts (ou une nouvelle liste
+  des équipements), sans `id`, tout en **retypant** l’ancien, par son `id`, dans la même requête :
+  la structure finale est valide, mais l’insertion heurte l’ancien bloc encore en place. Le code
+  est le même, jamais un `500`. Deux enregistrements simultanés, eux, ne le déclenchent pas : le
+  verrou de la page les sérialise ;
 - **`422 PHOTO_INVALID`** `{ index }` ou `{ field: "heroPhotoId" }` : la photo n’existe pas dans
   la galerie ;
 - **`422 RICH_TEXT_INVALID`** `{ locale, block, reason }` : le `body` d’un `media` sort du
@@ -1049,7 +1058,9 @@ encore publiée devenait incomplète, la réponse est `409 PAGE_INCOMPLETE`
 `{ "locale": "fr" | "en" }` et **rien n’est écrit**. Pour retravailler une page en ligne, on
 dépublie d’abord la langue. Une langue non publiée s’enregistre dans n’importe quel état.
 
-**Le corps peut aller jusqu’à 256 KiB** (les autres routes admin hors upload : 16 KiB).
+**Le corps peut aller jusqu’à 256 KiB** (les autres routes admin hors upload : 16 KiB), et
+**une page compte au plus 50 blocs** : au-delà, `400 INVALID_REQUEST`, rien n’est écrit — le
+plafond d’octets ne borne pas le nombre de blocs (une citation tient en quelques octets).
 
 ### PUT /api/admin/site-pages/{kind}/publication/{locale}
 
@@ -1185,7 +1196,7 @@ Codes métier stables :
 
 | Code | HTTP | Sens |
 |---|---:|---|
-| `INVALID_REQUEST` | 400 | Corps/paramètres invalides (dates mal formées, email manquant/invalide…). **Trop large sur `POST /stay-requests`** : il ne distingue pas un email refusé d’un corps invalide ou trop gros — cf. la note sous cet endpoint ; sur `PUT /site-pages/{kind}` (DEC-038) : `hero` ou `blocks` absent ou `null`, type de bloc inconnu, `id` non UUID, clé étrangère au type du bloc — avec `details.index` (rang du bloc, à partir de 0) ou `details.field` (`heroPhotoId`) |
+| `INVALID_REQUEST` | 400 | Corps/paramètres invalides (dates mal formées, email manquant/invalide…). **Trop large sur `POST /stay-requests`** : il ne distingue pas un email refusé d’un corps invalide ou trop gros — cf. la note sous cet endpoint ; sur `PUT /site-pages/{kind}` (DEC-038) : `hero` ou `blocks` absent ou `null`, type de bloc inconnu, `id` non UUID, clé étrangère au type du bloc — avec `details.index` (rang du bloc, à partir de 0) ou `details.field` (`heroPhotoId`) ; plus de 50 blocs, sans `details` |
 | `UNAUTHORIZED` | 401 | Authentification requise ou identifiants/session invalides |
 | `CSRF_INVALID` | 403 | En-tête `X-CSRF-Token` absent ou ne correspondant pas au jeton de la session courante, sur une écriture admin |
 | `PROPERTY_NOT_FOUND` | 404 | Bien introuvable |
@@ -1208,7 +1219,7 @@ Codes métier stables :
 | `RICH_TEXT_INVALID` | 422 | `PUT /audience-pages/{id}`, `PUT /legal-pages/{kind}` et `PUT /site-pages/{kind}` (DEC-036, DEC-038) : le `body` d'une section sort du Markdown restreint ; `details` porte `locale` (`fr` ou `en`), `section` (rang à partir de 0) et `reason`, l'une des neuf raisons : `titre non autorisé`, `image non autorisée`, `HTML non autorisé`, `code non autorisé`, `citation non autorisée`, `tableau non autorisé`, `liste imbriquée non autorisée`, `règle horizontale non autorisée`, `lien non autorisé : seules les adresses https, internes ou mailto sont acceptées`. Rien n'est écrit ; sur `PUT /site-pages/{kind}`, `details` porte `block` (rang du bloc à partir de 0) à la place de `section` |
 | `PAGE_INCOMPLETE` | 409 | `PUT /audience-pages/{id}/publication/{locale}` : la langue visée n’a pas tout son texte (D5). Aussi sur les routes `legal-pages` (DEC-035) : `PUT …/publication/{locale}`, et `PUT /legal-pages/{kind}` qui rendrait incomplète une langue publiée — l’écriture est alors refusée ; `details.locale` vaut `fr` ou `en`. Même règle sur `site-pages` (DEC-038) |
 | `PLACEHOLDER_REMAINING` | 409 | Routes `legal-pages` (DEC-035) : `PUT …/publication/{locale}`, ou `PUT /legal-pages/{kind}` sur une langue publiée, alors qu’un texte de la langue contient encore « À COMPLÉTER » ; `details.locale` vaut `fr` ou `en` |
-| `BLOCK_DUPLICATED` | 422 | `PUT /site-pages/{kind}` (DEC-038) : un second bandeau d'atouts (`highlights`) ou une seconde liste des équipements (`amenities`) dans la page ; `details.index` désigne le second bloc (rang à partir de 0). Couvre aussi l'index d'unicité de la base, pour deux écritures simultanées. Rien n'est écrit |
+| `BLOCK_DUPLICATED` | 422 | `PUT /site-pages/{kind}` (DEC-038) : un second bandeau d'atouts (`highlights`) ou une seconde liste des équipements (`amenities`) dans la page ; `details.index` désigne le second bloc (rang à partir de 0). Couvre aussi l'index d'unicité de la base (`23505`), dont le seul cas réel est un corps qui ajoute un nouveau `highlights` (ou `amenities`) sans `id` tout en retypant l'ancien dans la même requête — deux écritures simultanées ne le déclenchent pas, le verrou de la page les sérialise. Rien n'est écrit |
 | `PHOTO_INVALID` | 422 | `PUT /site-pages/{kind}` (DEC-038) : une photo choisie n'existe pas dans la galerie ; `details` vaut `{ index }` (rang du bloc) ou `{ field: "heroPhotoId" }`. Rien n'est écrit |
 | `HIGHLIGHTS_TOO_MANY` | 422 | `PUT /api/admin/highlights` : plus de six atouts (DEC-037) |
 | `ICON_INVALID` | 400 | `PUT /api/admin/highlights` : icône hors catalogue ou vide ; `details.index` désigne l'atout (DEC-037) |
@@ -1246,7 +1257,7 @@ route à l’autre :
 | `POST /api/admin/login` | 10 / minute | anti-force-brute sur l’unique compte propriétaire |
 
 Le corps des requêtes est par ailleurs borné : 64 KiB sur l’API publique, 16 KiB sur les
-routes admin hors upload, **256 KiB sur `PUT /api/admin/legal-pages/{kind}`** (DEC-035) **et sur `PUT /api/admin/site-pages/{kind}`** (DEC-038), 20 MiB
+routes admin hors upload, **256 KiB sur `PUT /api/admin/legal-pages/{kind}`** (DEC-035) **et sur `PUT /api/admin/site-pages/{kind}`** (DEC-038, qui borne aussi la page à 50 blocs), 20 MiB
 sur l’upload de photo.
 
 ## TODO
