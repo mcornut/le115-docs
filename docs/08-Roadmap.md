@@ -47,10 +47,10 @@
   | Sous-projet | Contenu | État |
   |---|---|---|
   | B1 | Formulaire de contact, pages légales, pied de page | **livré** |
-  | B2 | Pages « Le 115 » et « Commodités » (DEC-036) | en trois temps, ci-dessous |
+  | B2 | Pages « Le 115 » et « Commodités » (DEC-036) | **livré** (trois temps, ci-dessous) |
   | — B2a | Le texte riche des corps de section | **livré** |
   | — B2b | Le bien : liste d’atouts, icônes de règles, adultes au plus | **livré** |
-  | — B2c | Les pages éditoriales « Le 115 » et « Commodités » | à venir |
+  | — B2c | Les pages éditoriales « Le 115 » et « Commodités » | **livré** |
   | B3 | « Les environs » et le détail d’un lieu | à cadrer |
 
   B1 est livré le **2026-10-08** : un formulaire « Nous écrire » qui envoie un simple email
@@ -68,7 +68,20 @@
   d’atouts de l’accueil (six au plus, nés des six atouts de la maquette), quatre icônes
   rejoignent le catalogue (« Commerces » et trois règles de la maison), et une limite
   d’adultes facultative gouverne le devis et la demande, sans âge précisé. Le déploiement
-  suit l’ordre backend, dashboard, site. B2c reste à faire.
+  suit l’ordre backend, dashboard, site.
+
+  B2c est livré le **2026-10-09** (DEC-038) : « Le 115 » et « Commodités » sont deux pages
+  éditoriales composées en blocs (image et texte, citation, bandeau d’atouts, liste des
+  équipements), éditées au dashboard et publiées langue par langue ; le menu n’y mène qu’une
+  fois la page publiée, et à l’ancre de l’accueil avant. Elles naissent du texte de la maquette,
+  non publiées : la propriétaire relit, choisit ses photos, puis publie. À la mise en ligne,
+  ordre backend, dashboard, site, après avoir vérifié qu’aucune page d’audience n’occupe
+  `le-115`, `the-house`, `commodites` ou `amenities` (la migration 00027 refuse sinon).
+  **Dette** : l’illustration « soleil » de la citation est un substitut dessiné à la main (l’export
+  Figma a échoué), à remplacer dans `public/illustrations/soleil.svg` du site.
+
+  B2 est ainsi **terminé**. Restent **B3** (« Les environs » et le détail d’un lieu) et la
+  **refonte de l’accueil**, que le modèle à blocs pourra servir.
 - Dashboard admin (SPA séparée, déploiement même origine que l’API, mono-bien — cf. DEC-014, DEC-015), treize écrans :
   - Tableau de bord (accueil — cf. DEC-018)
   - Calendrier

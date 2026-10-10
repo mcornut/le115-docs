@@ -152,7 +152,7 @@ Contenus éditoriaux traduits (modèle EAV).
 Champs :
 - `entity_type` : type d'entité (`property`, `amenity`, `faq_item`, `photo`, `additional_fee`,
   `stay_rule`, `audience_page`, `audience_page_section`, `legal_page`, `legal_page_section`,
-  `highlight`)
+  `highlight`, `site_page`, `site_page_block`)
 - `entity_id` : UUID de l'entité
 - `locale` : `fr` ou `en`
 - `field` : clé du champ (voir ci-dessous)
@@ -181,6 +181,12 @@ Champs par entité :
 | `legal_page` | `title` | « Mentions légales » / « Legal notice » |
 | `legal_page_section` | `heading` | « Éditeur du site » |
 | `legal_page_section` | `body` | Le texte de la section, en Markdown restreint (DEC-036) ; une ligne vide sépare deux paragraphes |
+| `site_page` | `hero_title` | « Le 115, une maison où l’on prend le temps de vivre » |
+| `site_page` | `hero_lede` | Le chapeau du grand visuel |
+| `site_page_block` | `eyebrow` | « Au fil des pièces » — bloc `media`, facultatif |
+| `site_page_block` | `title` | Le titre du bloc `media` |
+| `site_page_block` | `body` | Le corps du bloc `media`, en Markdown restreint (DEC-036) |
+| `site_page_block` | `text` | Le texte du bloc `quote` |
 
 Cette approche évite de créer des colonnes comme `title_fr` et `title_en` sur chaque table métier.
 
@@ -324,6 +330,52 @@ Règles de complétude et d'écriture (DEC-035) :
   n'écrit rien, au lieu de la dépublier comme le fait une page d'audience ;
 - les six adresses publiques sont réservées aux pages d'audience (`SLUG_RESERVED`), et la
   migration refuse de s'appliquer si une page d'audience en occupe déjà une.
+
+### SitePage / SitePageBlock / SitePageLocale
+
+Les deux pages éditoriales du site, « Le 115 » et « Commodités » (DEC-038). Un agrégat **propre**,
+sur le patron des pages légales : deux pages fixes par bien, qu'aucune route ne crée ni ne
+supprime. Une page est un grand visuel suivi d'une liste ordonnée de blocs typés.
+
+`SitePage` :
+- `kind` : `house` ou `amenities` — liste **fermée** (contrainte `CHECK`), unique par bien. Il
+  désigne la page dans l'API ; pas d'`id` côté contrat ;
+- `hero_photo_id` : la photo du grand visuel, **facultative**, `ON DELETE SET NULL` : une photo
+  supprimée de la galerie laisse la page sans photo, sans bloquer la suppression ;
+- `updated_at` : avance à chaque écriture du **contenu**, jamais à la publication.
+
+`SitePageBlock` (table fille, supprimée en cascade avec sa page) :
+- `sort_order` : le rang dans la page ;
+- `type` : `media`, `quote`, `highlights` ou `amenities` ;
+- `photo_id` : photo du bloc `media`, facultative, `ON DELETE SET NULL` ;
+- `image_side` : `left` ou `right`, **propre à `media`** (obligatoire pour lui, absent pour les
+  autres) ; une contrainte `CHECK` interdit aussi `photo_id` hors d'un bloc `media` ;
+- un **index unique partiel** `(page_id, type)` sur `highlights` et `amenities` : au plus une fois
+  chacun par page. Le service refuse avant (`BLOCK_DUPLICATED`) ; l'index tient pour deux
+  écritures simultanées, qui rendent le même code.
+
+`SitePageLocale` : une ligne `(page_id, locale, published_at)` par langue, présente dès la
+création de la page. `published_at`, **nullable**, est seul porteur de la publication, comme
+`LegalPageLocale`. **Aucun repli** de langue.
+
+**Deux pages par bien, créées par migration** (00027) puis par un déclencheur `AFTER INSERT` sur
+`property` : un bien créé plus tard reçoit lui aussi ses deux pages, non publiées, avec leur
+contenu de naissance (le texte de la maquette, sans photo). La migration **refuse de
+s'appliquer** si une page d'audience occupe déjà l'une des adresses désormais réservées.
+
+Les textes vivent dans `LocalizedContent` : `hero_title` et `hero_lede` (entité `site_page`) ;
+`eyebrow`, `title`, `body` d'un bloc `media` et `text` d'un bloc `quote` (entité
+`site_page_block`). Le `body` d'un bloc `media` est du **Markdown restreint**, validé à
+l'écriture (DEC-036, voir les pages d'audience) ; les autres champs sont du texte simple. Les
+blocs `highlights` et `amenities` n'ont aucun champ : le site les remplit depuis
+`GET /api/public/property`. Règles de complétude et d'écriture :
+- une langue est **complète** quand elle a le titre du grand visuel, au moins un bloc, le titre et
+  le corps de chaque `media` (le corps jugé sur son **texte extrait**), le texte de chaque
+  `quote`. Chapeau, surtitres et photos sont facultatifs ;
+- une langue incomplète ne se publie pas (`PAGE_INCOMPLETE`) ; une écriture qui rendrait
+  **incomplète une langue publiée** est **refusée** et n'écrit rien, jamais convertie en
+  dépublication ;
+- les quatre adresses publiques sont réservées aux pages d'audience (`SLUG_RESERVED`).
 
 ### PricingPeriod
 
