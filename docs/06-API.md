@@ -1219,7 +1219,8 @@ Body :
 - `altEn` : texte alternatif anglais ;
 - `isMain` (optional, défaut `false`) : définir comme photo principale.
 - `collection` (optionnel, défaut `maison`) : `maison` ou `environs` (DEC-039), fixée pour
-  toujours ;
+  toujours ; toute autre valeur → `422 VALIDATION` (et non `400 INVALID_REQUEST` comme sur
+  `GET /photos` et `POST /photos/reorder`) ;
 - `credit` : obligatoire pour `environs` (`422 CREDIT_REQUIRED` s'il est vide), interdit pour
   `maison` (`422 VALIDATION`). Pour `environs`, `category` est ignorée (elle vaut `autre`) et
   `isMain=true` est refusé (`422 VALIDATION`).
@@ -1322,7 +1323,7 @@ Codes métier stables :
 | `SYNC_FAILED` | 503 | `POST /sync-sources/{id}/run` : l'import a échoué ; l'erreur est consignée sur la source |
 | `SYNC_DISABLED` | 503 | Routes `/sync-sources` : la synchronisation est désactivée sur le serveur |
 | `DUPLICATE_REQUEST` | 409 | `POST /stay-requests`, **deux garde-fous sous un seul code** : une demande identique (même email, mêmes dates) déjà envoyée dans les 24 heures précédentes, **ou** une quatrième demande de la même adresse sur 24 heures, dates confondues (DEC-030). Les distinguer apprendrait à qui sonde l’API lequel des deux l’arrête. Le message renvoyé invite à contacter directement la propriétaire pour corriger une demande déjà partie — il n’existe aujourd’hui aucun autre moyen |
-| `SLUG_INVALID` | 400 | `POST`/`PUT /audience-pages` : le slug n'est pas minuscules/chiffres/tirets |
+| `SLUG_INVALID` | 400 | `POST`/`PUT /audience-pages` : le slug n'est pas minuscules/chiffres/tirets ; le même code existe en `422` pour les lieux, cf. plus bas |
 | `SLUG_RESERVED` | 409 | `POST`/`PUT /audience-pages` : le slug appartient à une route fixe du site public, dans l'une ou l'autre langue (`contact`, `informations-pratiques`, `demande`, `practical-information`, `request`, ainsi que, depuis DEC-035, les six adresses des pages légales : `mentions-legales`, `legal-notice`, `confidentialite`, `privacy`, `conditions-de-location`, `rental-terms`), et depuis DEC-038 les quatre adresses des pages du site : `le-115`, `the-house`, `commodites`, `amenities`, et depuis DEC-039 `les-environs` et `surroundings` |
 | `SLUG_TAKEN` | 409 | `POST`/`PUT /audience-pages` : une autre page du bien porte déjà ce slug dans la même langue ; `details.locale` vaut `fr` ou `en`; et sur `POST`/`PUT /places` (DEC-039) : un autre lieu porte déjà ce slug dans la langue — un slug vide n'est jamais en collision |
 | `SLUG_REQUIRED_WHILE_PUBLISHED` | 409 | `PUT /audience-pages/{id}` : le corps efface le slug d'une langue encore publiée ; `details.locale` vaut `fr` ou `en` — il faut dépublier d'abord |
@@ -1341,7 +1342,7 @@ Codes métier stables :
 | `CONTACT_UNAVAILABLE` | 503 | `POST /contact-messages` : l’envoi de l’email a échoué ou dépassé 15 secondes (DEC-035) ; le message n’est stocké nulle part |
 | `PLACE_INCOMPLETE` | 409 | `PUT /places/{id}/publication/{locale}` : le lieu n'est pas complet dans la langue ; `PUT /places/{id}` qui le rendrait incomplet dans une langue où il est publié (DEC-039). `details.locale`. Rien n'est écrit |
 | `LAST_PUBLISHED_PLACE` | 409 | `DELETE /places/{id}` ou `DELETE /places/{id}/publication/{locale}` : le dernier lieu publié d'une langue où la page « Les environs » est publiée (DEC-039). `details.locale` |
-| `SLUG_INVALID` | 422 | `POST`/`PUT /places` : slug hors format (`^[a-z0-9]+(-[a-z0-9]+)*$`, 80 caractères au plus) ; un slug vide est permis (langue sans adresse, donc incomplète). `details.locale` |
+| `SLUG_INVALID` | 422 | `POST`/`PUT /places` : slug hors format (`^[a-z0-9]+(-[a-z0-9]+)*$`, 80 caractères au plus) ; un slug vide est permis (langue sans adresse, donc incomplète). `details.locale`. Même code qu'en `400` pour les pages d'audience, cf. plus haut |
 | `CREDIT_REQUIRED` | 422 | `POST /photos` ou `PATCH /photos/{id}` : photo des environs sans crédit (DEC-039) |
 | `PLACES_LIMIT` | 422 | `POST /places` : le bien a déjà 50 lieux (DEC-039) |
 | `ORDER_MISMATCH` | 422 | `PUT /places/order` : la liste ne correspond pas aux lieux existants (DEC-039) |

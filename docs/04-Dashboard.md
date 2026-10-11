@@ -689,8 +689,9 @@ La ligne **« Les environs »** du groupe Pages du site affiche l’état de pub
 par langue et mène à son écran (`/pages/environs`, DEC-039), en deux parties :
 
 - **l’en-tête** : surtitre, titre et chapeau, en français et en anglais côte à côte ;
-  « Enregistrer », et un interrupteur de publication par langue, **verrouillé tant que le
-  formulaire a des modifications non enregistrées**. Publier une langue exige son titre et au
+  « Enregistrer », et un interrupteur de publication par langue : **publier une langue est verrouillé tant que le
+  formulaire a des modifications non enregistrées** (« Enregistrez d’abord vos modifications »),
+  alors que **dépublier reste possible** à tout moment. Publier une langue exige son titre et au
   moins un lieu publié dans cette langue ;
 - **la liste des lieux**, dans l’ordre du site : vignette, nom, une pastille par langue
   (« Publié », « Brouillon », « Incomplet »), « Monter » / « Descendre » (enregistrés aussitôt)
