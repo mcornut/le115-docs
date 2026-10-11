@@ -152,7 +152,7 @@ Contenus éditoriaux traduits (modèle EAV).
 Champs :
 - `entity_type` : type d'entité (`property`, `amenity`, `faq_item`, `photo`, `additional_fee`,
   `stay_rule`, `audience_page`, `audience_page_section`, `legal_page`, `legal_page_section`,
-  `highlight`, `site_page`, `site_page_block`)
+  `highlight`, `site_page`, `site_page_block`, `place`, `surroundings_page`)
 - `entity_id` : UUID de l'entité
 - `locale` : `fr` ou `en`
 - `field` : clé du champ (voir ci-dessous)
@@ -187,6 +187,13 @@ Champs par entité :
 | `site_page_block` | `title` | Le titre du bloc `media` |
 | `site_page_block` | `body` | Le corps du bloc `media`, en Markdown restreint (DEC-036) |
 | `site_page_block` | `text` | Le texte du bloc `quote` |
+| `place` | `name` | « Avignon, cité des Papes » |
+| `place` | `tagline` | « Un patrimoine mondial à une demi-heure » |
+| `place` | `summary` | Le résumé de la carte |
+| `place` | `body` | Le corps du détail, en Markdown restreint (DEC-036) |
+| `surroundings_page` | `eyebrow` | « Entre nature et patrimoine » — facultatif |
+| `surroundings_page` | `title` | « Découvrez les environs du 115 » |
+| `surroundings_page` | `lede` | Le chapeau de la liste, facultatif |
 
 Cette approche évite de créer des colonnes comme `title_fr` et `title_en` sur chaque table métier.
 
@@ -200,6 +207,14 @@ Responsabilités :
 - ordre d'affichage ;
 - photo principale (une seule par bien via `is_main` unique) ;
 - texte alternatif bilingue via `localized_content` (`entity_type='photo'`, `field='alt'`, `locale` en `fr`/`en`).
+- **collection** (DEC-039) : `maison` (par défaut) ou `environs`, fixée au téléversement et jamais
+  changée. Toutes les lectures de la galerie — admin par défaut, publique, photo principale, photos
+  des pages du site — se limitent à `maison` ; une photo `environs` n'est jamais principale et sa
+  catégorie vaut `autre` ;
+- **credit** (DEC-039) : texte court (200 caractères au plus), le même dans les deux langues,
+  **obligatoire** pour une photo `environs` (contrainte `CHECK`), toujours `NULL` pour une photo
+  `maison` (contrainte `CHECK`) ;
+- l'**ordre d'affichage** (`sort_order`) est propre à chaque collection.
 
 **Pas de colonne `url`** : les URLs sont calculées à partir de l'id photo (`/api/public/media/{id}`) et
 permettent le service avec variantes responsive (widths 400/800/1600/original).
@@ -376,6 +391,44 @@ blocs `highlights` et `amenities` n'ont aucun champ : le site les remplit depuis
   **incomplète une langue publiée** est **refusée** et n'écrit rien, jamais convertie en
   dépublication ;
 - les quatre adresses publiques sont réservées aux pages d'audience (`SLUG_RESERVED`).
+
+### Place / PlaceLocale / SurroundingsPage / SurroundingsPageLocale
+
+La page « Les environs » et ses lieux (DEC-039). Deux agrégats : les **lieux**, ouverts (créés,
+ordonnés, supprimés par la propriétaire, cinquante au plus par bien), et l'**en-tête** de la
+liste, fermé (une ligne par bien).
+
+`Place` :
+- `position` : le rang dans la liste, unique par bien ; un lieu créé va en fin de liste ;
+- `photo_id` : une photo de la collection `environs` du même bien, **facultative**,
+  `ON DELETE SET NULL` : une photo supprimée laisse le lieu sans photo, toujours en ligne ;
+- `created_at`, `updated_at`.
+
+`PlaceLocale` : une ligne `(place_id, locale, slug, published_at)` par langue, créée avec le lieu.
+Le `slug` suit le format des slugs d'audience (`^[a-z0-9]+(-[a-z0-9]+)*$`, 80 caractères au plus),
+**unique par bien et par langue parmi les slugs non vides**, sans liste réservée (rien d'autre n'est servi sous
+`/les-environs/`). `published_at`, nullable, porte seul la publication. Un slug **vide** est permis : la langue n'a pas encore d'adresse, elle est donc incomplète et ne peut pas être publiée ; deux lieux peuvent tous deux avoir un slug vide dans une langue (index d'unicité partiel). **Aucun repli** de langue.
+
+Textes dans `LocalizedContent` (entité `place`) : `name`, `tagline`, `summary` (texte simple) et
+`body` (Markdown restreint, DEC-036).
+
+`SurroundingsPage` : une ligne par bien (`property_id` unique), créée par migration puis par un
+déclencheur `AFTER INSERT` sur `property`, avec son contenu de naissance et les sept lieux non
+publiés. `SurroundingsPageLocale` : `(page_id, locale, published_at)`. Textes (entité
+`surroundings_page`) : `eyebrow` (facultatif), `title`, `lede` (facultatif).
+
+Règles :
+- un lieu est **complet** dans une langue avec son nom, son accroche, son résumé, un corps dont le
+  **texte extrait** est non vide et un slug valide ; la photo est facultative ;
+- la page est **complète** dans une langue avec son titre et **au moins un lieu publié** dans
+  cette langue ;
+- publier une langue incomplète est refusé (`PLACE_INCOMPLETE`, `PAGE_INCOMPLETE`) ; une écriture
+  qui rendrait incomplète une langue publiée est **refusée**, jamais convertie en dépublication ;
+- dépublier ou supprimer le **dernier lieu publié** d'une langue où la page est publiée est refusé
+  (`LAST_PUBLISHED_PLACE`) ;
+- créer ou réordonner les lieux verrouille aussi l'en-tête de la page (même ordre de verrous que DEC-038) : une création pendant un réordonnancement rend `ORDER_MISMATCH` ;
+- `les-environs` et `surroundings` sont réservés aux pages d'audience (`SLUG_RESERVED`) ; la
+  migration 00028 refuse de s'appliquer si une page d'audience en occupe déjà un.
 
 ### PricingPeriod
 

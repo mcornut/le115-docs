@@ -205,6 +205,42 @@ repli, une description d’image ne méritant pas un 404. Une photo supprimée d
 rendue `null`, jamais en erreur. `updatedAt` (RFC 3339, UTC) est la date de la dernière écriture
 du contenu ; publier ne la change pas.
 
+### GET /api/public/surroundings
+
+Retourne la page « Les environs » **publiée** dans une langue, avec ses lieux publiés dans cette
+langue (DEC-039) — un seul point d'entrée sert le menu, la liste et le détail de chaque lieu.
+
+Query :
+- `locale` : `fr` ou `en` ; toute autre valeur (ou son absence) retombe sur `fr`.
+
+Response `200` : `null` si la page n'est pas publiée dans la langue, sinon :
+
+```json
+{
+  "eyebrow": "Entre nature et patrimoine",
+  "title": "Découvrez les environs du 115",
+  "lede": "",
+  "alternatePublished": true,
+  "places": [
+    {
+      "slug": "avignon",
+      "name": "Avignon, cité des Papes",
+      "tagline": "Un patrimoine mondial à une demi-heure",
+      "summary": "Le Palais des Papes, le pont Saint-Bénezet…",
+      "body": "Flânez dans les ruelles du **centre historique**…",
+      "photo": null,
+      "alternate": "avignon"
+    }
+  ]
+}
+```
+
+`places` est toujours un tableau, dans l'ordre choisi par la propriétaire. `photo` a la forme
+d'une photo de `GET /property`, plus `credit`, ou `null` ; `alt` se replie sur le français.
+`alternatePublished` : la page est publiée dans l'autre langue. `alternate` : le slug du lieu
+dans l'autre langue s'il y est publié et que la page l'est aussi, sinon `null`. Lecture dans un
+seul instantané.
+
 ### POST /api/public/contact-messages
 
 Envoie un message du formulaire « Nous écrire » à la propriétaire (DEC-035). **Rien n’est
@@ -1078,9 +1114,75 @@ Inscrit au journal (`site_page_unpublished`, catégorie `contenu`). Une photo su
 galerie (`DELETE /api/admin/photos/{id}`) laisse les blocs et le grand visuel sans photo : elle
 n’est jamais refusée à cause d’une page.
 
+### GET /api/admin/surroundings
+
+L'en-tête de la page « Les environs » (DEC-039) :
+`{ eyebrow: {fr,en}, title: {fr,en}, lede: {fr,en}, publishedFr, publishedEn, updatedAt }`.
+
+### PUT /api/admin/surroundings
+
+Remplace les textes de l'en-tête : `{ eyebrow: {fr,en}, title: {fr,en}, lede: {fr,en} }`, les
+trois champs requis (`400 INVALID_REQUEST` sinon). Vider le titre d'une langue publiée est refusé
+(`409 PAGE_INCOMPLETE`, `details.locale`). Response `204`. Corps jusqu'à 256 KiB.
+
+### PUT /api/admin/surroundings/publication/{locale}
+
+Publie la page dans une langue : exige son titre et au moins un lieu publié dans la langue
+(`409 PAGE_INCOMPLETE` sinon). Journal : `surroundings_published`. Response `204`.
+
+### DELETE /api/admin/surroundings/publication/{locale}
+
+Dépublie la page ; aucune condition. Journal : `surroundings_unpublished`. Response `204`.
+
+### GET /api/admin/places
+
+Les lieux du bien, dans l'ordre. Chacun :
+`{ id, position, photoId, locales: { fr: { slug, name, tagline, summary, body, published, complete }, en: {…} }, updatedAt }`.
+`GET /api/admin/places/{id}` rend un lieu (`404 NOT_FOUND` s'il n'existe pas).
+
+### POST /api/admin/places
+
+Crée un lieu en fin de liste, non publié :
+`{ photoId: string | null, locales: { fr: { slug, name, tagline, summary, body }, en: {…} } }` —
+tous les champs requis, chaînes vides permises (un slug vide laisse la langue sans adresse, donc incomplète ; l'unicité ne compte que les slugs non vides). Response `201` + le lieu. Journal :
+`place_created`. Erreurs : `PLACES_LIMIT` (51ᵉ lieu), `SLUG_INVALID`, `SLUG_TAKEN`,
+`RICH_TEXT_INVALID`, `PHOTO_INVALID`.
+
+### PUT /api/admin/places/{id}
+
+Remplace un lieu entier (même corps). Une écriture qui rendrait incomplet le lieu dans une langue
+où il est publié est refusée (`409 PLACE_INCOMPLETE`, `details.locale`). Response `204`.
+
+### DELETE /api/admin/places/{id}
+
+Supprime un lieu. Refusé s'il est le dernier publié d'une langue où la page est publiée
+(`409 LAST_PUBLISHED_PLACE`, `details.locale`). Journal : `place_deleted`. Response `204`.
+
+### PUT /api/admin/places/{id}/publication/{locale}
+
+Publie un lieu dans une langue : exige sa complétude (`409 PLACE_INCOMPLETE`). Journal :
+`place_published`. Response `204`.
+
+### DELETE /api/admin/places/{id}/publication/{locale}
+
+Dépublie un lieu ; refusé s'il est le dernier publié d'une langue où la page est publiée
+(`409 LAST_PUBLISHED_PLACE`). Journal : `place_unpublished`. Response `204`.
+
+### PUT /api/admin/places/order
+
+`{ "ids": [...] }` : la liste complète des lieux dans le nouvel ordre, appliquée en une écriture
+(`422 ORDER_MISMATCH` si elle diffère de l'ensemble existant — y compris quand un lieu a été créé entre-temps : création et réordonnancement verrouillent tous deux l'en-tête de la page). Response `204`.
+
 ### GET /api/admin/photos
 
-Liste toutes les photos du bien.
+Liste les photos du bien d'une collection.
+
+Query : `collection` = `maison` (défaut) ou `environs` (DEC-039) ; toute autre valeur →
+`400 INVALID_REQUEST`.
+
+Chaque photo porte en plus `collection`, `credit` (`null` pour `maison`) et `usedBy` : les lieux
+qui la désignent, `[{ "id": "…", "name": "Avignon, cité des Papes" }]` (nom français, repli
+anglais) — toujours un tableau, vide pour `maison`.
 
 Response `200` :
 
@@ -1098,7 +1200,10 @@ Response `200` :
     "alt": {
       "fr": "Vue de la façade",
       "en": "Facade view"
-    }
+    },
+    "collection": "maison",
+    "credit": null,
+    "usedBy": []
   }
 ]
 ```
@@ -1113,6 +1218,11 @@ Body :
 - `altFr` : texte alternatif français ;
 - `altEn` : texte alternatif anglais ;
 - `isMain` (optional, défaut `false`) : définir comme photo principale.
+- `collection` (optionnel, défaut `maison`) : `maison` ou `environs` (DEC-039), fixée pour
+  toujours ;
+- `credit` : obligatoire pour `environs` (`422 CREDIT_REQUIRED` s'il est vide), interdit pour
+  `maison` (`422 VALIDATION`). Pour `environs`, `category` est ignorée (elle vaut `autre`) et
+  `isMain=true` est refusé (`422 VALIDATION`).
 
 Response `201` : `{ "id": "..." }` — l’identifiant seul (vérifié contre l’API le
 2026-08-15 : il n’y a **pas** de champ `url`). Les URL de service se construisent
@@ -1128,12 +1238,15 @@ Body (tous optionnels) :
 - `sortOrder` : réordonner ;
 - `isMain` : définir/annuler comme photo principale ;
 - `altFr`, `altEn` : mettre à jour les textes alternatifs localisés.
+- `credit` : remplace le crédit d'une photo `environs` (vide → `422 CREDIT_REQUIRED`) ; refusé sur une photo `maison` (`422 VALIDATION`). Sur une photo `environs`, `category` et `isMain=true` sont refusés (`422 VALIDATION`).
 
 Response `200`.
 
 ### POST /api/admin/photos/{id}/set-main
 
 Définit la photo comme principale (l'ancienne principale est annulée).
+
+Refusé sur une photo `environs` (`422 VALIDATION`).
 
 Response `204`.
 
@@ -1143,9 +1256,9 @@ Supprime une photo (y compris ses fichiers et variantes).
 
 Response `204`.
 
-### POST /api/admin/photos/reorder
+### POST /api/admin/photos/reorder?collection=…
 
-Réordonne les photos.
+Réordonne les photos d'une collection (`maison` par défaut, `environs`) : les `ids` sont ceux de la collection désignée, et l'ordre d'affichage est propre à chaque collection.
 
 Body : `[{ "id": "...", "sortOrder": 1 }, …]`
 
@@ -1196,7 +1309,7 @@ Codes métier stables :
 
 | Code | HTTP | Sens |
 |---|---:|---|
-| `INVALID_REQUEST` | 400 | Corps/paramètres invalides (dates mal formées, email manquant/invalide…). **Trop large sur `POST /stay-requests`** : il ne distingue pas un email refusé d’un corps invalide ou trop gros — cf. la note sous cet endpoint ; sur `PUT /site-pages/{kind}` (DEC-038) : `hero` ou `blocks` absent ou `null`, type de bloc inconnu, `id` non UUID, clé étrangère au type du bloc — avec `details.index` (rang du bloc, à partir de 0) ou `details.field` (`heroPhotoId`) ; plus de 50 blocs, sans `details` |
+| `INVALID_REQUEST` | 400 | Corps/paramètres invalides (dates mal formées, email manquant/invalide…). **Trop large sur `POST /stay-requests`** : il ne distingue pas un email refusé d’un corps invalide ou trop gros — cf. la note sous cet endpoint ; sur `PUT /site-pages/{kind}` (DEC-038) : `hero` ou `blocks` absent ou `null`, type de bloc inconnu, `id` non UUID, clé étrangère au type du bloc — avec `details.index` (rang du bloc, à partir de 0) ou `details.field` (`heroPhotoId`) ; plus de 50 blocs, sans `details`; sur `/places` et `/surroundings` (DEC-039) : champ absent ou `null`, langue inconnue, `id` non UUID ; sur `GET /photos` et `POST /photos/reorder`, `collection` inconnue |
 | `UNAUTHORIZED` | 401 | Authentification requise ou identifiants/session invalides |
 | `CSRF_INVALID` | 403 | En-tête `X-CSRF-Token` absent ou ne correspondant pas au jeton de la session courante, sur une écriture admin |
 | `PROPERTY_NOT_FOUND` | 404 | Bien introuvable |
@@ -1210,22 +1323,28 @@ Codes métier stables :
 | `SYNC_DISABLED` | 503 | Routes `/sync-sources` : la synchronisation est désactivée sur le serveur |
 | `DUPLICATE_REQUEST` | 409 | `POST /stay-requests`, **deux garde-fous sous un seul code** : une demande identique (même email, mêmes dates) déjà envoyée dans les 24 heures précédentes, **ou** une quatrième demande de la même adresse sur 24 heures, dates confondues (DEC-030). Les distinguer apprendrait à qui sonde l’API lequel des deux l’arrête. Le message renvoyé invite à contacter directement la propriétaire pour corriger une demande déjà partie — il n’existe aujourd’hui aucun autre moyen |
 | `SLUG_INVALID` | 400 | `POST`/`PUT /audience-pages` : le slug n'est pas minuscules/chiffres/tirets |
-| `SLUG_RESERVED` | 409 | `POST`/`PUT /audience-pages` : le slug appartient à une route fixe du site public, dans l'une ou l'autre langue (`contact`, `informations-pratiques`, `demande`, `practical-information`, `request`, ainsi que, depuis DEC-035, les six adresses des pages légales : `mentions-legales`, `legal-notice`, `confidentialite`, `privacy`, `conditions-de-location`, `rental-terms`), et depuis DEC-038 les quatre adresses des pages du site : `le-115`, `the-house`, `commodites`, `amenities` |
-| `SLUG_TAKEN` | 409 | `POST`/`PUT /audience-pages` : une autre page du bien porte déjà ce slug dans la même langue ; `details.locale` vaut `fr` ou `en` |
+| `SLUG_RESERVED` | 409 | `POST`/`PUT /audience-pages` : le slug appartient à une route fixe du site public, dans l'une ou l'autre langue (`contact`, `informations-pratiques`, `demande`, `practical-information`, `request`, ainsi que, depuis DEC-035, les six adresses des pages légales : `mentions-legales`, `legal-notice`, `confidentialite`, `privacy`, `conditions-de-location`, `rental-terms`), et depuis DEC-038 les quatre adresses des pages du site : `le-115`, `the-house`, `commodites`, `amenities`, et depuis DEC-039 `les-environs` et `surroundings` |
+| `SLUG_TAKEN` | 409 | `POST`/`PUT /audience-pages` : une autre page du bien porte déjà ce slug dans la même langue ; `details.locale` vaut `fr` ou `en`; et sur `POST`/`PUT /places` (DEC-039) : un autre lieu porte déjà ce slug dans la langue — un slug vide n'est jamais en collision |
 | `SLUG_REQUIRED_WHILE_PUBLISHED` | 409 | `PUT /audience-pages/{id}` : le corps efface le slug d'une langue encore publiée ; `details.locale` vaut `fr` ou `en` — il faut dépublier d'abord |
 | `ICON_INVALID` | 400 | `POST`/`PUT /audience-pages` : l'icône n'appartient pas au catalogue des pages d'audience |
 | `SECTION_ETRANGERE` | 422 | `PUT /audience-pages/{id}` et, avec `details.index` (DEC-038), `PUT /site-pages/{kind}` : un `id` de section du corps appartient à une autre page, ou n'existe pas |
 | `SECTION_DUPLIQUEE` | 422 | `PUT /audience-pages/{id}` et, avec `details.index` (DEC-038), `PUT /site-pages/{kind}` : le même `id` de section apparaît deux fois dans le corps |
-| `RICH_TEXT_INVALID` | 422 | `PUT /audience-pages/{id}`, `PUT /legal-pages/{kind}` et `PUT /site-pages/{kind}` (DEC-036, DEC-038) : le `body` d'une section sort du Markdown restreint ; `details` porte `locale` (`fr` ou `en`), `section` (rang à partir de 0) et `reason`, l'une des neuf raisons : `titre non autorisé`, `image non autorisée`, `HTML non autorisé`, `code non autorisé`, `citation non autorisée`, `tableau non autorisé`, `liste imbriquée non autorisée`, `règle horizontale non autorisée`, `lien non autorisé : seules les adresses https, internes ou mailto sont acceptées`. Rien n'est écrit ; sur `PUT /site-pages/{kind}`, `details` porte `block` (rang du bloc à partir de 0) à la place de `section` |
-| `PAGE_INCOMPLETE` | 409 | `PUT /audience-pages/{id}/publication/{locale}` : la langue visée n’a pas tout son texte (D5). Aussi sur les routes `legal-pages` (DEC-035) : `PUT …/publication/{locale}`, et `PUT /legal-pages/{kind}` qui rendrait incomplète une langue publiée — l’écriture est alors refusée ; `details.locale` vaut `fr` ou `en`. Même règle sur `site-pages` (DEC-038) |
+| `RICH_TEXT_INVALID` | 422 | `PUT /audience-pages/{id}`, `PUT /legal-pages/{kind}` et `PUT /site-pages/{kind}` (DEC-036, DEC-038) : le `body` d'une section sort du Markdown restreint ; `details` porte `locale` (`fr` ou `en`), `section` (rang à partir de 0) et `reason`, l'une des neuf raisons : `titre non autorisé`, `image non autorisée`, `HTML non autorisé`, `code non autorisé`, `citation non autorisée`, `tableau non autorisé`, `liste imbriquée non autorisée`, `règle horizontale non autorisée`, `lien non autorisé : seules les adresses https, internes ou mailto sont acceptées`. Rien n'est écrit ; sur `PUT /site-pages/{kind}`, `details` porte `block` (rang du bloc à partir de 0) à la place de `section`; sur `POST`/`PUT /places`, `details` porte `locale` et `reason` |
+| `PAGE_INCOMPLETE` | 409 | `PUT /audience-pages/{id}/publication/{locale}` : la langue visée n’a pas tout son texte (D5). Aussi sur les routes `legal-pages` (DEC-035) : `PUT …/publication/{locale}`, et `PUT /legal-pages/{kind}` qui rendrait incomplète une langue publiée — l’écriture est alors refusée ; `details.locale` vaut `fr` ou `en`. Même règle sur `site-pages` (DEC-038); et sur `surroundings` (DEC-039) : publication sans titre ou sans lieu publié dans la langue, ou titre vidé d'une langue publiée |
 | `PLACEHOLDER_REMAINING` | 409 | Routes `legal-pages` (DEC-035) : `PUT …/publication/{locale}`, ou `PUT /legal-pages/{kind}` sur une langue publiée, alors qu’un texte de la langue contient encore « À COMPLÉTER » ; `details.locale` vaut `fr` ou `en` |
 | `BLOCK_DUPLICATED` | 422 | `PUT /site-pages/{kind}` (DEC-038) : un second bandeau d'atouts (`highlights`) ou une seconde liste des équipements (`amenities`) dans la page ; `details.index` désigne le second bloc (rang à partir de 0). Couvre aussi l'index d'unicité de la base (`23505`), atteint quand une seule requête déplace un bandeau ou une liste d'un bloc à l'autre — par exemple un corps qui ajoute un nouveau `highlights` (ou `amenities`) sans `id` tout en retypant l'ancien dans la même requête — deux écritures simultanées ne le déclenchent pas, le verrou de la page les sérialise. Rien n'est écrit |
-| `PHOTO_INVALID` | 422 | `PUT /site-pages/{kind}` (DEC-038) : une photo choisie n'existe pas dans la galerie ; `details` vaut `{ index }` (rang du bloc) ou `{ field: "heroPhotoId" }`. Rien n'est écrit |
+| `PHOTO_INVALID` | 422 | `PUT /site-pages/{kind}` (DEC-038) : une photo choisie n'existe pas dans la galerie ; `details` vaut `{ index }` (rang du bloc) ou `{ field: "heroPhotoId" }`. Rien n'est écrit; sur `POST`/`PUT /places` (DEC-039) : photo inconnue, d'un autre bien ou de la collection `maison` — et, depuis DEC-039, une page du site ne désigne qu'une photo `maison` |
 | `HIGHLIGHTS_TOO_MANY` | 422 | `PUT /api/admin/highlights` : plus de six atouts (DEC-037) |
 | `ICON_INVALID` | 400 | `PUT /api/admin/highlights` : icône hors catalogue ou vide ; `details.index` désigne l'atout (DEC-037) |
 | `HIGHLIGHT_ETRANGER` | 422 | `PUT /api/admin/highlights` : un `id` du corps n'existe pas ou appartient à un autre bien ; `details.index` (DEC-037) |
 | `HIGHLIGHT_DUPLIQUE` | 422 | `PUT /api/admin/highlights` : le même `id` deux fois dans le corps ; `details.index` (DEC-037) |
 | `CONTACT_UNAVAILABLE` | 503 | `POST /contact-messages` : l’envoi de l’email a échoué ou dépassé 15 secondes (DEC-035) ; le message n’est stocké nulle part |
+| `PLACE_INCOMPLETE` | 409 | `PUT /places/{id}/publication/{locale}` : le lieu n'est pas complet dans la langue ; `PUT /places/{id}` qui le rendrait incomplet dans une langue où il est publié (DEC-039). `details.locale`. Rien n'est écrit |
+| `LAST_PUBLISHED_PLACE` | 409 | `DELETE /places/{id}` ou `DELETE /places/{id}/publication/{locale}` : le dernier lieu publié d'une langue où la page « Les environs » est publiée (DEC-039). `details.locale` |
+| `SLUG_INVALID` | 422 | `POST`/`PUT /places` : slug hors format (`^[a-z0-9]+(-[a-z0-9]+)*$`, 80 caractères au plus) ; un slug vide est permis (langue sans adresse, donc incomplète). `details.locale` |
+| `CREDIT_REQUIRED` | 422 | `POST /photos` ou `PATCH /photos/{id}` : photo des environs sans crédit (DEC-039) |
+| `PLACES_LIMIT` | 422 | `POST /places` : le bien a déjà 50 lieux (DEC-039) |
+| `ORDER_MISMATCH` | 422 | `PUT /places/order` : la liste ne correspond pas aux lieux existants (DEC-039) |
 | `INTERNAL` | 500 | Erreur interne |
 
 Codes de règle (portés par `errors[]` d'un devis et par `details` d'un `VALIDATION`) :
@@ -1250,14 +1369,14 @@ route à l’autre :
 
 | Portée | Limite | Pourquoi |
 |---|---|---|
-| Lectures JSON publiques — `GET /property`, `GET /availability`, `GET /audience-pages`, `GET /legal-pages`, `GET /site-pages`, `POST /quote` | 60 / minute | plafond général de l’API publique |
+| Lectures JSON publiques — `GET /property`, `GET /availability`, `GET /audience-pages`, `GET /legal-pages`, `GET /site-pages`, `GET /surroundings`, `POST /quote` | 60 / minute | plafond général de l’API publique |
 | `POST /stay-requests` | 10 / heure | bien plus strict que les lectures ci-dessus : chaque appel déclenche **deux** envois SMTP, dont un vers une adresse **fournie par l’appelant**. Le domaine expéditeur porte un DMARC en rejet strict — un abus ne ferait donc pas que du bruit, il ferait mettre le domaine expéditeur en liste noire, après quoi le site cesse de notifier quoi que ce soit, silencieusement. Dix plutôt que cinq laisse de la place à un foyer, un bureau, ou un NAT d’opérateur mobile partageant une IP entre de nombreux abonnés, sans changer la donne côté abus |
 | `POST /contact-messages` | 10 / heure | même raison que les demandes de séjour : chaque appel déclenche un envoi SMTP, et un abus ferait mettre le domaine expéditeur en liste noire. Un limiteur **à part**, donc un **compteur propre** : dix demandes de séjour n’épuisent pas le formulaire de contact, ni l’inverse (DEC-035) |
 | `GET /media/{id}` | 600 / minute **et** 20 / seconde — les deux fenêtres se cumulent | la fenêtre minute borne le débit soutenu ; la fenêtre seconde borne la rafale que la minute seule laisse passer à son ouverture (un audit de sécurité avait mesuré 75 requêtes rapides sans un seul refus) |
 | `POST /api/admin/login` | 10 / minute | anti-force-brute sur l’unique compte propriétaire |
 
 Le corps des requêtes est par ailleurs borné : 64 KiB sur l’API publique, 16 KiB sur les
-routes admin hors upload, **256 KiB sur `PUT /api/admin/legal-pages/{kind}`** (DEC-035) **et sur `PUT /api/admin/site-pages/{kind}`** (DEC-038, qui borne aussi la page à 50 blocs), 20 MiB
+routes admin hors upload, **256 KiB sur `PUT /api/admin/legal-pages/{kind}`** (DEC-035) **et sur `PUT /api/admin/site-pages/{kind}`** (DEC-038, qui borne aussi la page à 50 blocs) **et sur `PUT /api/admin/surroundings`, `POST /api/admin/places`, `PUT /api/admin/places/{id}`** (DEC-039), 20 MiB
 sur l’upload de photo.
 
 ## TODO
