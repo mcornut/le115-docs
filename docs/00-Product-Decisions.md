@@ -963,3 +963,57 @@ l’export Figma a échoué (jeton expiré). À remplacer par l’original dans
 réservées (`le-115`, `the-house`, `commodites`, `amenities`) : vérifier avant de déployer, et
 renommer la page d’audience en cause le cas échéant. Le filet des slugs réservés du site lit
 le backend frère : il ne passe au vert qu’après la fusion du backend.
+
+## DEC-039 — « Les environs » : des lieux en nombre libre, publiés deux fois (2026-10-11)
+
+**Décision.** La page « Les environs » de la maquette devient une **liste de lieux** que la
+propriétaire crée, ordonne et supprime elle-même — cinquante au plus, sur une seule page, sans
+pagination ni filtre. Une seule liste, au ton touristique (DEC-035) : les arguments pour les
+voyageurs d'affaires vont dans la page d'audience qui leur est consacrée. Chaque lieu a sa page
+de détail, à une **adresse par langue** sous la liste : `/fr/les-environs/{slug}` ·
+`/en/surroundings/{slug}`. Le dashboard propose le slug à partir du nom ; la propriétaire peut le
+corriger. `les-environs` et `surroundings` rejoignent les adresses réservées aux pages
+d'audience.
+
+**Une photothèque à part.** Les photos des environs ne sont pas celles de la maison : elles
+vivent dans une **seconde collection** de la même photothèque (onglets « Maison » et
+« Environs »), n'apparaissent jamais dans la galerie, comme photo principale ou dans les pages
+du site, et portent un **crédit obligatoire** (« © Office de tourisme de Pernes », « Photo : X,
+CC BY-SA 4.0 »), affiché sous la photo. Ordre de préférence des sources : les photos de la
+propriétaire, puis celles des offices de tourisme, puis les photos sous licence libre.
+
+**Publication à deux niveaux, langue par langue** (DEC-032). La page se publie d'un côté, chaque
+lieu de l'autre. Un lieu se publie s'il a, dans la langue, son nom, son accroche, son résumé, un
+corps non vide et un slug valide ; la page, si elle a son titre et **au moins un lieu publié**.
+Comme partout depuis DEC-035, une écriture qui abîmerait une langue publiée est **refusée**,
+jamais convertie en dépublication. Et la page publiée **ne se vide jamais** : dépublier ou
+supprimer son dernier lieu publié est refusé tant que la page l'est.
+
+**Le menu ne mène jamais à une page vide.** « Les environs » vise la page dès qu'elle est
+publiée dans la langue, et l'ancre `#localisation` de l'accueil sinon — y compris quand la
+lecture échoue. La section « Localisation » de l'accueil ne change pas.
+
+**Naissance.** La page (« Entre nature et patrimoine » / « Découvrez les environs du 115 ») et
+sept lieux naissent de la migration, **non publiés et sans photo** : Avignon, Carpentras,
+Pernes-les-Fontaines, L'Isle-sur-la-Sorgue, le Mont Ventoux, les Dentelles de Montmirail, le
+tour des villages du Comtat. Les trois cartes « affaires » de la maquette sont écartées, le
+doublon « Le Mont Ventoux & les Dentelles » aussi. Textes rédigés en français et en anglais :
+la propriétaire **relit tout**, distances, jours de marché et faits compris, choisit ses photos,
+puis publie.
+
+**Ce qui est assumé.** La photo d'un lieu est facultative : sans elle, la carte n'affiche que son
+texte et le détail prend une colonne de lecture centrée. Une photo supprimée de la photothèque
+laisse le lieu en ligne, sans photo ; le dashboard prévient avant (« Utilisée par : … »). Pas de
+carte interactive ni de distances calculées : aucun tiers (DEC-021). Publier, dépublier, créer et
+supprimer sont inscrits au journal d'activité (catégorie « contenu »).
+
+**Dette.** Les illustrations des **cyprès** (liste) et de la **branche** (détail) sont des
+substituts **dessinés à la main** : l'export Figma a échoué (jeton expiré), comme pour le soleil
+de DEC-038. À remplacer par les originaux dans `public/illustrations/cypres.svg` et
+`public/illustrations/branche.svg` du site.
+
+**Mise en ligne.** L'ordre est **backend, puis dashboard, puis site**. La migration 00028 **refuse de
+s'appliquer** si une page d'audience occupe déjà `les-environs` ou `surroundings` : vérifier avant
+de déployer. Le filet des slugs réservés du site lit le backend frère : il ne passe au vert
+qu'après la fusion du backend. Avec B3, l'architecture de la maquette (DEC-035) est livrée en
+entier ; reste la refonte de l'accueil.

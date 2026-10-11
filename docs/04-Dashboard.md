@@ -425,6 +425,17 @@ par photo et **8000 px** maximum par côté. Un fichier hors de ces bornes est
 écarté avec un message explicite nommant le fichier et la raison, sans
 empêcher l’envoi du reste du lot.
 
+### Photothèque des environs
+
+L’écran Photos porte deux onglets (DEC-039) : **« Maison »**, l’écran décrit ci-dessus, inchangé,
+et **« Environs »**, la photothèque des lieux de la page « Les environs ». Même grille, même
+téléversement, mêmes textes alternatifs FR/EN ; mais ni catégorie ni photo principale, et un
+**crédit obligatoire** sur chaque photo (200 caractères au plus, le même dans les deux langues),
+affiché sur la vignette et sous la photo sur le site. Une photo des environs n’apparaît jamais
+dans l’onglet « Maison », ni dans les sélecteurs de photo des pages du site. Supprimer une photo
+utilisée par un lieu prévient d’abord : « Utilisée par : Avignon, … » ; confirmée, la suppression
+laisse le lieu sans photo, toujours en ligne.
+
 ---
 
 ## Synchronisations externes
@@ -628,7 +639,7 @@ ligne sur le site, de sorte qu'un bloc d'adresse écrit ligne par ligne ne se re
 ### Pages du site
 
 Après les pages légales, l’écran **Pages** porte un troisième groupe, **Pages du site**
-(DEC-038) : les deux pages éditoriales « Le 115 » et « Commodités », dans cet ordre. Comme les
+(DEC-038) : les deux pages éditoriales « Le 115 » et « Commodités », dans cet ordre, puis, depuis DEC-039, **« Les environs »**. Comme les
 pages légales, elles sont **fixes** — ni « Créer » ni « Supprimer » — et naissent de la
 migration avec le texte de la maquette, **non publiées** et sans photo. Chaque ligne affiche le
 nom de la page, ses deux adresses publiques et, **par langue**, son état.
@@ -671,6 +682,32 @@ aussi la saisie et numérotent le bloc fautif à partir de 1 : corps hors format
 (**422 PHOTO_INVALID**, « Choisissez-en une autre »), bloc étranger ou répété (**422
 SECTION_ETRANGERE** / **SECTION_DUPLIQUEE**, « Rechargez la page »). Après un enregistrement
 réussi, le formulaire adopte la page relue : les blocs créés reçoivent leur identifiant.
+
+### Les environs
+
+La ligne **« Les environs »** du groupe Pages du site affiche l’état de publication de la page
+par langue et mène à son écran (`/pages/environs`, DEC-039), en deux parties :
+
+- **l’en-tête** : surtitre, titre et chapeau, en français et en anglais côte à côte ;
+  « Enregistrer », et un interrupteur de publication par langue : **publier une langue est verrouillé tant que le
+  formulaire a des modifications non enregistrées** (« Enregistrez d’abord vos modifications »),
+  alors que **dépublier reste possible** à tout moment. Publier une langue exige son titre et au
+  moins un lieu publié dans cette langue ;
+- **la liste des lieux**, dans l’ordre du site : vignette, nom, une pastille par langue
+  (« Publié », « Brouillon », « Incomplet »), « Monter » / « Descendre » (enregistrés aussitôt)
+  et « Modifier ». « Ajouter un lieu » ouvre l’éditeur vide ; il est désactivé à **50 lieux**.
+
+**L’éditeur d’un lieu** (`/pages/environs/nouveau`, `/pages/environs/:id`) présente côte à côte,
+en français et en anglais : le nom, l’accroche, le résumé (texte simple) et le corps (l’éditeur
+de texte riche de DEC-036) ; le **slug** de chaque langue, proposé à partir du nom (minuscules,
+accents retirés, tirets — « L’Isle-sur-la-Sorgue » donne `l-isle-sur-la-sorgue`) tant que la
+propriétaire ne l’a pas modifié, avec l’adresse complète en aperçu ; la **photo**, choisie dans
+la photothèque des environs, « Aucune photo », ou téléversée sur place (fichier, crédit, textes
+alternatifs). La publication par langue, au pied, suit la règle de l’en-tête ; un lieu neuf se
+publie une fois créé. « Supprimer ce lieu » demande confirmation. Les refus s’affichent en ligne
+et la saisie reste à l’écran : slug déjà pris dans la langue, lieu publié qu’une écriture rendrait
+incomplet, ou dernier lieu publié d’une langue où la page est publiée — dépublier d’abord la page,
+ou publier un autre lieu.
 
 ---
 

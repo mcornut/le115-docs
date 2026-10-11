@@ -51,7 +51,7 @@
   | — B2a | Le texte riche des corps de section | **livré** |
   | — B2b | Le bien : liste d’atouts, icônes de règles, adultes au plus | **livré** |
   | — B2c | Les pages éditoriales « Le 115 » et « Commodités » | **livré** |
-  | B3 | « Les environs » et le détail d’un lieu | à cadrer |
+  | B3 | « Les environs » et le détail d’un lieu (DEC-039) | **livré** |
 
   B1 est livré le **2026-10-08** : un formulaire « Nous écrire » qui envoie un simple email
   à la propriétaire (rien n’est stocké), trois pages légales éditables depuis le dashboard
@@ -80,8 +80,20 @@
   **Dette** : l’illustration « soleil » de la citation est un substitut dessiné à la main (l’export
   Figma a échoué), à remplacer dans `public/illustrations/soleil.svg` du site.
 
-  B2 est ainsi **terminé**. Restent **B3** (« Les environs » et le détail d’un lieu) et la
-  **refonte de l’accueil**, que le modèle à blocs pourra servir.
+  B2 est ainsi **terminé**.
+
+  B3 est livré le **2026-10-11** (DEC-039) : la page « Les environs » liste des lieux que la
+  propriétaire crée, ordonne et publie elle-même, chacun avec sa page de détail et une adresse
+  par langue ; les photos des environs ont leur propre photothèque, avec un crédit obligatoire.
+  La page et sept lieux naissent non publiés et sans photo : la propriétaire relit les textes —
+  distances et faits compris —, choisit ses photos, puis publie. Le menu mène à la page une fois
+  publiée, à la section « Localisation » de l’accueil avant. À la mise en ligne, ordre backend,
+  dashboard, site, après avoir vérifié qu’aucune page d’audience n’occupe `les-environs` ou
+  `surroundings` (la migration 00028 refuse sinon). **Dette** : les illustrations des cyprès et de la branche sont, comme le
+  soleil, des substituts dessinés à la main, à remplacer dans `public/illustrations/` du site.
+
+  L’**architecture de la maquette est ainsi livrée en entier**. Reste la **refonte de
+  l’accueil**, que le modèle à blocs pourra servir.
 - Dashboard admin (SPA séparée, déploiement même origine que l’API, mono-bien — cf. DEC-014, DEC-015), treize écrans :
   - Tableau de bord (accueil — cf. DEC-018)
   - Calendrier
@@ -126,7 +138,7 @@ Envisagés en amont, non retenus dans la nav V1 livrée (détail dans
 
 - Paiement acompte
 - Import Abritel / iCal opérationnel
-- Page “Découvrir la région”
+- ~~Page “Découvrir la région”~~ — livrée en V1 sous le nom « Les environs » (DEC-039)
 - **Images dans le texte et téléversement d’images** — le **texte riche est livré** (B2a,
   DEC-036) : gras, italique, liens et listes dans les corps de section, édités visuellement
   et stockés en Markdown restreint, sans jamais interpréter de HTML. L’édition des pages
