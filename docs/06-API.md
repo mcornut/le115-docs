@@ -1067,6 +1067,7 @@ Liste les pages éditoriales du bien (DEC-038, DEC-040), dans l’ordre fixe `ho
 [
   {
     "kind": "house",
+    "alwaysPublished": false,
     "hero": {
       "photoId": null,
       "title": { "fr": "Le 115, une maison…", "en": "Le 115, a house…" },
@@ -1104,6 +1105,7 @@ laisserait une langue incomplète → `409 PAGE_INCOMPLETE`, `details.locale` (l
 fautive, `fr` avant `en`) ; rien n'est écrit. Un bloc vitrine hors de `home` →
 `422 BLOCK_NOT_ALLOWED`, un libellé de bouton de plus de 60 caractères →
 `422 BUTTON_LABEL_TOO_LONG` (voir les erreurs).
+
 ### GET /api/admin/site-pages/{kind}
 
 Lit une page, bilingue, blocs compris ; même forme qu’un élément de la liste. Sur cette route et
@@ -1116,8 +1118,9 @@ La liste comme le détail se lisent dans **un seul instantané** (transaction en
 
 Écrit la page **entière**, atomiquement : `{ "hero": { "photoId"?, "title": {fr,en}, "lede": {fr,en} },
 "blocks": [ … ] }`. Un bloc porte les champs de son type — `media` : `photoId` (facultatif),
-`imageSide` (obligatoire), `eyebrow`, `title`, `body` ; `quote` : `text` ; `highlights` et
-`amenities` : aucun — et un `id` facultatif : le serveur met à jour les blocs qui en ont un,
+`imageSide` (obligatoire), `eyebrow`, `title`, `body`, `button` (facultatif) ; `quote` : `text` ;
+`highlights` et `amenities` : aucun ; blocs vitrine (`audiences`, `surroundings`, `gallery`,
+`location`, `faq`, accueil seulement) : `eyebrow` et `title` — et un `id` facultatif : le serveur met à jour les blocs qui en ont un,
 crée ceux qui n’en ont pas, et **supprime ceux qui ne sont plus dans le corps reçu**. Réponse
 `204`. Les photos (grand visuel, blocs) se choisissent dans la photothèque de la maison.
 

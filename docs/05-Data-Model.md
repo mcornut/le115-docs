@@ -183,8 +183,8 @@ Champs par entité :
 | `legal_page_section` | `body` | Le texte de la section, en Markdown restreint (DEC-036) ; une ligne vide sépare deux paragraphes |
 | `site_page` | `hero_title` | « Le 115, une maison où l’on prend le temps de vivre » |
 | `site_page` | `hero_lede` | Le chapeau du grand visuel |
-| `site_page_block` | `eyebrow` | « Au fil des pièces » — bloc `media`, facultatif |
-| `site_page_block` | `title` | Le titre du bloc `media` |
+| `site_page_block` | `eyebrow` | « Au fil des pièces » — bloc `media` ou bloc vitrine, facultatif |
+| `site_page_block` | `title` | Le titre du bloc `media` ou d’un bloc vitrine |
 | `site_page_block` | `body` | Le corps du bloc `media`, en Markdown restreint (DEC-036) |
 | `site_page_block` | `text` | Le texte du bloc `quote` |
 | `site_page_block` | `button_label` | « Découvrir le 115 » / « Discover Le 115 » |

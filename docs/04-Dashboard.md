@@ -642,7 +642,8 @@ Après les pages légales, l’écran **Pages** porte un troisième groupe, **Pa
 (DEC-038) : depuis DEC-040 **« Accueil »** en tête, puis les deux pages éditoriales « Le 115 » et
 « Commodités », puis, depuis DEC-039, **« Les environs »**. Comme les
 pages légales, elles sont **fixes** — ni « Créer » ni « Supprimer » — et naissent de la
-migration avec le texte de la maquette, **non publiées** et sans photo. Chaque ligne affiche le
+migration avec le texte de la maquette, **non publiées** et sans photo — sauf l’accueil, qui naît
+**en ligne** (DEC-040). Chaque ligne affiche le
 nom de la page, ses deux adresses publiques et, **par langue**, son état.
 
 **L’éditeur** est une seule carte, au pied collant : « Enregistrer » et un interrupteur de
@@ -651,7 +652,7 @@ publication par langue. Les adresses fixes s’affichent en lecture seule. De ha
 - le **grand visuel** : photo facultative, titre et chapeau, en français et en anglais ;
 - les **blocs**, dans l’ordre : chacun porte les flèches « Monter » / « Descendre » et
   « Retirer », et se numérote à partir de 1 (« Bloc 1 ») ; « Ajouter un bloc » propose les
-  quatre types.
+  quatre types communs (et, sur l’accueil seulement, cinq types vitrine, soit neuf en tout).
 
 | Bloc | Champs |
 |---|---|
@@ -669,7 +670,8 @@ cible (Le 115, Commodités, Les environs, Demande de séjour) et libellé en fra
 chaque enregistrement est visible aussitôt sur le site. » Dans la liste, sa ligne porte deux
 pastilles « FR en ligne » et « EN en ligne ». Un enregistrement qui laisserait une langue
 incomplète est refusé, la langue en cause nommée. « Ajouter un bloc » ne propose que les types
-permis par la page et masque ceux déjà présents une fois. Chaque enregistrement est inscrit à
+permis par la page (les cinq types vitrine sont réservés à l’accueil) et **désactive** ceux déjà
+présents, qui ne se posent qu’une fois. Chaque enregistrement est inscrit à
 l’**Activité** (`home_page_updated`, « Accueil modifié », catégorie « contenu »).
 
 **Photo de carte** (DEC-040) : l’éditeur d’une page d’audience porte un champ « Photo de carte »,
