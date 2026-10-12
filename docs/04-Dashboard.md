@@ -639,7 +639,8 @@ ligne sur le site, de sorte qu'un bloc d'adresse écrit ligne par ligne ne se re
 ### Pages du site
 
 Après les pages légales, l’écran **Pages** porte un troisième groupe, **Pages du site**
-(DEC-038) : les deux pages éditoriales « Le 115 » et « Commodités », dans cet ordre, puis, depuis DEC-039, **« Les environs »**. Comme les
+(DEC-038) : depuis DEC-040 **« Accueil »** en tête, puis les deux pages éditoriales « Le 115 » et
+« Commodités », puis, depuis DEC-039, **« Les environs »**. Comme les
 pages légales, elles sont **fixes** — ni « Créer » ni « Supprimer » — et naissent de la
 migration avec le texte de la maquette, **non publiées** et sans photo. Chaque ligne affiche le
 nom de la page, ses deux adresses publiques et, **par langue**, son état.
@@ -658,6 +659,22 @@ publication par langue. Les adresses fixes s’affichent en lecture seule. De ha
 | Citation | Un texte bilingue |
 | Bandeau d’atouts | Aucun champ : il affiche les atouts réglés dans Équipements (DEC-037) |
 | Liste des équipements | Aucun champ : elle affiche les équipements du bien |
+| Cartes d’audience · Aperçu des environs · Galerie · Localisation · Aperçu de la FAQ | Accueil seulement (DEC-040), une fois chacun au plus : un surtitre et un titre facultatifs ; une phrase dit d’où vient le contenu, avec un lien vers l’écran qui le règle |
+
+**Bouton** (DEC-040) : un bloc image et texte peut porter un bouton — case « Ajouter un bouton »,
+cible (Le 115, Commodités, Les environs, Demande de séjour) et libellé en français et en anglais,
+60 caractères au plus. Il n’apparaît sur le site que si la page visée est publiée.
+
+**L’accueil** (DEC-040) n’a pas d’interrupteur de publication : un bandeau dit « En ligne —
+chaque enregistrement est visible aussitôt sur le site. » Dans la liste, sa ligne porte deux
+pastilles « FR en ligne » et « EN en ligne ». Un enregistrement qui laisserait une langue
+incomplète est refusé, la langue en cause nommée. « Ajouter un bloc » ne propose que les types
+permis par la page et masque ceux déjà présents une fois. Chaque enregistrement est inscrit à
+l’**Activité** (`home_page_updated`, « Accueil modifié », catégorie « contenu »).
+
+**Photo de carte** (DEC-040) : l’éditeur d’une page d’audience porte un champ « Photo de carte »,
+choisie dans la photothèque (Maison ou Environs) ou « Aucune photo » ; elle illustre la carte de
+l’accueil, l’icône la remplace sinon.
 
 **Le sélecteur de photo** ouvre la galerie du bien et propose toujours « Aucune photo » : une
 photo est facultative, un bloc sans photo s’affiche en colonne de texte. Il vaut pour le grand

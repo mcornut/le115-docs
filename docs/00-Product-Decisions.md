@@ -936,6 +936,11 @@ remplacé par « Au fil des pièces », à relire. L’anglais est proposé, à 
 qu’elle est publiée dans la langue, et l’ancre de l’accueil (`#la-maison`, `#equipements`)
 sinon — y compris quand la lecture des pages échoue.
 
+> **Amendée le 2026-10-11 (DEC-040) : plus de repli sur ancre.** L'accueil se compose désormais
+> en blocs et ses sections ne sont plus garanties. Une entrée du menu dont la page n'est pas
+> publiée est **masquée**, y compris quand la lecture des pages échoue. Le principe tient : le
+> menu ne mène jamais à une page vide.
+
 **Ce qui est assumé.** Les photos sont facultatives — un bloc sans photo s’affiche en colonne
 de texte centrée (environ 580 px), sans cadre vide — pour que la propriétaire puisse publier
 avant d’avoir tout choisi. Une photo supprimée de la galerie laisse le bloc ou le grand visuel
@@ -991,7 +996,11 @@ supprimer son dernier lieu publié est refusé tant que la page l'est.
 
 **Le menu ne mène jamais à une page vide.** « Les environs » vise la page dès qu'elle est
 publiée dans la langue, et l'ancre `#localisation` de l'accueil sinon — y compris quand la
-lecture échoue. La section « Localisation » de l'accueil ne change pas.
+lecture échoue.
+
+> **Amendée le 2026-10-11 (DEC-040) :** tant que la page n'est pas publiée, l'entrée « Les
+> environs » est **masquée** au lieu de viser `#localisation` ; la section « Localisation » n'est
+> plus d'office sur l'accueil, elle devient un bloc que la propriétaire y place si elle le veut.
 
 **Naissance.** La page (« Entre nature et patrimoine » / « Découvrez les environs du 115 ») et
 sept lieux naissent de la migration, **non publiés et sans photo** : Avignon, Carpentras,
@@ -1017,3 +1026,57 @@ s'appliquer** si une page d'audience occupe déjà `les-environs` ou `surroundin
 de déployer. Le filet des slugs réservés du site lit le backend frère : il ne passe au vert
 qu'après la fusion du backend. Avec B3, l'architecture de la maquette (DEC-035) est livrée en
 entier ; reste la refonte de l'accueil.
+
+
+## DEC-040 — L'accueil se compose en blocs et reste toujours en ligne (2026-10-11)
+
+**Décision.** L'accueil devient la troisième page éditoriale du site, à côté de « Le 115 » et
+« Commodités » (DEC-038) : un grand visuel — photo, titre et chapeau propres à l'accueil — puis
+des blocs que la propriétaire ajoute, ordonne et retire au dashboard. Le nom du bien (« Le 115 »)
+reste la marque de l'en-tête, du pied de page et des métadonnées. Aux quatre blocs de DEC-038
+s'ajoutent cinq blocs **vitrine**, réservés à l'accueil et présents une fois au plus : cartes
+d'audience, aperçu des environs, galerie, localisation, aperçu de la FAQ. Ils ne portent qu'un
+surtitre et un titre facultatifs ; leur contenu vient de ce qui se règle ailleurs (pages
+d'audience, « Les environs », photothèque, fiche du bien, FAQ), et un bloc vitrine qui n'a rien à
+montrer disparaît en entier. Les photos de l'accueil (grand visuel, blocs image et texte) viennent
+de la photothèque de la maison, comme pour les autres pages du site.
+
+**Toujours en ligne.** Un site ne peut pas être sans accueil : l'accueil n'a ni publication ni
+dépublication. Chaque enregistrement part en ligne aussitôt ; une écriture qui laisserait une
+langue incomplète — titre du grand visuel, au moins un bloc, titre et corps des blocs image et
+texte, libellé de leur bouton, texte des citations — est **refusée**. Brouillon et version en
+ligne distincts ont été écartés : un mécanisme neuf, nettement plus lourd, pour un geste rare.
+
+**Naissance.** L'accueil naît du texte de la maquette, en ligne dès le déploiement : grand
+visuel sans photo (le site prend la photo principale de la maison), bandeau d'atouts, bloc
+« Bien plus qu'une location de vacances » avec son bouton « Découvrir le 115 », cartes
+d'audience, aperçu des environs. L'anglais est proposé, à relire. La galerie, la localisation,
+l'aperçu de la FAQ et la liste des équipements **quittent l'accueil au déploiement** : la
+propriétaire les remet, si elle le veut, en ajoutant le bloc correspondant. La FAQ entière reste
+dans « Informations pratiques ».
+
+**Un bouton sur les blocs image et texte.** Sur les trois pages, un bloc image et texte peut
+porter un bouton vers une cible fermée — Le 115, Commodités, Les environs, la demande de séjour —
+avec un libellé traduit de 60 caractères au plus. Il disparaît du site tant que sa cible n'est pas
+publiée dans la langue.
+
+**La carte d'une audience a sa photo.** Chaque page d'audience peut désigner une photo de carte,
+de la photothèque de la maison ou de celle des environs (crédit affiché sous la carte). Sans
+photo, la carte garde son icône. La page d'audience elle-même ne change pas ; la photo n'entre pas
+dans sa complétude, et une photo supprimée laisse la carte à son icône.
+
+**L'aperçu des environs** montre les trois premiers lieux publiés dans la langue, dans l'ordre de
+la page « Les environs » : la propriétaire choisit en réordonnant. Il n'apparaît que si la page
+des environs est publiée.
+
+**Le menu masque ce qui n'est pas publié.** Les sections de l'accueil ne sont plus garanties :
+l'ancre de repli de DEC-038 et DEC-039 (`#la-maison`, `#equipements`, `#localisation`) pourrait
+viser une section retirée. Une entrée du menu dont la page n'est pas publiée dans la langue est
+désormais **masquée**, comme le bouton « Découvrir la maison » du grand visuel quand « Le 115 »
+ne l'est pas. Un en-tête vitrine fait seulement d'espaces compte, sur le site, pour vide.
+
+**Journal.** Chaque enregistrement de l'accueil est inscrit (`home_page_updated`, « Accueil
+modifié », catégorie « contenu »), puisqu'il part en ligne aussitôt.
+
+**Mise en ligne.** L'ordre est **backend, puis dashboard, puis site** : la migration 00029 crée
+l'accueil, et un site déployé avant elle afficherait la page « indisponible ».

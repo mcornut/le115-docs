@@ -187,6 +187,7 @@ Champs par entité :
 | `site_page_block` | `title` | Le titre du bloc `media` |
 | `site_page_block` | `body` | Le corps du bloc `media`, en Markdown restreint (DEC-036) |
 | `site_page_block` | `text` | Le texte du bloc `quote` |
+| `site_page_block` | `button_label` | « Découvrir le 115 » / « Discover Le 115 » |
 | `place` | `name` | « Avignon, cité des Papes » |
 | `place` | `tagline` | « Un patrimoine mondial à une demi-heure » |
 | `place` | `summary` | Le résumé de la carte |
@@ -267,7 +268,9 @@ créables depuis le dashboard (DEC-032) — ce ne sont **pas** des colonnes de
 `AudiencePage` :
 - `icon` (catalogue fermé propre aux pages, dix-sept codes — distinct de celui
   des équipements, qui n'a pas `guests`) ;
-- `sort_order`.
+- `sort_order` ;
+- `card_photo_id` : photo de la carte de l'accueil, **facultative**, de la collection `maison` ou
+  `environs` du même bien, `ON DELETE SET NULL` ; hors complétude (DEC-040).
 
 `AudiencePage` ne porte plus de `slug` : l'adresse d'une page est désormais un
 contenu **par langue** (DEC-033), portée par `AudiencePageLocale`.
@@ -348,20 +351,29 @@ Règles de complétude et d'écriture (DEC-035) :
 
 ### SitePage / SitePageBlock / SitePageLocale
 
-Les deux pages éditoriales du site, « Le 115 » et « Commodités » (DEC-038). Un agrégat **propre**,
-sur le patron des pages légales : deux pages fixes par bien, qu'aucune route ne crée ni ne
+Les pages éditoriales du site : « Le 115 » et « Commodités » (DEC-038), et depuis DEC-040
+l’**accueil**. Un agrégat **propre**,
+sur le patron des pages légales : trois pages fixes par bien, qu'aucune route ne crée ni ne
 supprime. Une page est un grand visuel suivi d'une liste ordonnée de blocs typés.
 
 `SitePage` :
-- `kind` : `house` ou `amenities` — liste **fermée** (contrainte `CHECK`), unique par bien. Il
-  désigne la page dans l'API ; pas d'`id` côté contrat ;
+- `kind` : `home`, `house` ou `amenities` — liste **fermée** (contrainte `CHECK`), unique par bien.
+  Il désigne la page dans l'API ; pas d'`id` côté contrat. `home` n'a **jamais** de ligne
+  `SitePageLocale` : il est toujours en ligne (DEC-040) ;
 - `hero_photo_id` : la photo du grand visuel, **facultative**, `ON DELETE SET NULL` : une photo
   supprimée de la galerie laisse la page sans photo, sans bloquer la suppression ;
 - `updated_at` : avance à chaque écriture du **contenu**, jamais à la publication.
 
 `SitePageBlock` (table fille, supprimée en cascade avec sa page) :
 - `sort_order` : le rang dans la page ;
-- `type` : `media`, `quote`, `highlights` ou `amenities` ;
+- `type` : `media`, `quote`, `highlights`, `amenities` (toutes pages) ; `audiences`,
+  `surroundings`, `gallery`, `location`, `faq` (blocs vitrine, accueil seulement — règle du
+  service, le genre vivant sur la page). Tous sauf `media` et `quote` sont uniques par page
+  (index partiel) ; les blocs vitrine portent `eyebrow` et `title` dans `localized_content`,
+  facultatifs ;
+- `button_target` : `NULL` (pas de bouton) ou `house`, `amenities`, `surroundings`, `request` ;
+  seulement sur `media` (contrainte `CHECK`). Son libellé `button_label` vit dans
+  `localized_content`, 60 caractères au plus (DEC-040) ;
 - `photo_id` : photo du bloc `media`, facultative, `ON DELETE SET NULL` ;
 - `image_side` : `left` ou `right`, **propre à `media`** (obligatoire pour lui, absent pour les
   autres) ; une contrainte `CHECK` interdit aussi `photo_id` hors d'un bloc `media` ;
@@ -373,9 +385,10 @@ supprime. Une page est un grand visuel suivi d'une liste ordonnée de blocs typ�
 création de la page. `published_at`, **nullable**, est seul porteur de la publication, comme
 `LegalPageLocale`. **Aucun repli** de langue.
 
-**Deux pages par bien, créées par migration** (00027) puis par un déclencheur `AFTER INSERT` sur
-`property` : un bien créé plus tard reçoit lui aussi ses deux pages, non publiées, avec leur
-contenu de naissance (le texte de la maquette, sans photo). La migration **refuse de
+**Trois pages par bien, créées par migration** (00027, puis 00029 pour l'accueil) puis par un
+déclencheur `AFTER INSERT` sur `property` : un bien créé plus tard reçoit lui aussi ses pages, non
+publiées sauf l'accueil, toujours en ligne, avec leur contenu de naissance (le texte de la
+maquette, sans photo). La migration **refuse de
 s'appliquer** si une page d'audience occupe déjà l'une des adresses désormais réservées.
 
 Les textes vivent dans `LocalizedContent` : `hero_title` et `hero_lede` (entité `site_page`) ;
@@ -385,8 +398,9 @@ l'écriture (DEC-036, voir les pages d'audience) ; les autres champs sont du tex
 blocs `highlights` et `amenities` n'ont aucun champ : le site les remplit depuis
 `GET /api/public/property`. Règles de complétude et d'écriture :
 - une langue est **complète** quand elle a le titre du grand visuel, au moins un bloc, le titre et
-  le corps de chaque `media` (le corps jugé sur son **texte extrait**), le texte de chaque
-  `quote`. Chapeau, surtitres et photos sont facultatifs ;
+  le corps de chaque `media` (le corps jugé sur son **texte extrait**) et le libellé de son bouton
+  s'il en a un, le texte de chaque `quote`. Chapeau, surtitres, photos et en-têtes vitrine sont
+  facultatifs. Pour `home`, la complétude est vérifiée dans les deux langues à chaque écriture ;
 - une langue incomplète ne se publie pas (`PAGE_INCOMPLETE`) ; une écriture qui rendrait
   **incomplète une langue publiée** est **refusée** et n'écrit rien, jamais convertie en
   dépublication ;

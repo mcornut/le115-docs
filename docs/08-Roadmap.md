@@ -92,8 +92,15 @@
   `surroundings` (la migration 00028 refuse sinon). **Dette** : les illustrations des cyprès et de la branche sont, comme le
   soleil, des substituts dessinés à la main, à remplacer dans `public/illustrations/` du site.
 
-  L’**architecture de la maquette est ainsi livrée en entier**. Reste la **refonte de
-  l’accueil**, que le modèle à blocs pourra servir.
+  L’**architecture de la maquette est ainsi livrée en entier**.
+
+  La **refonte de l’accueil** est livrée le **2026-10-11** (DEC-040) : l’accueil se compose en
+  blocs au dashboard, comme « Le 115 » et « Commodités », et reste toujours en ligne. Il naît de
+  la maquette — grand visuel, atouts, « Bien plus qu’une location de vacances » et son bouton,
+  cartes d’audience (avec une photo de carte facultative par page d’audience), aperçu des
+  environs ; la galerie, la localisation, la FAQ et les équipements deviennent des blocs à
+  remettre au besoin. Le menu masque les pages non publiées. À la mise en ligne, ordre backend,
+  dashboard, site.
 - Dashboard admin (SPA séparée, déploiement même origine que l’API, mono-bien — cf. DEC-014, DEC-015), treize écrans :
   - Tableau de bord (accueil — cf. DEC-018)
   - Calendrier
