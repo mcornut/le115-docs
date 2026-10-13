@@ -77,8 +77,8 @@
   non publiées : la propriétaire relit, choisit ses photos, puis publie. À la mise en ligne,
   ordre backend, dashboard, site, après avoir vérifié qu’aucune page d’audience n’occupe
   `le-115`, `the-house`, `commodites` ou `amenities` (la migration 00027 refuse sinon).
-  **Dette** : l’illustration « soleil » de la citation est un substitut dessiné à la main (l’export
-  Figma a échoué), à remplacer dans `public/illustrations/soleil.svg` du site.
+  ~~**Dette** : l’illustration « soleil » de la citation est un substitut dessiné à la main~~ —
+  soldée le 2026-10-13 par l’original de la maquette.
 
   B2 est ainsi **terminé**.
 
@@ -89,8 +89,9 @@
   distances et faits compris —, choisit ses photos, puis publie. Le menu mène à la page une fois
   publiée, à la section « Localisation » de l’accueil avant. À la mise en ligne, ordre backend,
   dashboard, site, après avoir vérifié qu’aucune page d’audience n’occupe `les-environs` ou
-  `surroundings` (la migration 00028 refuse sinon). **Dette** : les illustrations des cyprès et de la branche sont, comme le
-  soleil, des substituts dessinés à la main, à remplacer dans `public/illustrations/` du site.
+  `surroundings` (la migration 00028 refuse sinon). ~~**Dette** : les illustrations des cyprès et de la branche sont, comme
+  le soleil, des substituts dessinés à la main~~ — soldée le 2026-10-13 par les originaux de la
+  maquette.
 
   L’**architecture de la maquette est ainsi livrée en entier**.
 

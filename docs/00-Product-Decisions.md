@@ -959,9 +959,9 @@ complétude, la photo d’un bloc n’entre pas en compte ; sont exigés : le ti
 visuel, au moins un bloc, le titre et le corps (texte extrait non vide, DEC-036) de chaque bloc
 image et texte, le texte de chaque citation.
 
-**Dette.** L’illustration « soleil » de la citation est un **substitut dessiné à la main** :
-l’export Figma a échoué (jeton expiré). À remplacer par l’original dans
-`public/illustrations/soleil.svg` du site.
+**~~Dette~~ — soldée le 2026-10-13.** L’illustration « soleil » de la citation était un substitut
+dessiné à la main, l’export Figma ayant échoué (jeton expiré). L’original de la maquette l’a
+remplacé dans `public/illustrations/soleil.svg` du site.
 
 **Mise en ligne.** L’ordre est **backend, puis dashboard, puis site**. La migration 00027
 **refuse de s’appliquer** si une page d’audience occupe déjà l’une des adresses désormais
@@ -1016,10 +1016,10 @@ laisse le lieu en ligne, sans photo ; le dashboard prévient avant (« Utilisée
 carte interactive ni de distances calculées : aucun tiers (DEC-021). Publier, dépublier, créer et
 supprimer sont inscrits au journal d'activité (catégorie « contenu »).
 
-**Dette.** Les illustrations des **cyprès** (liste) et de la **branche** (détail) sont des
-substituts **dessinés à la main** : l'export Figma a échoué (jeton expiré), comme pour le soleil
-de DEC-038. À remplacer par les originaux dans `public/illustrations/cypres.svg` et
-`public/illustrations/branche.svg` du site.
+**~~Dette~~ — soldée le 2026-10-13.** Les illustrations des **cyprès** (liste) et de la
+**branche** (détail) étaient des substituts dessinés à la main, l'export Figma ayant échoué (jeton
+expiré), comme pour le soleil de DEC-038. Les originaux de la maquette les ont remplacés dans
+`public/illustrations/cypres.svg` et `public/illustrations/branche.svg` du site.
 
 **Mise en ligne.** L'ordre est **backend, puis dashboard, puis site**. La migration 00028 **refuse de
 s'appliquer** si une page d'audience occupe déjà `les-environs` ou `surroundings` : vérifier avant
