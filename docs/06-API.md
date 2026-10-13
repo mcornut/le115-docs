@@ -101,6 +101,15 @@ Response `200` :
     "navLabel": "Cyclistes",
     "title": "La maison à vélo",
     "intro": "Le Vaucluse se traverse à vélo.",
+    "heroPhoto": null,
+    "blocks": [
+      { "type": "media", "photo": null, "imageSide": "left", "eyebrow": "", "title": "Au départ",
+        "body": "Un garage **fermé**.", "button": null },
+      { "type": "quote", "text": "Parcourez la Provence à votre rythme." },
+      { "type": "cards", "eyebrow": "", "title": "Les parcours", "lede": "",
+        "cards": [{ "photo": null, "title": "Le Mont Ventoux", "subtitle": "",
+                    "text": "Le défi mythique à moins d’une heure." }] }
+    ],
     "sections": [{ "heading": "Au départ", "body": "Un garage **fermé**." }],
     "alternates": { "fr": "cyclistes", "en": "cyclists" },
     "cardPhoto": null
@@ -110,8 +119,12 @@ Response `200` :
 
 Chaque page porte `cardPhoto` : la forme publique d'une photo plus `credit` (`""` pour une
 photo de la maison), ou `null` (DEC-040).
-Le `body` de chaque section est du **Markdown restreint** (DEC-036) : gras, italique, liens,
-listes sur un niveau ; `heading`, `title` et `intro` restent du texte simple.
+`heroPhoto` et la `photo` de chaque carte ont la forme de `cardPhoto` (photo publique plus
+`credit`), ou `null` (DEC-041). `blocks` a la forme des blocs de `GET /api/public/site-pages`, plus
+le bloc `cards`. Le `body` d'un bloc `media` est du **Markdown restreint** (DEC-036) ; tout le
+reste est du texte simple. **`sections` est un champ de transition** (DEC-041) : calculé à partir
+des blocs `media` (titre → `heading`, corps → `body`) pour le site déjà en ligne, il sera retiré
+une fois le site déployé.
 
 **Aucun repli de langue** : une page publiée en français seulement est absente du
 tableau reçu pour `en` — le site rend alors un 404 sur son adresse, jamais le texte
@@ -916,44 +929,59 @@ réunit les routes fixes des **deux** langues (DEC-033) : un slug français ne
 peut pas non plus porter l'un des trois mots anglais. Un doublon de slug dans
 la même langue renvoie `409 SLUG_TAKEN`.
 
-L'`icon` doit appartenir au catalogue **propre aux pages d'audience** (dix-sept
-codes, `guests` compris — distinct du catalogue des équipements) : toute autre
+L'`icon` doit appartenir au catalogue **propre aux pages d'audience** (vingt et un
+codes, `guests` et les quatre icônes d'audience compris — distinct du catalogue des équipements) : toute autre
 valeur renvoie `400 ICON_INVALID`. La chaîne vide (« aucune ») est acceptée.
 
 `cardPhotoId` (`uuid` ou `null`) est facultatif ; absent, il vaut `null`. La photo vient de la
 collection `maison` ou `environs` du même bien : sinon `422 PHOTO_INVALID`,
-`details.field = "cardPhotoId"` (DEC-040).
+`details.field = "cardPhotoId"` (DEC-040). `heroPhotoId` suit la même règle
+(`details.field = "heroPhotoId"`, DEC-041).
 
 ### GET /api/admin/audience-pages/{id}
 
-Lit une page, bilingue, sections comprises. `slug` y est un objet bilingue,
+Lit une page, bilingue, blocs compris. `slug` y est un objet bilingue,
 comme dans la liste.
 
 ### PUT /api/admin/audience-pages/{id}
 
 Écrit la page **entière**, atomiquement — identité, textes des deux langues,
-et sections dans l'ordre reçu. `slug` est ici un objet bilingue
+et blocs dans l'ordre reçu. `slug` est ici un objet bilingue
 `{ "fr": "…", "en": "…" }` : effacer le slug d'une langue (chaîne vide) efface
 son identité dans cette langue — refusé (`409 SLUG_REQUIRED_WHILE_PUBLISHED`,
 `details.locale`) si cette langue est encore publiée, il faut la dépublier
-d'abord. Chaque section porte un `id` facultatif : le serveur met à jour
-celles qui en ont un, crée celles qui n'en ont pas, et **supprime celles qui
-ne sont plus dans le corps reçu**.
+d'abord. Chaque bloc — et chaque carte d'un bloc `cards` — porte un `id` facultatif : le serveur met à jour
+ceux qui en ont un, crée ceux qui n'en ont pas, et **supprime ceux qui ne sont plus dans le corps
+reçu**. Les blocs ont la forme de `PUT /api/admin/site-pages/{kind}`, plus :
 
-**Chaque `body` de section est validé** (DEC-036), français puis anglais, dans l'ordre des
-sections : un corps hors du format rend `422 RICH_TEXT_INVALID` avec
-`details: { "locale": "fr" | "en", "section": <rang à partir de 0>, "reason": "…" }`, et
+    { "id": "uuid?", "type": "cards",
+      "eyebrow": { "fr": "", "en": "" }, "title": { "fr": "", "en": "" }, "lede": { "fr": "", "en": "" },
+      "cards": [ { "id": "uuid?", "photoId": "uuid|null",
+                   "title": { "fr": "", "en": "" }, "subtitle": { "fr": "", "en": "" },
+                   "text": { "fr": "", "en": "" } } ] }
+
+Types permis : `media`, `quote`, `highlights`, `amenities`, `cards` ; un bloc vitrine de
+l'accueil → `422 BLOCK_NOT_ALLOWED`, `details: { index }` ; `highlights` ou `amenities` en double →
+`422 BLOCK_DUPLICATED` ; hors d'une à trois cartes → `422 CARDS_COUNT`, `details: { index }` ; un
+champ d'un autre type sur `cards` → `400 INVALID_REQUEST`, `details: { index }` ; libellé de
+bouton de plus de 60 caractères → `422 BUTTON_LABEL_TOO_LONG` ; photo de carte hors des deux
+photothèques du bien → `422 PHOTO_INVALID`, `details: { index, card }`.
+
+**Chaque `body` de bloc `media` est validé** (DEC-036), français puis anglais, dans l'ordre des
+blocs : un corps hors du format rend `422 RICH_TEXT_INVALID` avec
+`details: { "locale": "fr" | "en", "block": <rang à partir de 0>, "reason": "…" }`, et
 **rien n'est écrit**. La complétude d'une langue se juge sur le texte extrait, jamais sur le
 Markdown brut.
 
 Mêmes validations que la création pour le format et la réserve du `slug`, et
 pour `icon`. Un doublon de slug dans une langue renvoie `409 SLUG_TAKEN`
 (`details.locale` vaut `fr` ou `en` selon la langue fautive). Un `id` de
-section appartenant à une autre page, ou répété deux fois dans le corps,
+bloc ou de carte appartenant à une autre page, ou répété deux fois dans le corps,
 renvoie `422` (`SECTION_ETRANGERE` / `SECTION_DUPLIQUEE`).
 
 `cardPhotoId` (`uuid` ou `null`) — absent à la mise à jour : inchangé ; photo inconnue ou d'un
-autre bien → `422 PHOTO_INVALID`, `details.field = "cardPhotoId"` (DEC-040). La lecture admin
+autre bien → `422 PHOTO_INVALID`, `details.field = "cardPhotoId"` (DEC-040). `heroPhotoId` suit la même règle
+(`details.field = "heroPhotoId"`) ; la lecture admin le rend, `null` sans photo (DEC-041). La lecture admin
 (`GET /audience-pages`, `…/{id}`) rend `cardPhotoId`, `null` sans photo.
 
 **Une langue déjà publiée qui devient incomplète par cette écriture est
@@ -964,7 +992,7 @@ ne pourrait plus jamais commencer la refonte d'une page en ligne.
 
 ### DELETE /api/admin/audience-pages/{id}
 
-Supprime la page, ses sections, ses lignes de publication et son texte
+Supprime la page, ses blocs et leurs cartes, ses lignes de publication et son texte
 (`localized_content`, polymorphe et sans cascade).
 
 ### PUT /api/admin/audience-pages/{id}/publication/{locale}
@@ -972,11 +1000,12 @@ Supprime la page, ses sections, ses lignes de publication et son texte
 Publie la page dans une langue (`fr` ou `en`).
 
 Refuse **`409 PAGE_INCOMPLETE`** si le slug (DEC-033), le libellé d'onglet, le
-titre, le chapeau, ou l'intitulé/le corps d'une section est vide dans cette
-langue, ou si la page n'a aucune section — mieux vaut le silence que le
-remplissage à moitié (D5). Un corps est « vide » selon son **texte extrait**, jamais selon
-le Markdown brut (DEC-036) : un lien sans texte ou des puces vides ne remplissent pas une
-section.
+titre ou le chapeau est vide dans cette langue, si la page n'a aucun bloc,
+ou si un bloc est incomplet dans cette langue (DEC-041) — image et texte : titre, corps et, s'il y
+a un bouton, son libellé ; citation : le texte ; cartes : titre et texte de chaque carte — mieux
+vaut le silence que le remplissage à moitié (D5). Un corps est « vide » selon son **texte
+extrait**, jamais selon le Markdown brut (DEC-036) : un lien sans texte ou des puces vides ne
+remplissent pas un bloc.
 
 ### DELETE /api/admin/audience-pages/{id}/publication/{locale}
 
@@ -1372,7 +1401,7 @@ Codes métier stables :
 
 | Code | HTTP | Sens |
 |---|---:|---|
-| `INVALID_REQUEST` | 400 | Corps/paramètres invalides (dates mal formées, email manquant/invalide…). **Trop large sur `POST /stay-requests`** : il ne distingue pas un email refusé d’un corps invalide ou trop gros — cf. la note sous cet endpoint ; sur `PUT /site-pages/{kind}` (DEC-038) : `hero` ou `blocks` absent ou `null`, type de bloc inconnu, `id` non UUID, clé étrangère au type du bloc — avec `details.index` (rang du bloc, à partir de 0) ou `details.field` (`heroPhotoId`) ; plus de 50 blocs, sans `details`; sur `/places` et `/surroundings` (DEC-039) : champ absent ou `null`, langue inconnue, `id` non UUID ; sur `GET /photos` et `POST /photos/reorder`, `collection` inconnue |
+| `INVALID_REQUEST` | 400 | Corps/paramètres invalides (dates mal formées, email manquant/invalide…). **Trop large sur `POST /stay-requests`** : il ne distingue pas un email refusé d’un corps invalide ou trop gros — cf. la note sous cet endpoint ; sur `PUT /site-pages/{kind}` (DEC-038) : `hero` ou `blocks` absent ou `null`, type de bloc inconnu, `id` non UUID, clé étrangère au type du bloc — avec `details.index` (rang du bloc, à partir de 0) ou `details.field` (`heroPhotoId`) ; plus de 50 blocs, sans `details`; sur `PUT /audience-pages/{id}` (DEC-041) : une carte sur un bloc d'un autre type que `cards`, avec `details.index`; sur `/places` et `/surroundings` (DEC-039) : champ absent ou `null`, langue inconnue, `id` non UUID ; sur `GET /photos` et `POST /photos/reorder`, `collection` inconnue |
 | `UNAUTHORIZED` | 401 | Authentification requise ou identifiants/session invalides |
 | `CSRF_INVALID` | 403 | En-tête `X-CSRF-Token` absent ou ne correspondant pas au jeton de la session courante, sur une écriture admin |
 | `PROPERTY_NOT_FOUND` | 404 | Bien introuvable |
@@ -1390,16 +1419,17 @@ Codes métier stables :
 | `SLUG_TAKEN` | 409 | `POST`/`PUT /audience-pages` : une autre page du bien porte déjà ce slug dans la même langue ; `details.locale` vaut `fr` ou `en`; et sur `POST`/`PUT /places` (DEC-039) : un autre lieu porte déjà ce slug dans la langue — un slug vide n'est jamais en collision |
 | `SLUG_REQUIRED_WHILE_PUBLISHED` | 409 | `PUT /audience-pages/{id}` : le corps efface le slug d'une langue encore publiée ; `details.locale` vaut `fr` ou `en` — il faut dépublier d'abord |
 | `ICON_INVALID` | 400 | `POST`/`PUT /audience-pages` : l'icône n'appartient pas au catalogue des pages d'audience |
-| `SECTION_ETRANGERE` | 422 | `PUT /audience-pages/{id}` et, avec `details.index` (DEC-038), `PUT /site-pages/{kind}` : un `id` de section du corps appartient à une autre page, ou n'existe pas |
-| `SECTION_DUPLIQUEE` | 422 | `PUT /audience-pages/{id}` et, avec `details.index` (DEC-038), `PUT /site-pages/{kind}` : le même `id` de section apparaît deux fois dans le corps |
-| `RICH_TEXT_INVALID` | 422 | `PUT /audience-pages/{id}`, `PUT /legal-pages/{kind}` et `PUT /site-pages/{kind}` (DEC-036, DEC-038) : le `body` d'une section sort du Markdown restreint ; `details` porte `locale` (`fr` ou `en`), `section` (rang à partir de 0) et `reason`, l'une des neuf raisons : `titre non autorisé`, `image non autorisée`, `HTML non autorisé`, `code non autorisé`, `citation non autorisée`, `tableau non autorisé`, `liste imbriquée non autorisée`, `règle horizontale non autorisée`, `lien non autorisé : seules les adresses https, internes ou mailto sont acceptées`. Rien n'est écrit ; sur `PUT /site-pages/{kind}`, `details` porte `block` (rang du bloc à partir de 0) à la place de `section`; sur `POST`/`PUT /places`, `details` porte `locale` et `reason` |
+| `SECTION_ETRANGERE` | 422 | `PUT /audience-pages/{id}` (section, bloc ou carte, DEC-041) et, avec `details.index` (DEC-038), `PUT /site-pages/{kind}` : un `id` de section, de bloc ou de carte du corps appartient à une autre page, ou n'existe pas |
+| `SECTION_DUPLIQUEE` | 422 | `PUT /audience-pages/{id}` (bloc ou carte, DEC-041) et, avec `details.index` (DEC-038), `PUT /site-pages/{kind}` : le même `id` de section, de bloc ou de carte apparaît deux fois dans le corps |
+| `RICH_TEXT_INVALID` | 422 | `PUT /audience-pages/{id}`, `PUT /legal-pages/{kind}` et `PUT /site-pages/{kind}` (DEC-036, DEC-038) : le `body` d'une section (pages légales) ou d'un bloc `media` sort du Markdown restreint ; `details` porte `locale` (`fr` ou `en`), `section` (rang à partir de 0) et `reason`, l'une des neuf raisons : `titre non autorisé`, `image non autorisée`, `HTML non autorisé`, `code non autorisé`, `citation non autorisée`, `tableau non autorisé`, `liste imbriquée non autorisée`, `règle horizontale non autorisée`, `lien non autorisé : seules les adresses https, internes ou mailto sont acceptées`. Rien n'est écrit ; sur `PUT /site-pages/{kind}` et `PUT /audience-pages/{id}` (DEC-041), `details` porte `block` (rang du bloc à partir de 0) à la place de `section`; sur `POST`/`PUT /places`, `details` porte `locale` et `reason` |
 | `PAGE_INCOMPLETE` | 409 | `PUT /audience-pages/{id}/publication/{locale}` : la langue visée n’a pas tout son texte (D5). Aussi sur les routes `legal-pages` (DEC-035) : `PUT …/publication/{locale}`, et `PUT /legal-pages/{kind}` qui rendrait incomplète une langue publiée — l’écriture est alors refusée ; `details.locale` vaut `fr` ou `en`. Même règle sur `site-pages` (DEC-038), et sur `PUT /site-pages/home` (DEC-040) : toute écriture qui laisserait une langue incomplète; et sur `surroundings` (DEC-039) : publication sans titre ou sans lieu publié dans la langue, ou titre vidé d'une langue publiée |
 | `PLACEHOLDER_REMAINING` | 409 | Routes `legal-pages` (DEC-035) : `PUT …/publication/{locale}`, ou `PUT /legal-pages/{kind}` sur une langue publiée, alors qu’un texte de la langue contient encore « À COMPLÉTER » ; `details.locale` vaut `fr` ou `en` |
-| `BLOCK_NOT_ALLOWED` | 422 | `PUT /site-pages/{kind}` (DEC-040) : un bloc vitrine (`audiences`, `surroundings`, `gallery`, `location`, `faq`) sur une autre page que `home` ; `details.index`. Rien n'est écrit |
-| `BUTTON_LABEL_TOO_LONG` | 422 | `PUT /site-pages/{kind}` (DEC-040) : libellé de bouton de plus de 60 caractères ; `details` vaut `{ locale, index }`. Rien n'est écrit |
+| `CARDS_COUNT` | 422 | `PUT /audience-pages/{id}` (DEC-041) : un bloc `cards` hors d'une à trois cartes ; `details.index`. Rien n'est écrit |
+| `BLOCK_NOT_ALLOWED` | 422 | `PUT /site-pages/{kind}` (DEC-040) : un bloc vitrine (`audiences`, `surroundings`, `gallery`, `location`, `faq`) sur une autre page que `home` ; `details.index`. Depuis DEC-041, aussi `PUT /audience-pages/{id}` : un bloc vitrine, ou tout bloc hors `media`, `quote`, `highlights`, `amenities`, `cards`, « n'est pas permis sur cette page » ; le bloc `cards` l'est sur les pages d'audience seulement. Rien n'est écrit |
+| `BUTTON_LABEL_TOO_LONG` | 422 | `PUT /site-pages/{kind}` (DEC-040) et `PUT /audience-pages/{id}` (DEC-041) : libellé de bouton de plus de 60 caractères ; `details` vaut `{ locale, index }`. Rien n'est écrit |
 | `HOME_ALWAYS_PUBLISHED` | 409 | `PUT`/`DELETE /site-pages/home/publication/{locale}` (DEC-040) : l'accueil est toujours en ligne |
-| `BLOCK_DUPLICATED` | 422 | `PUT /site-pages/{kind}` (DEC-038) : un second bandeau d'atouts (`highlights`) ou une seconde liste des équipements (`amenities`) dans la page — depuis DEC-040, aussi un second bloc vitrine du même type ; `details.index` désigne le second bloc (rang à partir de 0). Couvre aussi l'index d'unicité de la base (`23505`), atteint quand une seule requête déplace un bandeau ou une liste d'un bloc à l'autre — par exemple un corps qui ajoute un nouveau `highlights` (ou `amenities`) sans `id` tout en retypant l'ancien dans la même requête — deux écritures simultanées ne le déclenchent pas, le verrou de la page les sérialise. Rien n'est écrit |
-| `PHOTO_INVALID` | 422 | `PUT /site-pages/{kind}` (DEC-038) : une photo choisie n'existe pas dans la galerie ; `details` vaut `{ index }` (rang du bloc) ou `{ field: "heroPhotoId" }`. Rien n'est écrit; sur `POST`/`PUT /audience-pages` (DEC-040), `details.field = "cardPhotoId"`; sur `POST`/`PUT /places` (DEC-039) : photo inconnue, d'un autre bien ou de la collection `maison` — et, depuis DEC-039, une page du site ne désigne qu'une photo `maison` |
+| `BLOCK_DUPLICATED` | 422 | `PUT /site-pages/{kind}` (DEC-038) et `PUT /audience-pages/{id}` (DEC-041) : un second bandeau d'atouts (`highlights`) ou une seconde liste des équipements (`amenities`) dans la page — depuis DEC-040, aussi un second bloc vitrine du même type ; `details.index` désigne le second bloc (rang à partir de 0). Couvre aussi l'index d'unicité de la base (`23505`), atteint quand une seule requête déplace un bandeau ou une liste d'un bloc à l'autre — par exemple un corps qui ajoute un nouveau `highlights` (ou `amenities`) sans `id` tout en retypant l'ancien dans la même requête — deux écritures simultanées ne le déclenchent pas, le verrou de la page les sérialise. Rien n'est écrit |
+| `PHOTO_INVALID` | 422 | `PUT /site-pages/{kind}` (DEC-038) : une photo choisie n'existe pas dans la galerie ; `details` vaut `{ index }` (rang du bloc) ou `{ field: "heroPhotoId" }`. Rien n'est écrit; sur `POST`/`PUT /audience-pages` (DEC-040, DEC-041), `details.field = "cardPhotoId"` ou `"heroPhotoId"`, et, pour la photo d'une carte, `details` vaut `{ index, card }` (rangs du bloc et de la carte); sur `POST`/`PUT /places` (DEC-039) : photo inconnue, d'un autre bien ou de la collection `maison` — et, depuis DEC-039, une page du site ne désigne qu'une photo `maison` |
 | `HIGHLIGHTS_TOO_MANY` | 422 | `PUT /api/admin/highlights` : plus de six atouts (DEC-037) |
 | `ICON_INVALID` | 400 | `PUT /api/admin/highlights` : icône hors catalogue ou vide ; `details.index` désigne l'atout (DEC-037) |
 | `HIGHLIGHT_ETRANGER` | 422 | `PUT /api/admin/highlights` : un `id` du corps n'existe pas ou appartient à un autre bien ; `details.index` (DEC-037) |

@@ -1080,3 +1080,48 @@ modifié », catégorie « contenu »), puisqu'il part en ligne aussitôt.
 
 **Mise en ligne.** L'ordre est **backend, puis dashboard, puis site** : la migration 00029 crée
 l'accueil, et un site déployé avant elle afficherait la page « indisponible ».
+
+## DEC-041 — Les pages d'audience se composent en blocs ; quatre audiences naissent de la maquette (2026-10-13)
+
+**Contexte.** La maquette Figma dessine quatre pages d'audience — Groupes, Cyclistes, Touristes,
+Travailleurs — sur un même gabarit : grand visuel avec bouton, image et texte avec liste à puces,
+citation, rangée de trois cartes illustrées. Le modèle des pages d'audience (DEC-032), un titre
+puis des sections de texte, ne savait rendre ni l'image, ni la citation, ni les cartes.
+
+**Décision.**
+
+1. **Les pages d'audience se composent en blocs**, avec l'éditeur et les composants de « Le 115 »
+   (DEC-038). Les sections disparaissent : chacune est devenue un bloc « image et texte » sans
+   photo, dans le même ordre.
+2. **Blocs propres aux pages d'audience** (`audience_page_block`), calqués sur ceux des pages du
+   site, avec les mêmes règles ; pas de fusion des deux sortes de pages.
+3. **Un bloc neuf, « cartes »** : un en-tête facultatif (surtitre, titre, chapeau) et une à trois
+   cartes (photo, titre, sous-titre, texte). Réservé aux pages d'audience tant que personne ne le
+   demande ailleurs. Permis aussi : image et texte, citation, bandeau d'atouts, liste des
+   équipements ; les blocs vitrine de l'accueil ne le sont pas.
+4. **Une photo de grand visuel par page**, facultative, de la Maison ou des Environs ; sans elle,
+   la photo principale.
+5. **Quatre pages naissent** du texte de la maquette, **non publiées et sans photo**, l'anglais
+   écrit pour l'occasion et à relire. **Aucun fait n'a été corrigé** : la capacité annoncée
+   (12 couchages, 6 chambres, contre 8 personnes sur la fiche du bien), les services vélo, la
+   fibre, les faits locaux sont à confirmer avant publication (`le115-backend/docs/DEBTS.md`).
+   Les quatre citations de naissance **gardent leurs guillemets**, comme la maquette ; le site
+   n'en ajoute pas. Le bloc image et texte de naissance place la photo à gauche, comme la maquette.
+6. **« Familles » reste**, convertie ; la maquette ne la dessine pas, « Groupes » visant aussi les
+   familles nombreuses. La garder est une décision de contenu.
+7. **Les icônes des quatre audiences sont celles de la maquette.**
+8. **Le bouton « Réserver » de bas de page quitte les pages d'audience**, absent de la maquette ;
+   restent celui du grand visuel et celui de l'en-tête.
+9. **Transition.** Le temps que le site soit déployé, l'API publique garde un champ `sections`
+   calculé à partir des blocs image et texte, pour que le site déjà en ligne continue d'afficher
+   les pages ; le nouveau site ne le lit plus. L'API d'administration, elle, ne parle plus
+   `sections`.
+
+**Mise en ligne.** Ordre **backend, dashboard, site** : le dashboard est fusionné avant le site,
+dont le test de garde des icônes lit le catalogue du dashboard. La migration 00030 refuse de
+s'appliquer si une page d'audience occupe déjà `groupes`, `groups`, `cyclistes`, `cyclists`,
+`touristes`, `tourists`, `travailleurs` ou `working-stays` (sauf si elle porte déjà la paire
+FR/EN d'une des quatre audiences : elle est alors tenue pour déjà née et sautée). Le temps que le
+site soit déployé, l'ancien site lit `sections`. **Dette** : retirer ce champ une fois le site
+déployé. Entre le déploiement du backend et celui du dashboard, l'ancien dashboard ne peut plus
+enregistrer une page d'audience : backend et dashboard se déploient ensemble.

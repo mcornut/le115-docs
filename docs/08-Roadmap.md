@@ -33,9 +33,9 @@
   l’**exposition publique des règles de séjour**. (Le **formulaire de contact**, écarté
   alors, est livré depuis par B1 — voir plus bas, DEC-035.) L’**édition des pages d’audience
   depuis le dashboard**, décidée le 2026-08-16, est en revanche livrée (DEC-032,
-  chantier du 2026-08-31) : c’était le préalable aux quatre pages restantes (groupe
-  d’amis, tourisme et culture, cyclistes, télétravail), qui restent elles-mêmes à
-  écrire — la capacité de les créer existe, leur contenu non.
+  chantier du 2026-08-31) : c’était le préalable aux quatre pages restantes, **nées depuis de la
+  maquette** (Groupes, Cyclistes, Touristes, Travailleurs — DEC-041), non publiées : à relire,
+  faits compris, à illustrer, puis à publier.
 
   Cette absence se paie désormais comptant : le calendrier ne peut annoncer ni la durée
   minimale ni les jours d’arrivée autorisés, faute de route publique qui les expose. Le
@@ -102,6 +102,14 @@
   environs ; la galerie, la localisation, la FAQ et les équipements deviennent des blocs à
   remettre au besoin. Le menu masque les pages non publiées. À la mise en ligne, ordre backend,
   dashboard, site.
+
+  Les **pages d’audience en blocs** sont livrées le **2026-10-13** (DEC-041) : même gabarit
+  que la maquette — grand visuel, image et texte, citation, cartes —, et les quatre audiences de
+  la maquette naissent non publiées, sans photo. Avant de les publier, la propriétaire confirme
+  les faits repris de la maquette (capacité, services vélo, fibre, faits locaux), relit
+  l’anglais, choisit ses photos. À la mise en ligne, ordre backend, dashboard, site, après avoir
+  vérifié qu’aucune page d’audience n’occupe les huit adresses neuves (la migration 00030 refuse
+  sinon). **Dette** : le champ `sections` de transition, à retirer une fois le site déployé.
 - Dashboard admin (SPA séparée, déploiement même origine que l’API, mono-bien — cf. DEC-014, DEC-015), treize écrans :
   - Tableau de bord (accueil — cf. DEC-018)
   - Calendrier
