@@ -1123,5 +1123,8 @@ s'appliquer si une page d'audience occupe déjà `groupes`, `groups`, `cyclistes
 `touristes`, `tourists`, `travailleurs` ou `working-stays` (sauf si elle porte déjà la paire
 FR/EN d'une des quatre audiences : elle est alors tenue pour déjà née et sautée). Le temps que le
 site soit déployé, l'ancien site lit `sections`. **Dette** : retirer ce champ une fois le site
-déployé. Entre le déploiement du backend et celui du dashboard, l'ancien dashboard ne peut plus
-enregistrer une page d'audience : backend et dashboard se déploient ensemble.
+déployé. Entre le déploiement du backend et celui du dashboard, l'éditeur d'une page d'audience de
+l'ancien dashboard **ne s'ouvre plus** (`sections` est absent de la réponse) ; la liste des pages reste
+lisible et aucune donnée n'est perdue, puisqu'un `PUT` sans `blocks` est refusé en 400. Le backend ne
+peut donc pas partir seul : backend et dashboard se déploient ensemble, et le dashboard attend sa
+tâche des icônes.

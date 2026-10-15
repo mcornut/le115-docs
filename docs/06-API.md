@@ -967,6 +967,14 @@ champ d'un autre type sur `cards` → `400 INVALID_REQUEST`, `details: { index }
 bouton de plus de 60 caractères → `422 BUTTON_LABEL_TOO_LONG` ; photo de carte hors des deux
 photothèques du bien → `422 PHOTO_INVALID`, `details: { index, card }`.
 
+**Refus de forme** (avant toute écriture, rien n'est écrit) : `blocks` est **requis** — absent ou
+`null` → `400 INVALID_REQUEST` (un tableau vide retire tous les blocs ; c'est ce qui protège la page
+contre un client qui ne parle pas encore `blocks`, dont l'ancien dashboard) ; plus de 50 blocs →
+`400 INVALID_REQUEST`, sans `details` ; un `id` de carte ou de photo de carte mal formé →
+`400 INVALID_REQUEST`, `details: { index, card }` (rangs du bloc et de la carte, à partir de 0) ; sinon
+mêmes refus que `PUT /api/admin/site-pages/{kind}`. La photo d'un bloc `media` doit venir de la
+collection `maison` : sinon `422 PHOTO_INVALID`, `details: { index }`.
+
 **Chaque `body` de bloc `media` est validé** (DEC-036), français puis anglais, dans l'ordre des
 blocs : un corps hors du format rend `422 RICH_TEXT_INVALID` avec
 `details: { "locale": "fr" | "en", "block": <rang à partir de 0>, "reason": "…" }`, et
@@ -1401,7 +1409,7 @@ Codes métier stables :
 
 | Code | HTTP | Sens |
 |---|---:|---|
-| `INVALID_REQUEST` | 400 | Corps/paramètres invalides (dates mal formées, email manquant/invalide…). **Trop large sur `POST /stay-requests`** : il ne distingue pas un email refusé d’un corps invalide ou trop gros — cf. la note sous cet endpoint ; sur `PUT /site-pages/{kind}` (DEC-038) : `hero` ou `blocks` absent ou `null`, type de bloc inconnu, `id` non UUID, clé étrangère au type du bloc — avec `details.index` (rang du bloc, à partir de 0) ou `details.field` (`heroPhotoId`) ; plus de 50 blocs, sans `details`; sur `PUT /audience-pages/{id}` (DEC-041) : une carte sur un bloc d'un autre type que `cards`, avec `details.index`; sur `/places` et `/surroundings` (DEC-039) : champ absent ou `null`, langue inconnue, `id` non UUID ; sur `GET /photos` et `POST /photos/reorder`, `collection` inconnue |
+| `INVALID_REQUEST` | 400 | Corps/paramètres invalides (dates mal formées, email manquant/invalide…). **Trop large sur `POST /stay-requests`** : il ne distingue pas un email refusé d’un corps invalide ou trop gros — cf. la note sous cet endpoint ; sur `PUT /site-pages/{kind}` (DEC-038) : `hero` ou `blocks` absent ou `null`, type de bloc inconnu, `id` non UUID, clé étrangère au type du bloc — avec `details.index` (rang du bloc, à partir de 0) ou `details.field` (`heroPhotoId`) ; plus de 50 blocs, sans `details`; sur `PUT /audience-pages/{id}` (DEC-041) : `blocks` absent ou `null`, plus de 50 blocs (sans `details`), une carte sur un bloc d'un autre type que `cards` (`details.index`), un `id` de carte ou de photo de carte mal formé (`details: { index, card }`); sur `/places` et `/surroundings` (DEC-039) : champ absent ou `null`, langue inconnue, `id` non UUID ; sur `GET /photos` et `POST /photos/reorder`, `collection` inconnue |
 | `UNAUTHORIZED` | 401 | Authentification requise ou identifiants/session invalides |
 | `CSRF_INVALID` | 403 | En-tête `X-CSRF-Token` absent ou ne correspondant pas au jeton de la session courante, sur une écriture admin |
 | `PROPERTY_NOT_FOUND` | 404 | Bien introuvable |
@@ -1429,7 +1437,7 @@ Codes métier stables :
 | `BUTTON_LABEL_TOO_LONG` | 422 | `PUT /site-pages/{kind}` (DEC-040) et `PUT /audience-pages/{id}` (DEC-041) : libellé de bouton de plus de 60 caractères ; `details` vaut `{ locale, index }`. Rien n'est écrit |
 | `HOME_ALWAYS_PUBLISHED` | 409 | `PUT`/`DELETE /site-pages/home/publication/{locale}` (DEC-040) : l'accueil est toujours en ligne |
 | `BLOCK_DUPLICATED` | 422 | `PUT /site-pages/{kind}` (DEC-038) et `PUT /audience-pages/{id}` (DEC-041) : un second bandeau d'atouts (`highlights`) ou une seconde liste des équipements (`amenities`) dans la page — depuis DEC-040, aussi un second bloc vitrine du même type ; `details.index` désigne le second bloc (rang à partir de 0). Couvre aussi l'index d'unicité de la base (`23505`), atteint quand une seule requête déplace un bandeau ou une liste d'un bloc à l'autre — par exemple un corps qui ajoute un nouveau `highlights` (ou `amenities`) sans `id` tout en retypant l'ancien dans la même requête — deux écritures simultanées ne le déclenchent pas, le verrou de la page les sérialise. Rien n'est écrit |
-| `PHOTO_INVALID` | 422 | `PUT /site-pages/{kind}` (DEC-038) : une photo choisie n'existe pas dans la galerie ; `details` vaut `{ index }` (rang du bloc) ou `{ field: "heroPhotoId" }`. Rien n'est écrit; sur `POST`/`PUT /audience-pages` (DEC-040, DEC-041), `details.field = "cardPhotoId"` ou `"heroPhotoId"`, et, pour la photo d'une carte, `details` vaut `{ index, card }` (rangs du bloc et de la carte); sur `POST`/`PUT /places` (DEC-039) : photo inconnue, d'un autre bien ou de la collection `maison` — et, depuis DEC-039, une page du site ne désigne qu'une photo `maison` |
+| `PHOTO_INVALID` | 422 | `PUT /site-pages/{kind}` (DEC-038) : une photo choisie n'existe pas dans la galerie ; `details` vaut `{ index }` (rang du bloc) ou `{ field: "heroPhotoId" }`. Rien n'est écrit; sur `POST`/`PUT /audience-pages` (DEC-040, DEC-041), `details.field = "cardPhotoId"` ou `"heroPhotoId"`, et, pour la photo d'une carte, `details` vaut `{ index, card }` (rangs du bloc et de la carte), et, pour la photo d'un bloc `media` hors de la collection `maison`, `details` vaut `{ index }`; sur `POST`/`PUT /places` (DEC-039) : photo inconnue, d'un autre bien ou de la collection `maison` — et, depuis DEC-039, une page du site ne désigne qu'une photo `maison` |
 | `HIGHLIGHTS_TOO_MANY` | 422 | `PUT /api/admin/highlights` : plus de six atouts (DEC-037) |
 | `ICON_INVALID` | 400 | `PUT /api/admin/highlights` : icône hors catalogue ou vide ; `details.index` désigne l'atout (DEC-037) |
 | `HIGHLIGHT_ETRANGER` | 422 | `PUT /api/admin/highlights` : un `id` du corps n'existe pas ou appartient à un autre bien ; `details.index` (DEC-037) |
