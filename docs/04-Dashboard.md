@@ -527,7 +527,7 @@ Photo « Extérieur » ajoutée (photo 5c6d7e8f)
 ## Pages
 
 L'écran **Pages** (`/pages`) édite les pages d'audience du site public — les
-pages « pour qui » (« Familles », « Cyclistes »…) — depuis un module à part
+pages « pour qui » (« Cyclistes », « Groupes »…) — depuis un module à part
 entière (DEC-032). Leur texte n'a jamais vécu dans ce dashboard avant ce
 chantier : jusque-là il vivait dans le dépôt du site, en fichiers que le
 propriétaire ne pouvait ni lire ni corriger.
