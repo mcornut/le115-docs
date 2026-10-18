@@ -198,7 +198,7 @@ Response `200` :
 
 Les blocs vitrine n’embarquent pas leurs données : le site les lit dans `GET /property`,
 `GET /audience-pages` et `GET /surroundings`. Le bouton est renvoyé tel qu’enregistré ; le site le
-masque si sa cible n’est pas publiée. Dans le groupe des lectures publiques à 60 / minute. Si
+masque si sa cible n’est pas publiée. Dans le groupe des lectures de contenu à 300 / minute. Si
 l’accueil est illisible côté serveur, la réponse est une `500` : le site rend alors sa page
 « indisponible ».
 
@@ -1473,7 +1473,8 @@ route à l’autre :
 
 | Portée | Limite | Pourquoi |
 |---|---|---|
-| Lectures JSON publiques — `GET /property`, `GET /availability`, `GET /audience-pages`, `GET /legal-pages`, `GET /home`, `GET /site-pages`, `GET /surroundings`, `POST /quote` | 60 / minute | plafond général de l’API publique |
+| Lectures de contenu — `GET /property`, `GET /audience-pages`, `GET /legal-pages`, `GET /home`, `GET /site-pages`, `GET /surroundings` | 300 / minute | le site les fait côté serveur sous l’IP du visiteur, cinq à six par page ; à 60, une navigation rapide les épuisait et le site s’affichait « momentanément indisponible » (2026-10-19) |
+| Calendrier et devis — `GET /availability`, `POST /quote` | 60 / minute | calculés à chaque appel ; compteur à part |
 | `POST /stay-requests` | 10 / heure | bien plus strict que les lectures ci-dessus : chaque appel déclenche **deux** envois SMTP, dont un vers une adresse **fournie par l’appelant**. Le domaine expéditeur porte un DMARC en rejet strict — un abus ne ferait donc pas que du bruit, il ferait mettre le domaine expéditeur en liste noire, après quoi le site cesse de notifier quoi que ce soit, silencieusement. Dix plutôt que cinq laisse de la place à un foyer, un bureau, ou un NAT d’opérateur mobile partageant une IP entre de nombreux abonnés, sans changer la donne côté abus |
 | `POST /contact-messages` | 10 / heure | même raison que les demandes de séjour : chaque appel déclenche un envoi SMTP, et un abus ferait mettre le domaine expéditeur en liste noire. Un limiteur **à part**, donc un **compteur propre** : dix demandes de séjour n’épuisent pas le formulaire de contact, ni l’inverse (DEC-035) |
 | `GET /media/{id}` | 600 / minute **et** 20 / seconde — les deux fenêtres se cumulent | la fenêtre minute borne le débit soutenu ; la fenêtre seconde borne la rafale que la minute seule laisse passer à son ouverture (un audit de sécurité avait mesuré 75 requêtes rapides sans un seul refus) |
