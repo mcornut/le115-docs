@@ -151,7 +151,7 @@ Contenus éditoriaux traduits (modèle EAV).
 
 Champs :
 - `entity_type` : type d'entité (`property`, `amenity`, `faq_item`, `photo`, `additional_fee`,
-  `stay_rule`, `audience_page`, `audience_page_section`, `legal_page`, `legal_page_section`,
+  `stay_rule`, `audience_page`, `audience_page_block`, `audience_page_block_card`, `legal_page`, `legal_page_section`,
   `highlight`, `site_page`, `site_page_block`, `place`, `surroundings_page`)
 - `entity_id` : UUID de l'entité
 - `locale` : `fr` ou `en`
@@ -176,8 +176,9 @@ Champs par entité :
 | `audience_page` | `nav_label` | « Familles » / « Families » |
 | `audience_page` | `title` | « La maison en famille » |
 | `audience_page` | `intro` | « Une cour close, une piscine... » |
-| `audience_page_section` | `heading` | « Pour les enfants » |
-| `audience_page_section` | `body` | « La cour est close et **sans vis-à-vis**. » — Markdown restreint (DEC-036) |
+| `audience_page_block` | `title` | « Les enfants y sont chez eux » |
+| `audience_page_block` | `body` | « La cour est close et **sans vis-à-vis**. » — Markdown restreint (DEC-036) |
+| `audience_page_block_card` | `subtitle` | « Un village à découvrir à pied » |
 | `legal_page` | `title` | « Mentions légales » / « Legal notice » |
 | `legal_page_section` | `heading` | « Éditeur du site » |
 | `legal_page_section` | `body` | Le texte de la section, en Markdown restreint (DEC-036) ; une ligne vide sépare deux paragraphes |
@@ -259,25 +260,30 @@ Question / réponse affichée sur la landing.
 
 Chaque question est traduisible.
 
-### AudiencePage / AudiencePageSection / AudiencePageLocale
+### AudiencePage / AudiencePageBlock / AudiencePageLocale
 
 Pages « pour qui » du site public (« Familles », « Cyclistes »…), éditables et
 créables depuis le dashboard (DEC-032) — ce ne sont **pas** des colonnes de
 `Property` : un agrégat à elles, publié langue par langue.
 
 `AudiencePage` :
-- `icon` (catalogue fermé propre aux pages, dix-sept codes — distinct de celui
+- `icon` (catalogue fermé propre aux pages, vingt et un codes, `guests` et les quatre icônes d'audience compris — distinct de celui
   des équipements, qui n'a pas `guests`) ;
 - `sort_order` ;
 - `card_photo_id` : photo de la carte de l'accueil, **facultative**, de la collection `maison` ou
-  `environs` du même bien, `ON DELETE SET NULL` ; hors complétude (DEC-040).
+  `environs` du même bien, `ON DELETE SET NULL` ; hors complétude (DEC-040) ;
+- `hero_photo_id` : photo du grand visuel, **facultative**, de la collection `maison` ou
+  `environs` du même bien, `ON DELETE SET NULL` ; hors complétude (DEC-041).
 
 `AudiencePage` ne porte plus de `slug` : l'adresse d'une page est désormais un
 contenu **par langue** (DEC-033), portée par `AudiencePageLocale`.
 
-`AudiencePageSection` : les paragraphes de la page, une table fille — pas un
-document JSONB par langue, pour rester fidèle à la convention EAV du projet.
-Chaque section a son `sort_order`.
+`AudiencePageBlock` (DEC-041) : les blocs de la page, calqués sur `SitePageBlock` — `sort_order`,
+`type` (`media`, `quote`, `highlights`, `amenities`, `cards`), `photo_id` et `image_side` (bloc
+`media`, photo de la Maison), `button_target`. `highlights` et `amenities` au plus une fois.
+`AudiencePageBlockCard` : les cartes d'un bloc `cards`, une à trois — `sort_order`, `photo_id`
+(Maison ou Environs). Les sections d'avant DEC-041 sont devenues des blocs `media` (migration
+00030) ; la table `audience_page_section` n'existe plus.
 
 `AudiencePageLocale` : une ligne `(page_id, locale, slug, published_at)` par
 langue — **la ligne ne signifie plus « publiée » mais « la page a une identité
@@ -288,19 +294,20 @@ seul à porter la publication : une langue qui a un slug mais aucun
 `published_at` reste un brouillon. **Aucun repli** : une page publiée en
 français seulement rend un 404 sur son adresse anglaise, jamais le texte
 français (DEC-032). Une langue ne se publie pas tant qu'un champ requis — le
-slug (DEC-033), le libellé d'onglet, le titre, le chapeau, ou l'intitulé/le
-corps d'une section — est vide, ni tant que la page n'a aucune section.
+slug (DEC-033), le libellé d'onglet, le titre, le chapeau, ou un champ
+requis d'un bloc (titre et corps d'un image et texte, texte d'une citation, titre et texte de
+chaque carte) — est vide, ni tant que la page n'a aucun bloc.
 
-Les textes (`nav_label`, `title`, `intro` de la page ; `heading`, `body` de
-chaque section) vivent dans `LocalizedContent`, comme le reste de l'éditorial
-— voir la table ci-dessus. La suppression d'une page cascade ses sections et
+Les textes (`nav_label`, `title`, `intro` de la page ; `eyebrow`, `title`,
+`body`, `text`, `lede`, `button_label` d'un bloc ; `title`, `subtitle`, `text` d'une carte) vivent dans `LocalizedContent`, comme le reste de l'éditorial
+— voir la table ci-dessus. La suppression d'une page cascade ses blocs, leurs cartes et
 ses lignes de publication ; les lignes `LocalizedContent`, polymorphes et sans
 clé étrangère, sont supprimées par l'application dans la même transaction.
 
-Le `body` d'une section est du **Markdown restreint** (DEC-036) : gras, italique, liens
+Le `body` d'un bloc `media` est du **Markdown restreint** (DEC-036) : gras, italique, liens
 (`https://`, `/fr/`, `/en/`, `mailto:`), listes à puces ou numérotées sur un niveau. Il est
 validé à l'écriture ; tout le reste est refusé (`422 RICH_TEXT_INVALID`). Les autres champs
-(`nav_label`, `title`, `intro`, `heading`) restent du texte simple.
+(`nav_label`, `title`, `intro`, en-têtes et textes des cartes) restent du texte simple.
 
 ### LegalPage / LegalPageSection / LegalPageLocale
 

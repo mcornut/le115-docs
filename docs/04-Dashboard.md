@@ -539,8 +539,8 @@ qui masquerait le cas le plus fréquent, une langue publiée et l'autre pas
 encore écrite (D3). Le pied de carte résume le décompte par langue (« 5
 pages, 5 publiées en français, aucune en anglais. »).
 
-**Écran d'édition, une seule carte.** Slug, icône, libellé d'onglet, titre,
-chapeau, puis les sections dans l'ordre — **une seule carte** plutôt que
+**Écran d'édition, une seule carte.** Slug, icône, photo de carte,
+photo du grand visuel, libellé d'onglet, titre, chapeau, puis les blocs dans l'ordre — **une seule carte** plutôt que
 deux (identité / paragraphes), à rebours de la règle de forme du dashboard
 (« un propos, une carte ») : arbitrage assumé du propriétaire, écrire une
 page étant un geste continu que la frontière entre deux cartes couperait. Le
@@ -561,7 +561,17 @@ publiée incomplète — le serveur la dépublie alors de lui-même et journalis
 le geste (`audience_page_unpublished`) plutôt que de refuser l'écriture, qui
 enfermerait le propriétaire dehors. L'écran réinvalide la liste après
 enregistrement : une langue redevenue « incomplète » et son champ manquant
-s'y lisent directement.
+s'y lisent directement. L'éditeur annonce la dépublication automatique avant d'enregistrer, et la
+confirme après.
+
+**Les blocs** (DEC-041) sont ceux de l'éditeur de « Le 115 » — image et texte (avec bouton
+facultatif, cible proposée par défaut : « Demande de séjour »), citation, bandeau d'atouts, liste
+des équipements — plus **Cartes** : surtitre, titre et chapeau en français et en anglais, puis une
+à trois cartes, chacune avec sa photo (onglets « Maison » / « Environs »), son titre, son
+sous-titre et son texte. « Ajouter une carte » est grisé à trois, « Retirer » à une ; chaque carte
+monte et descend. Un refus du serveur sur le nombre de cartes s'affiche « Un bloc de cartes en
+compte une à trois. ». La photo du grand visuel se choisit, comme la photo de carte, dans les
+deux photothèques.
 
 Le slug est refusé s'il appartient à une route fixe du site : cette page-là ne
 serait jamais atteinte. La liste réunit les routes fixes des **deux** langues
@@ -571,11 +581,11 @@ serait jamais atteinte. La liste réunit les routes fixes des **deux** langues
 `conditions-de-location`, `rental-terms`) —, si bien qu'un slug français ne peut pas
 non plus porter l'un des mots anglais, et réciproquement. Une seule liste pour
 les deux langues plutôt qu'une par langue : deux mots perdus comme slugs, contre
-une ambiguïté supprimée. L'icône vient d'un catalogue **propre aux pages** (dix-sept codes,
-`guests` compris) — pas celui des équipements, qui ne l'a pas.
+une ambiguïté supprimée. L'icône vient d'un catalogue **propre aux pages** (vingt et un codes,
+`guests` et les quatre icônes d'audience compris) — pas celui des équipements, qui ne l'a pas.
 
-**Le corps de chaque section est un éditeur de texte riche** (DEC-036), le même pour les
-pages d'audience et les pages légales, une fois par langue. Cinq boutons : **Gras**,
+**Le corps d'un bloc image et texte, comme celui d'une section de page légale, est un éditeur
+de texte riche** (DEC-036), une fois par langue. Cinq boutons : **Gras**,
 **Italique**, **Lien**, **Liste à puces**, **Liste numérotée** ; les raccourcis ⌘B et ⌘I ; Entrée
 ouvre un nouveau paragraphe, **Maj+Entrée** un simple retour à la ligne. La propriétaire ne voit
 jamais la syntaxe. Le bouton Lien demande une adresse, qui doit être `https://…`, interne
@@ -588,11 +598,10 @@ une liste imbriquée collée devient des listes qui se suivent, et les puces de 
 en paragraphes commençant par « · ».
 
 Si le serveur refuse tout de même un corps (**422 RICH_TEXT_INVALID**, par exemple après une
-écriture venue d'un autre client), l'écran affiche une phrase qui nomme la section et la
+écriture venue d'un autre client), l'écran affiche une phrase qui nomme le bloc (ou la section) et la
 langue et reprend la raison du serveur, puis garde la saisie.
 
-Hors V1 de ce module : le téléversement d'images et les images dans le texte, et le
-réordonnancement des sections.
+Hors V1 de ce module : le téléversement d'images et les images dans le texte.
 
 ### Pages légales
 
