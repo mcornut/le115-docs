@@ -1107,8 +1107,11 @@ puis des sections de texte, ne savait rendre ni l'image, ni la citation, ni les 
    fibre, les faits locaux sont à confirmer avant publication (`le115-backend/docs/DEBTS.md`).
    Les quatre citations de naissance **gardent leurs guillemets**, comme la maquette ; le site
    n'en ajoute pas. Le bloc image et texte de naissance place la photo à gauche, comme la maquette.
-6. **« Familles » reste**, convertie ; la maquette ne la dessine pas, « Groupes » visant aussi les
-   familles nombreuses. La garder est une décision de contenu.
+6. **« Familles » est supprimée** (amendé le 2026-10-18, décision de la propriétaire) : la
+   maquette ne la dessine pas, « Groupes » vise déjà les familles nombreuses. La migration 00030 la
+   supprime avec ses blocs, sa publication et ses textes ; ses adresses `/fr/familles` et
+   `/en/families` rendent 404 ; le retour arrière ne la recrée pas. Les quatre pages naissent dans
+   l'ordre des onglets de la maquette : Cyclistes, Groupes, Touristes, Travailleurs.
 7. **Les icônes des quatre audiences sont celles de la maquette.**
 8. **Le bouton « Réserver » de bas de page quitte les pages d'audience**, absent de la maquette ;
    restent celui du grand visuel et celui de l'en-tête.

@@ -173,7 +173,7 @@ Champs par entité :
 | `photo` | `alt` | « Vue de la piscine » |
 | `additional_fee` | `label` | « Ménage » / « Cleaning » |
 | `stay_rule` | `derogation_note` | « Hors samedi : nous contacter. » / « Outside Saturdays: please contact us. » |
-| `audience_page` | `nav_label` | « Familles » / « Families » |
+| `audience_page` | `nav_label` | « Cyclistes » / « Cyclists » |
 | `audience_page` | `title` | « La maison en famille » |
 | `audience_page` | `intro` | « Une cour close, une piscine... » |
 | `audience_page_block` | `title` | « Les enfants y sont chez eux » |
@@ -262,7 +262,7 @@ Chaque question est traduisible.
 
 ### AudiencePage / AudiencePageBlock / AudiencePageLocale
 
-Pages « pour qui » du site public (« Familles », « Cyclistes »…), éditables et
+Pages « pour qui » du site public (« Cyclistes », « Groupes »…), éditables et
 créables depuis le dashboard (DEC-032) — ce ne sont **pas** des colonnes de
 `Property` : un agrégat à elles, publié langue par langue.
 

@@ -105,7 +105,8 @@
 
   Les **pages d’audience en blocs** sont livrées le **2026-10-13** (DEC-041) : même gabarit
   que la maquette — grand visuel, image et texte, citation, cartes —, et les quatre audiences de
-  la maquette naissent non publiées, sans photo. Avant de les publier, la propriétaire confirme
+  la maquette naissent non publiées, sans photo, dans l’ordre de ses onglets ; « Familles », absente
+  de la maquette, est supprimée (2026-10-18). Avant de les publier, la propriétaire confirme
   les faits repris de la maquette (capacité, services vélo, fibre, faits locaux), relit
   l’anglais, choisit ses photos. À la mise en ligne, ordre backend, dashboard, site, après avoir
   vérifié qu’aucune page d’audience n’occupe les huit adresses neuves (la migration 00030 refuse
